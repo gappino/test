@@ -1,0 +1,11 @@
+numpy>=1.21.0
+torch>=1.9.0
+soundfile>=0.10.0
+huggingface_hub
+loguru
+transformers
+scipy
+matplotlib
+tqdm
+openai-whisper
+ffmpeg-python

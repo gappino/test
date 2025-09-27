@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سفارشی‌سازی ویدئو - Video Maker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .scene-item {
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .scene-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .scene-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .scene-number {
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .remove-scene {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .remove-scene:hover {
+            background: #c82333;
+        }
+
+        .add-scene {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .add-scene:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .status.loading { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+
+        .video-result {
+            margin-top: 30px;
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        video {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .voice-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .voice-option {
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .voice-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .voice-option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .voice-option h4 {
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .voice-option p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e1e5e9;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 سفارشی‌سازی ویدئو</h1>
+            <p>ویدئوی خود را با متن و تصاویر دلخواه بسازید</p>
+        </div>
+
+        <div class="content">
+            <form id="customVideoForm">
+                <!-- تنظیمات کلی -->
+                <div class="form-section">
+                    <h2>⚙️ تنظیمات کلی</h2>
+                    
+                    <div class="form-group">
+                        <label for="videoTitle">عنوان ویدئو:</label>
+                        <input type="text" id="videoTitle" placeholder="مثال: معرفی هوش مصنوعی" value="ویدئوی سفارشی من">
+                    </div>
+
+                    <div class="form-group">
+                        <label>انتخاب صدا:</label>
+                        <div class="voice-options">
+                            <div class="voice-option selected" data-voice="af_heart">
+                                <h4>صدای زن آمریکایی</h4>
+                                <p>طبیعی و گرم</p>
+                            </div>
+                            <div class="voice-option" data-voice="am_gentle_0">
+                                <h4>صدای مرد آمریکایی</h4>
+                                <p>ملایم و دوستانه</p>
+                            </div>
+                            <div class="voice-option" data-voice="bf_warm_0">
+                                <h4>صدای زن بریتانیایی</h4>
+                                <p>گرم و جذاب</p>
+                            </div>
+                            <div class="voice-option" data-voice="bm_confident_0">
+                                <h4>صدای مرد بریتانیایی</h4>
+                                <p>مطمئن و حرفه‌ای</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- صحنه‌ها -->
+                <div class="form-section">
+                    <h2>🎭 صحنه‌های ویدئو</h2>
+                    <div id="scenesContainer">
+                        <!-- صحنه اول -->
+                        <div class="scene-item" data-scene="0">
+                            <div class="scene-header">
+                                <div class="scene-number">1</div>
+                                <button type="button" class="remove-scene" onclick="removeScene(this)" style="display: none;">حذف صحنه</button>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>متن گوینده:</label>
+                                <textarea placeholder="متن مورد نظر خود را وارد کنید..." required>آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟</textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>پرامپت تصویر:</label>
+                                <input type="text" placeholder="توضیح تصویر مورد نظر..." value="futuristic AI city with advanced technology and glowing elements" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="add-scene" onclick="addScene()">➕ اضافه کردن صحنه جدید</button>
+                </div>
+
+                <button type="submit" class="generate-btn" id="generateBtn">
+                    🚀 تولید ویدئو
+                </button>
+            </form>
+
+            <div id="status"></div>
+            <div id="progressContainer" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p id="progressText" style="text-align: center; margin-top: 10px;">در حال پردازش...</p>
+            </div>
+            <div id="videoResult" class="video-result"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedVoice = 'af_heart';
+        let sceneCount = 1;
+
+        // انتخاب صدا
+        document.querySelectorAll('.voice-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.voice-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedVoice = this.dataset.voice;
+            });
+        });
+
+        // اضافه کردن صحنه جدید
+        function addScene() {
+            sceneCount++;
+            const scenesContainer = document.getElementById('scenesContainer');
+            const newScene = document.createElement('div');
+            newScene.className = 'scene-item';
+            newScene.dataset.scene = sceneCount - 1;
+            
+            newScene.innerHTML = `
+                <div class="scene-header">
+                    <div class="scene-number">${sceneCount}</div>
+                    <button type="button" class="remove-scene" onclick="removeScene(this)">حذف صحنه</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>متن گوینده:</label>
+                    <textarea placeholder="متن مورد نظر خود را وارد کنید..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>پرامپت تصویر:</label>
+                    <input type="text" placeholder="توضیح تصویر مورد نظر..." required>
+                </div>
+            `;
+            
+            scenesContainer.appendChild(newScene);
+            
+            // نمایش دکمه حذف برای صحنه‌های قبلی
+            if (sceneCount > 1) {
+                document.querySelectorAll('.remove-scene').forEach(btn => {
+                    btn.style.display = 'block';
+                });
+            }
+        }
+
+        // حذف صحنه
+        function removeScene(button) {
+            const scene = button.closest('.scene-item');
+            scene.remove();
+            sceneCount--;
+            
+            // به‌روزرسانی شماره صحنه‌ها
+            document.querySelectorAll('.scene-item').forEach((item, index) => {
+                item.querySelector('.scene-number').textContent = index + 1;
+                item.dataset.scene = index;
+            });
+            
+            // مخفی کردن دکمه حذف اگر فقط یک صحنه باقی مانده
+            if (sceneCount === 1) {
+                document.querySelectorAll('.remove-scene').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+            }
+        }
+
+        // نمایش وضعیت
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        // نمایش پیشرفت
+        function showProgress(percent, text) {
+            const progressContainer = document.getElementById('progressContainer');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            progressContainer.style.display = 'block';
+            progressFill.style.width = percent + '%';
+            progressText.textContent = text;
+        }
+
+        // مخفی کردن پیشرفت
+        function hideProgress() {
+            document.getElementById('progressContainer').style.display = 'none';
+        }
+
+        // ارسال فرم
+        document.getElementById('customVideoForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ در حال تولید...';
+            
+            try {
+                // جمع‌آوری داده‌های صحنه‌ها
+                const scenes = [];
+                const sceneItems = document.querySelectorAll('.scene-item');
+                
+                sceneItems.forEach((item, index) => {
+                    const textarea = item.querySelector('textarea');
+                    const input = item.querySelector('input[type="text"]');
+                    
+                    if (textarea.value.trim() && input.value.trim()) {
+                        scenes.push({
+                            scene_number: index + 1,
+                            speaker_text: textarea.value.trim(),
+                            visual_description: input.value.trim()
+                        });
+                    }
+                });
+                
+                if (scenes.length === 0) {
+                    throw new Error('لطفاً حداقل یک صحنه با متن و تصویر وارد کنید');
+                }
+                
+                showStatus(`🎬 شروع تولید ویدئو با ${scenes.length} صحنه...`, 'loading');
+                showProgress(10, 'آماده‌سازی داده‌ها...');
+                
+                // تولید تصاویر
+                showProgress(20, 'تولید تصاویر...');
+                const images = [];
+                for (let i = 0; i < scenes.length; i++) {
+                    const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(scenes[i].visual_description)}?width=1080&height=1920&model=flux&seed=${Math.floor(Math.random() * 1000000)}&nologo=true`;
+                    images.push({
+                        sceneIndex: i,
+                        imageUrl: imageUrl
+                    });
+                }
+                
+                showProgress(40, 'تولید صدا...');
+                
+                // ارسال درخواست تولید ویدئو سفارشی
+                const response = await fetch('/api/video/generate-custom-video', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: document.getElementById('videoTitle').value,
+                        scenes: scenes,
+                        voice: selectedVoice
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`خطا در تولید ویدئو: ${response.status} - ${errorText}`);
+                }
+                
+                showProgress(80, 'پردازش نهایی...');
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showProgress(100, 'تکمیل شد!');
+                    showStatus('🎉 ویدئو با موفقیت تولید شد!', 'success');
+                    
+                    const videoResult = document.getElementById('videoResult');
+                    videoResult.innerHTML = `
+                        <h3>📹 ویدئوی تولید شده:</h3>
+                        <video controls style="max-width: 100%; height: auto;">
+                            <source src="${result.data.video_url}" type="video/mp4">
+                            مرورگر شما از پخش ویدئو پشتیبانی نمی‌کند.
+                        </video>
+                        <div style="margin-top: 20px; padding: 20px; background: white; border-radius: 10px;">
+                            <p><strong>عنوان:</strong> ${document.getElementById('videoTitle').value}</p>
+                            <p><strong>مدت زمان:</strong> ${result.data.duration} ثانیه</p>
+                            <p><strong>تعداد صحنه‌ها:</strong> ${result.data.scenes_count}</p>
+                            <p><strong>رزولوشن:</strong> ${result.data.resolution}</p>
+                            <p><strong>صدا:</strong> ${selectedVoice}</p>
+                        </div>
+                    `;
+                    
+                    // اسکرول به نتیجه
+                    videoResult.scrollIntoView({ behavior: 'smooth' });
+                    
+                } else {
+                    throw new Error(result.error || 'خطا در تولید ویدئو');
+                }
+                
+            } catch (error) {
+                showStatus(`❌ خطا: ${error.message}`, 'error');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = '🚀 تولید ویدئو';
+                setTimeout(hideProgress, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

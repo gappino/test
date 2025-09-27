@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست ویسپر - تبدیل صدا به متن</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-area {
+            border: 3px dashed #007bff;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #0056b3;
+            background: #e3f2fd;
+        }
+
+        .upload-area.dragover {
+            border-color: #28a745;
+            background: #e8f5e8;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .option-group {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        .option-group label {
+            display: block;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .option-group select, .option-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,193,7,0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .result-section {
+            margin-bottom: 25px;
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-content {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-right: 4px solid #007bff;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .subtitle-content {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #c3e6cb;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .success.show {
+            display: block;
+        }
+
+        .file-info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        .file-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .file-info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 تست ویسپر</h1>
+            <p>تبدیل صدا به متن و تولید زیرنویس با هوش مصنوعی</p>
+        </div>
+
+        <div class="main-content">
+            <!-- File Upload Section -->
+            <div class="test-section">
+                <h2 class="section-title">
+                    📁 انتخاب فایل صوتی
+                </h2>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">🎵</div>
+                    <div class="upload-text">فایل صوتی خود را اینجا بکشید یا کلیک کنید</div>
+                    <div class="upload-hint">فرمت‌های پشتیبانی شده: WAV, MP3, M4A, FLAC (حداکثر 25MB)</div>
+                    <input type="file" id="audioFile" class="file-input" accept="audio/*">
+                </div>
+
+                <div class="file-info" id="fileInfo">
+                    <div class="file-info-item">
+                        <span>نام فایل:</span>
+                        <span id="fileName">-</span>
+                    </div>
+                    <div class="file-info-item">
+                        <span>اندازه فایل:</span>
+                        <span id="fileSize">-</span>
+                    </div>
+                    <div class="file-info-item">
+                        <span>نوع فایل:</span>
+                        <span id="fileType">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Options Section -->
+            <div class="test-section">
+                <h2 class="section-title">
+                    ⚙️ تنظیمات
+                </h2>
+                
+                <div class="options">
+                    <div class="option-group">
+                        <label for="language">زبان:</label>
+                        <select id="language">
+                            <option value="auto">تشخیص خودکار</option>
+                            <option value="fa">فارسی</option>
+                            <option value="en">انگلیسی</option>
+                            <option value="ar">عربی</option>
+                            <option value="fr">فرانسوی</option>
+                            <option value="de">آلمانی</option>
+                            <option value="es">اسپانیایی</option>
+                            <option value="zh">چینی</option>
+                        </select>
+                    </div>
+
+                    <div class="option-group">
+                        <label for="model">مدل:</label>
+                        <select id="model">
+                            <option value="tiny">سریع (Tiny)</option>
+                            <option value="base">متوسط (Base)</option>
+                            <option value="small">دقیق (Small)</option>
+                            <option value="medium">خیلی دقیق (Medium)</option>
+                            <option value="large">بیشترین دقت (Large)</option>
+                        </select>
+                    </div>
+
+                    <div class="option-group">
+                        <label for="subtitleFormat">فرمت زیرنویس:</label>
+                        <select id="subtitleFormat">
+                            <option value="srt">SRT</option>
+                            <option value="vtt">VTT</option>
+                            <option value="json">JSON</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="test-section">
+                <div class="buttons">
+                    <button class="btn btn-primary" id="transcribeBtn" onclick="transcribeAudio()">
+                        🎤 تبدیل به متن
+                    </button>
+                    <button class="btn btn-success" id="subtitleBtn" onclick="generateSubtitles()">
+                        📝 تولید زیرنویس
+                    </button>
+                    <button class="btn btn-warning" id="timestampsBtn" onclick="transcribeWithTimestamps()">
+                        ⏰ متن با زمان‌بندی
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>در حال پردازش...</p>
+            </div>
+
+            <!-- Error/Success Messages -->
+            <div class="error" id="errorMessage"></div>
+            <div class="success" id="successMessage"></div>
+
+            <!-- Results -->
+            <div class="results" id="results">
+                <!-- Transcription Result -->
+                <div class="result-section" id="transcriptionResult">
+                    <h3 class="result-title">
+                        📝 متن تبدیل شده
+                    </h3>
+                    <div class="result-content" id="transcriptionText"></div>
+                </div>
+
+                <!-- Language Detection -->
+                <div class="result-section" id="languageResult">
+                    <h3 class="result-title">
+                        🌍 زبان تشخیص داده شده
+                    </h3>
+                    <div class="result-content" id="detectedLanguage"></div>
+                </div>
+
+                <!-- Timestamps Result -->
+                <div class="result-section" id="timestampsResult">
+                    <h3 class="result-title">
+                        ⏰ بخش‌های زمانی
+                    </h3>
+                    <div class="result-content" id="timestampsText"></div>
+                </div>
+
+                <!-- Subtitles Result -->
+                <div class="result-section" id="subtitlesResult">
+                    <h3 class="result-title">
+                        📄 زیرنویس تولید شده
+                        <button class="btn btn-success" onclick="downloadSubtitles()" style="padding: 5px 10px; font-size: 0.8rem;">
+                            💾 دانلود
+                        </button>
+                    </h3>
+                    <div class="result-content subtitle-content" id="subtitlesText"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let currentSubtitles = null;
+
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('audioFile');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const fileType = document.getElementById('fileType');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            if (!file.type.startsWith('audio/')) {
+                showError('لطفاً یک فایل صوتی انتخاب کنید.');
+                return;
+            }
+
+            if (file.size > 25 * 1024 * 1024) {
+                showError('اندازه فایل نباید بیش از 25 مگابایت باشد.');
+                return;
+            }
+
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileType.textContent = file.type;
+            fileInfo.classList.add('show');
+            
+            hideMessages();
+            hideResults();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // API calls
+        async function transcribeAudio() {
+            if (!selectedFile) {
+                showError('لطفاً ابتدا یک فایل صوتی انتخاب کنید.');
+                return;
+            }
+
+            showLoading();
+            hideMessages();
+            hideResults();
+
+            try {
+                const formData = new FormData();
+                formData.append('audio', selectedFile);
+                formData.append('language', document.getElementById('language').value);
+                formData.append('model', document.getElementById('model').value);
+
+                const response = await fetch('/api/whisper/transcribe', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                hideLoading();
+
+                if (result.success) {
+                    showTranscriptionResult(result.data);
+                    showSuccess('تبدیل صدا به متن با موفقیت انجام شد!');
+                } else {
+                    showError('خطا در تبدیل صدا به متن: ' + (result.error || 'خطای نامشخص'));
+                }
+            } catch (error) {
+                hideLoading();
+                showError('خطا در ارتباط با سرور: ' + error.message);
+            }
+        }
+
+        async function transcribeWithTimestamps() {
+            if (!selectedFile) {
+                showError('لطفاً ابتدا یک فایل صوتی انتخاب کنید.');
+                return;
+            }
+
+            showLoading();
+            hideMessages();
+            hideResults();
+
+            try {
+                const formData = new FormData();
+                formData.append('audio', selectedFile);
+                formData.append('language', document.getElementById('language').value);
+                formData.append('model', document.getElementById('model').value);
+
+                const response = await fetch('/api/whisper/transcribe-with-timestamps', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                hideLoading();
+
+                if (result.success) {
+                    showTranscriptionWithTimestamps(result.data);
+                    showSuccess('تبدیل صدا به متن با زمان‌بندی با موفقیت انجام شد!');
+                } else {
+                    showError('خطا در تبدیل صدا به متن: ' + (result.error || 'خطای نامشخص'));
+                }
+            } catch (error) {
+                hideLoading();
+                showError('خطا در ارتباط با سرور: ' + error.message);
+            }
+        }
+
+        async function generateSubtitles() {
+            if (!selectedFile) {
+                showError('لطفاً ابتدا یک فایل صوتی انتخاب کنید.');
+                return;
+            }
+
+            showLoading();
+            hideMessages();
+            hideResults();
+
+            try {
+                const formData = new FormData();
+                formData.append('audio', selectedFile);
+                formData.append('language', document.getElementById('language').value);
+                formData.append('model', document.getElementById('model').value);
+                formData.append('format', document.getElementById('subtitleFormat').value);
+
+                const response = await fetch('/api/whisper/generate-subtitles', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                hideLoading();
+
+                if (response.ok) {
+                    const format = document.getElementById('subtitleFormat').value;
+                    
+                    if (format === 'json') {
+                        const result = await response.json();
+                        if (result.success) {
+                            currentSubtitles = result.data;
+                            showSubtitlesResult(result.data);
+                            showSuccess('زیرنویس با موفقیت تولید شد!');
+                        } else {
+                            showError('خطا در تولید زیرنویس: ' + (result.error || 'خطای نامشخص'));
+                        }
+                    } else {
+                        const subtitleContent = await response.text();
+                        currentSubtitles = subtitleContent;
+                        showSubtitlesResult(subtitleContent);
+                        showSuccess('زیرنویس با موفقیت تولید شد!');
+                    }
+                } else {
+                    const error = await response.json();
+                    showError('خطا در تولید زیرنویس: ' + (error.error || 'خطای نامشخص'));
+                }
+            } catch (error) {
+                hideLoading();
+                showError('خطا در ارتباط با سرور: ' + error.message);
+            }
+        }
+
+        // Result display functions
+        function showTranscriptionResult(data) {
+            document.getElementById('transcriptionText').textContent = data.text || 'متن یافت نشد';
+            document.getElementById('detectedLanguage').textContent = data.language || 'نامشخص';
+            
+            document.getElementById('transcriptionResult').style.display = 'block';
+            document.getElementById('languageResult').style.display = 'block';
+            document.getElementById('results').classList.add('show');
+        }
+
+        function showTranscriptionWithTimestamps(data) {
+            document.getElementById('transcriptionText').textContent = data.text || 'متن یافت نشد';
+            document.getElementById('detectedLanguage').textContent = data.language || 'نامشخص';
+            
+            let timestampsText = '';
+            if (data.segments && data.segments.length > 0) {
+                data.segments.forEach((segment, index) => {
+                    const start = formatTime(segment.start);
+                    const end = formatTime(segment.end);
+                    timestampsText += `${index + 1}. ${start} - ${end}: ${segment.text}\n`;
+                });
+            } else {
+                timestampsText = 'بخش‌های زمانی یافت نشد';
+            }
+            
+            document.getElementById('timestampsText').textContent = timestampsText;
+            
+            document.getElementById('transcriptionResult').style.display = 'block';
+            document.getElementById('languageResult').style.display = 'block';
+            document.getElementById('timestampsResult').style.display = 'block';
+            document.getElementById('results').classList.add('show');
+        }
+
+        function showSubtitlesResult(data) {
+            let subtitleContent = '';
+            if (typeof data === 'string') {
+                subtitleContent = data;
+            } else if (data.content) {
+                subtitleContent = data.content;
+            } else {
+                subtitleContent = 'زیرنویس یافت نشد';
+            }
+            
+            document.getElementById('subtitlesText').textContent = subtitleContent;
+            document.getElementById('subtitlesResult').style.display = 'block';
+            document.getElementById('results').classList.add('show');
+        }
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            } else {
+                return `${minutes}:${secs.toString().padStart(2, '0')}`;
+            }
+        }
+
+        function downloadSubtitles() {
+            if (!currentSubtitles) {
+                showError('هیچ زیرنویسی برای دانلود موجود نیست.');
+                return;
+            }
+
+            const format = document.getElementById('subtitleFormat').value;
+            const extension = format === 'json' ? 'json' : format;
+            const filename = `subtitles.${extension}`;
+            
+            let content = '';
+            if (typeof currentSubtitles === 'string') {
+                content = currentSubtitles;
+            } else if (currentSubtitles.content) {
+                content = currentSubtitles.content;
+            } else {
+                content = JSON.stringify(currentSubtitles, null, 2);
+            }
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showSuccess('زیرنویس با موفقیت دانلود شد!');
+        }
+
+        // UI helper functions
+        function showLoading() {
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('transcribeBtn').disabled = true;
+            document.getElementById('subtitleBtn').disabled = true;
+            document.getElementById('timestampsBtn').disabled = true;
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('show');
+            document.getElementById('transcribeBtn').disabled = false;
+            document.getElementById('subtitleBtn').disabled = false;
+            document.getElementById('timestampsBtn').disabled = false;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            document.getElementById('successMessage').classList.remove('show');
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.classList.add('show');
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('successMessage').classList.remove('show');
+        }
+
+        function hideResults() {
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('transcriptionResult').style.display = 'none';
+            document.getElementById('languageResult').style.display = 'none';
+            document.getElementById('timestampsResult').style.display = 'none';
+            document.getElementById('subtitlesResult').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+
+

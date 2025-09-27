@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست ساده ویسپر</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 تست ساده ویسپر</h1>
+        
+        <p>این صفحه برای تست سریع عملکرد ویسپر طراحی شده است.</p>
+        
+        <div>
+            <button class="btn" onclick="testTranscription()">🎤 تست تبدیل صدا به متن</button>
+            <button class="btn" onclick="testSubtitles()">📝 تست تولید زیرنویس</button>
+        </div>
+        
+        <div id="result"></div>
+        
+        <h3>📋 راهنمای استفاده:</h3>
+        <ol>
+            <li>به <a href="http://localhost:3001/whisper-test" target="_blank">صفحه تست کامل ویسپر</a> بروید</li>
+            <li>یک فایل صوتی آپلود کنید</li>
+            <li>تنظیمات را انتخاب کنید</li>
+            <li>روی دکمه‌های تست کلیک کنید</li>
+        </ol>
+        
+        <h3>🔗 لینک‌های مفید:</h3>
+        <ul>
+            <li><a href="http://localhost:3001" target="_blank">صفحه اصلی</a></li>
+            <li><a href="http://localhost:3001/whisper-test" target="_blank">تست کامل ویسپر</a></li>
+        </ul>
+    </div>
+
+    <script>
+        async function testTranscription() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="result">در حال تست...</div>';
+            
+            try {
+                // Create a simple test audio file (empty for now)
+                const formData = new FormData();
+                // You would add an actual audio file here for testing
+                
+                const response = await fetch('/api/whisper/transcribe', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `<div class="success">✅ تست موفق!<br>نتیجه: ${JSON.stringify(result, null, 2)}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ خطا: ${result.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ خطای ارتباط: ${error.message}</div>`;
+            }
+        }
+        
+        async function testSubtitles() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="result">در حال تست...</div>';
+            
+            try {
+                const formData = new FormData();
+                
+                const response = await fetch('/api/whisper/generate-subtitles', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<div class="success">✅ تست موفق!<br>سرور پاسخ داد.</div>`;
+                } else {
+                    const error = await response.json();
+                    resultDiv.innerHTML = `<div class="error">❌ خطا: ${error.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ خطای ارتباط: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
+
+

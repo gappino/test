@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test 3-Word Subtitles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .loading { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .video-result {
+            margin-top: 20px;
+            text-align: center;
+        }
+        video {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .subtitle-preview {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .subtitle-chunk {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Test 3-Word Subtitles</h1>
+        <p>This test will generate a video with subtitles split into 3-word chunks with smaller font size.</p>
+        
+        <div class="subtitle-preview">
+            <h3>📝 Subtitle Preview (3-word chunks):</h3>
+            <div id="subtitlePreview">
+                <span class="subtitle-chunk">Did you know</span>
+                <span class="subtitle-chunk">that artificial intelligence</span>
+                <span class="subtitle-chunk">is changing our</span>
+                <span class="subtitle-chunk">world today</span>
+            </div>
+        </div>
+        
+        <button onclick="testVideoGeneration()" id="generateBtn">🚀 Generate Test Video</button>
+        <button onclick="testSubtitleGeneration()" id="subtitleBtn">📝 Test Subtitle Generation</button>
+        
+        <div id="status"></div>
+        <div id="videoResult" class="video-result"></div>
+    </div>
+
+    <script>
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function setLoading(loading) {
+            document.getElementById('generateBtn').disabled = loading;
+            document.getElementById('subtitleBtn').disabled = loading;
+        }
+
+        async function testSubtitleGeneration() {
+            setLoading(true);
+            showStatus('🎤 Testing subtitle generation with 3-word chunks...', 'loading');
+            
+            try {
+                // Test TTS first
+                const ttsResponse = await fetch('/api/kokoro/text-to-speech', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: "Did you know that artificial intelligence is changing our world today?",
+                        voice: 'af_heart'
+                    })
+                });
+                
+                if (!ttsResponse.ok) {
+                    throw new Error(`TTS failed: ${ttsResponse.status}`);
+                }
+                
+                const ttsResult = await ttsResponse.json();
+                showStatus('✅ TTS generated successfully!', 'success');
+                
+                // Test Whisper transcription
+                const whisperResponse = await fetch('/api/whisper/transcribe-with-timestamps', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        audioUrl: ttsResult.data.audio_url,
+                        language: 'en'
+                    })
+                });
+                
+                if (!whisperResponse.ok) {
+                    throw new Error(`Whisper failed: ${whisperResponse.status}`);
+                }
+                
+                const whisperResult = await whisperResponse.json();
+                
+                if (whisperResult.success && whisperResult.data.segments) {
+                    showStatus(`✅ Whisper transcription successful! Generated ${whisperResult.data.segments.length} segments.`, 'success');
+                    
+                    // Show how text will be split
+                    const text = whisperResult.data.text;
+                    const words = text.split(/\s+/).filter(word => word.length > 0);
+                    const chunks = [];
+                    
+                    for (let i = 0; i < words.length; i += 3) {
+                        const chunk = words.slice(i, i + 3).join(' ');
+                        if (chunk.trim()) {
+                            chunks.push(chunk.trim());
+                        }
+                    }
+                    
+                    showStatus(`📝 Text will be split into ${chunks.length} chunks: ${chunks.join(' | ')}`, 'info');
+                } else {
+                    showStatus('⚠️ Whisper transcription completed but no segments generated', 'error');
+                }
+                
+            } catch (error) {
+                showStatus(`❌ Test failed: ${error.message}`, 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function testVideoGeneration() {
+            setLoading(true);
+            showStatus('🎬 Starting video generation with 3-word subtitles...', 'loading');
+            
+            try {
+                const testScript = {
+                    scenes: [
+                        {
+                            scene_number: 1,
+                            speaker_text: "Did you know that artificial intelligence is changing our world?",
+                            visual_description: "A futuristic city with AI technology"
+                        },
+                        {
+                            scene_number: 2,
+                            speaker_text: "From face recognition to content generation, AI is everywhere",
+                            visual_description: "Various AI applications in daily life"
+                        }
+                    ]
+                };
+
+                const testImages = [
+                    {
+                        sceneIndex: 0,
+                        imageUrl: "https://pollinations.ai/p/artificial%20intelligence%20city%20futuristic"
+                    },
+                    {
+                        sceneIndex: 1,
+                        imageUrl: "https://pollinations.ai/p/AI%20applications%20daily%20life%20technology"
+                    }
+                ];
+
+                const audioSettings = {
+                    voice: 'af_heart'
+                };
+
+                const response = await fetch('/api/video/generate-complete-video', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        script: testScript,
+                        images: testImages,
+                        audioSettings: audioSettings
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Video generation failed: ${response.status} - ${errorText}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus('🎉 Video generated successfully with 3-word subtitles!', 'success');
+                    
+                    const videoResult = document.getElementById('videoResult');
+                    videoResult.innerHTML = `
+                        <h3>📹 Generated Video:</h3>
+                        <video controls>
+                            <source src="${result.data.video_url}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <p><strong>Duration:</strong> ${result.data.duration} seconds</p>
+                        <p><strong>Scenes:</strong> ${result.data.scenes_count}</p>
+                        <p><strong>Resolution:</strong> ${result.data.resolution}</p>
+                    `;
+                } else {
+                    showStatus(`❌ Video generation failed: ${result.error}`, 'error');
+                }
+
+            } catch (error) {
+                showStatus(`❌ Video generation failed: ${error.message}`, 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+

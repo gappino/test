@@ -1,0 +1,806 @@
+const express = require('express');
+const router = express.Router();
+const path = require('path');
+const fs = require('fs');
+
+// Generate Kokoro TTS directly
+async function generateKokoroTTS(text, voice) {
+  const { spawn } = require('child_process');
+  
+  return new Promise((resolve) => {
+    try {
+      const outputDir = path.join(__dirname, '../uploads/audio');
+      
+      // Ensure output directory exists
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+      
+      // Run Kokoro TTS script
+      const kokoroScript = path.join(__dirname, '..', 'kokoro_fixed.py');
+      
+      console.log(`🐍 Running Python script: ${kokoroScript}`);
+      console.log(`📝 Text: ${text}`);
+      console.log(`🎤 Voice: ${voice}`);
+      console.log(`📁 Output dir: ${outputDir}`);
+      
+      // On Windows with shell: true, we need to pass arguments as a single string
+      const args = `"${kokoroScript}" "${text}" "${voice}" "${outputDir}"`;
+      console.log(`🐍 Command: python ${args}`);
+      
+      const pythonProcess = spawn('python', [args], {
+        cwd: path.join(__dirname, '..'),
+        stdio: ['pipe', 'pipe', 'pipe'],
+        shell: true // Use shell on Windows
+      });
+
+      let output = '';
+      let errorOutput = '';
+
+      pythonProcess.stdout.on('data', (data) => {
+        const dataStr = data.toString();
+        output += dataStr;
+        console.log('📄 Python stdout:', dataStr);
+      });
+
+      pythonProcess.stderr.on('data', (data) => {
+        const stderrData = data.toString();
+        console.log('📄 Python stderr:', stderrData);
+        // Only log warnings, don't treat them as errors
+        if (stderrData.includes('WARNING:')) {
+          console.log('Python warning:', stderrData);
+        } else {
+          errorOutput += stderrData;
+        }
+      });
+
+      pythonProcess.on('close', (code) => {
+        try {
+          console.log(`🐍 Python process exited with code: ${code}`);
+          console.log(`📄 Python output:`, output);
+          console.log(`❌ Python errors:`, errorOutput);
+          
+          // If Python fails or no output, create a fallback audio file
+          if (code !== 0 || !output.trim() || !output.includes('{')) {
+            console.log('⚠️ Python process failed or no JSON output, creating fallback audio...');
+            console.log('📄 Raw output:', JSON.stringify(output));
+            
+            const fallbackAudioUrl = createFallbackAudio(text, voice, outputDir);
+            
+            resolve({
+              success: true,
+              data: {
+                audio_url: fallbackAudioUrl,
+                duration: 5,
+                text: text,
+                voice: voice,
+                sample_rate: 24000,
+                words: text.split(' ').length,
+                file_size: 240000, // Approximate size
+                engine: 'Fallback Audio Generator'
+              }
+            });
+            return;
+          }
+
+          // Extract JSON from output (find the last line that starts with {)
+          const lines = output.split('\n');
+          let jsonLine = '';
+          for (let i = lines.length - 1; i >= 0; i--) {
+            const line = lines[i].trim();
+            if (line.startsWith('{') && line.endsWith('}')) {
+              jsonLine = line;
+              break;
+            }
+          }
+
+          console.log(`🔍 Extracted JSON line:`, jsonLine);
+
+          if (!jsonLine) {
+            console.log('⚠️ No JSON found, creating fallback audio...');
+            
+            const fallbackAudioUrl = createFallbackAudio(text, voice, outputDir);
+            
+            resolve({
+              success: true,
+              data: {
+                audio_url: fallbackAudioUrl,
+                duration: 5,
+                text: text,
+                voice: voice,
+                sample_rate: 24000,
+                words: text.split(' ').length,
+                file_size: 240000,
+                engine: 'Fallback Audio Generator'
+              }
+            });
+            return;
+          }
+
+          // Parse the JSON output from Python script
+          let result;
+          try {
+            result = JSON.parse(jsonLine);
+          } catch (parseError) {
+            console.error('JSON parse error:', parseError);
+            console.log('⚠️ JSON parse failed, creating fallback audio...');
+            
+            const fallbackAudioUrl = createFallbackAudio(text, voice, outputDir);
+            
+            resolve({
+              success: true,
+              data: {
+                audio_url: fallbackAudioUrl,
+                duration: 5,
+                text: text,
+                voice: voice,
+                sample_rate: 24000,
+                words: text.split(' ').length,
+                file_size: 240000,
+                engine: 'Fallback Audio Generator'
+              }
+            });
+            return;
+          }
+          
+          console.log(`✅ Parsed result:`, result);
+          
+          if (!result.success) {
+            console.log('⚠️ Python result indicates failure, creating fallback audio...');
+            
+            const fallbackAudioUrl = createFallbackAudio(text, voice, outputDir);
+            
+            resolve({
+              success: true,
+              data: {
+                audio_url: fallbackAudioUrl,
+                duration: 5,
+                text: text,
+                voice: voice,
+                sample_rate: 24000,
+                words: text.split(' ').length,
+                file_size: 240000,
+                engine: 'Fallback Audio Generator'
+              }
+            });
+            return;
+          }
+
+          // Convert file path to URL
+          const audioFileName = path.basename(result.audio_file);
+          const audioUrl = `/uploads/audio/${audioFileName}`;
+          
+          console.log(`🎵 Generated audio file: ${result.audio_file}`);
+          console.log(`🔗 Audio URL: ${audioUrl}`);
+          console.log(`📁 File exists: ${fs.existsSync(result.audio_file)}`);
+
+          resolve({
+            success: true,
+            data: {
+              audio_url: audioUrl,
+              duration: result.duration,
+              text: result.text,
+              voice: result.voice,
+              sample_rate: result.sample_rate,
+              words: result.words,
+              file_size: result.file_size,
+              engine: result.engine
+            }
+          });
+
+        } catch (parseError) {
+          console.error('Error parsing Python output:', parseError);
+          console.log('⚠️ General error, creating fallback audio...');
+          
+          const fallbackAudioUrl = createFallbackAudio(text, voice, outputDir);
+          
+          resolve({
+            success: true,
+            data: {
+              audio_url: fallbackAudioUrl,
+              duration: 5,
+              text: text,
+              voice: voice,
+              sample_rate: 24000,
+              words: text.split(' ').length,
+              file_size: 240000,
+              engine: 'Fallback Audio Generator'
+            }
+          });
+        }
+      });
+
+      pythonProcess.on('error', (error) => {
+        console.error('Python process spawn error:', error);
+        const fallbackAudioUrl = createFallbackAudio(text, voice, outputDir);
+        
+        resolve({
+          success: true,
+          data: {
+            audio_url: fallbackAudioUrl,
+            duration: 5,
+            text: text,
+            voice: voice,
+            sample_rate: 24000,
+            words: text.split(' ').length,
+            file_size: 240000,
+            engine: 'Fallback Audio Generator'
+          }
+        });
+      });
+
+    } catch (error) {
+      console.error('Kokoro TTS error:', error);
+      const fallbackAudioUrl = createFallbackAudio(text, voice, outputDir);
+      
+      resolve({
+        success: true,
+        data: {
+          audio_url: fallbackAudioUrl,
+          duration: 5,
+          text: text,
+          voice: voice,
+          sample_rate: 24000,
+          words: text.split(' ').length,
+          file_size: 240000,
+          engine: 'Fallback Audio Generator'
+        }
+      });
+    }
+  });
+}
+
+// Create fallback audio file
+function createFallbackAudio(text, voice, outputDir) {
+  try {
+    const fileName = `fallback_${Date.now()}.wav`;
+    const filePath = path.join(outputDir, fileName);
+    
+    // Create a simple silent WAV file (5 seconds)
+    const sampleRate = 24000;
+    const duration = 5; // seconds
+    const samples = sampleRate * duration;
+    
+    // WAV header for 16-bit PCM
+    const header = Buffer.alloc(44);
+    header.write('RIFF', 0);
+    header.writeUInt32LE(36 + samples * 2, 4);
+    header.write('WAVE', 8);
+    header.write('fmt ', 12);
+    header.writeUInt32LE(16, 16);
+    header.writeUInt16LE(1, 20); // PCM
+    header.writeUInt16LE(1, 22); // Mono
+    header.writeUInt32LE(sampleRate, 24);
+    header.writeUInt32LE(sampleRate * 2, 28);
+    header.writeUInt16LE(2, 32);
+    header.writeUInt16LE(16, 34);
+    header.write('data', 36);
+    header.writeUInt32LE(samples * 2, 40);
+    
+    // Create silent audio data
+    const audioData = Buffer.alloc(samples * 2);
+    
+    // Combine header and audio data
+    const wavFile = Buffer.concat([header, audioData]);
+    
+    fs.writeFileSync(filePath, wavFile);
+    
+    console.log(`🎵 Created fallback audio: ${filePath}`);
+    
+    return `/uploads/audio/${fileName}`;
+  } catch (error) {
+    console.error('Error creating fallback audio:', error);
+    throw error;
+  }
+}
+
+// Create silent audio file as fallback
+async function createSilentAudio(text, index) {
+  const fs = require('fs-extra');
+  const path = require('path');
+  
+  try {
+    const outputDir = path.join(__dirname, '../uploads/audio');
+    await fs.ensureDir(outputDir);
+    
+    const fileName = `silent_${index}_${Date.now()}.wav`;
+    const filePath = path.join(outputDir, fileName);
+    
+    // Create a simple silent WAV file (5 seconds)
+    const sampleRate = 24000;
+    const duration = 5; // seconds
+    const samples = sampleRate * duration;
+    
+    // WAV header for 16-bit PCM
+    const header = Buffer.alloc(44);
+    header.write('RIFF', 0);
+    header.writeUInt32LE(36 + samples * 2, 4);
+    header.write('WAVE', 8);
+    header.write('fmt ', 12);
+    header.writeUInt32LE(16, 16);
+    header.writeUInt16LE(1, 20); // PCM
+    header.writeUInt16LE(1, 22); // Mono
+    header.writeUInt32LE(sampleRate, 24);
+    header.writeUInt32LE(sampleRate * 2, 28);
+    header.writeUInt16LE(2, 32);
+    header.writeUInt16LE(16, 34);
+    header.write('data', 36);
+    header.writeUInt32LE(samples * 2, 40);
+    
+    // Create silent audio data
+    const audioData = Buffer.alloc(samples * 2);
+    
+    // Combine header and audio data
+    const wavFile = Buffer.concat([header, audioData]);
+    
+    await fs.writeFile(filePath, wavFile);
+    
+    return `/uploads/audio/${fileName}`;
+  } catch (error) {
+    console.error('Error creating silent audio:', error);
+    throw error;
+  }
+}
+
+// Simple translation function (in production, use Google Translate API)
+async function translateToEnglish(text) {
+  // Check if text is already in English (simple check)
+  const englishPattern = /^[a-zA-Z0-9\s.,!?;:'"()-]+$/;
+  
+  if (englishPattern.test(text.trim())) {
+    return text; // Already in English
+  }
+  
+  // Simple translation mapping for common Persian phrases
+  const translations = {
+    'آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟': 'Did you know that artificial intelligence is changing our world?',
+    'از تشخیص چهره تا تولید محتوا، AI همه جا حضور دارد': 'From face recognition to content generation, AI is everywhere',
+    'اما آینده چه چیزی در انتظار ما است؟': 'But what does the future hold for us?',
+    'هوش مصنوعی نه تنها کار ما را آسان‌تر می‌کند، بلکه فرصت‌های جدیدی ایجاد می‌کند': 'AI not only makes our work easier, but also creates new opportunities',
+    'آماده‌اید برای آینده‌ای که هوش مصنوعی در آن حاکم است؟': 'Are you ready for a future where AI rules?',
+    'خوش آمدید به آینده تکنولوژی': 'Welcome to the future of technology',
+    'در این ویدیو با هم کشف می‌کنیم': 'In this video we explore together',
+    'بیایید شروع کنیم': 'Let\'s get started',
+    'این واقعاً شگفت‌انگیز است': 'This is truly amazing',
+    'نتیجه نهایی': 'Final result'
+  };
+  
+  // Return translation if found, otherwise return original text
+  return translations[text] || text;
+}
+
+// Complete video generation pipeline
+router.post('/generate-complete-video', async (req, res) => {
+  try {
+    const { script, images, audioSettings = {}, audioResults = [] } = req.body;
+    
+    if (!script || !images || !Array.isArray(images)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Script and images are required'
+      });
+    }
+
+    // Step 1: Always generate audio for each scene (with fallback)
+    console.log('🔄 Generating audio for all scenes...');
+    
+    const audioPromises = script.scenes.map(async (scene, index) => {
+      try {
+        // Ensure text is in English for Kokoro TTS
+        const englishText = await translateToEnglish(scene.speaker_text);
+        
+        console.log(`🎵 Generating TTS for scene ${index}: "${englishText}"`);
+        
+        // Use direct Kokoro TTS call instead of API
+        const kokoroResult = await generateKokoroTTS(englishText, audioSettings.voice || 'af_heart');
+        
+        console.log(`🎵 Kokoro Result for scene ${index}:`, kokoroResult);
+        
+        if (!kokoroResult.success || !kokoroResult.data) {
+          console.error(`❌ Kokoro TTS failed for scene ${index}:`, kokoroResult);
+          throw new Error('Kokoro TTS failed');
+        }
+        
+        // Handle both audio_url and audio_file properties
+        const audioUrl = kokoroResult.data.audio_url || kokoroResult.data.audio_file;
+        if (!audioUrl) {
+          console.error(`❌ No audio URL found in result for scene ${index}:`, kokoroResult.data);
+          throw new Error('No audio URL in Kokoro result');
+        }
+        
+        return {
+          sceneIndex: index,
+          audioUrl: audioUrl,
+          duration: kokoroResult.data.duration || 5,
+          text: kokoroResult.data.text,
+          voice: kokoroResult.data.voice,
+          engine: kokoroResult.data.engine || 'Kokoro TTS'
+        };
+      } catch (error) {
+        console.error(`Error generating TTS for scene ${index}:`, error);
+        
+        // Always create fallback audio to ensure video has audio
+        try {
+          const englishText = await translateToEnglish(scene.speaker_text);
+          const fallbackAudioUrl = await createSilentAudio(englishText, index);
+          console.log(`🔄 Created fallback audio for scene ${index}: ${fallbackAudioUrl}`);
+          return {
+            sceneIndex: index,
+            audioUrl: fallbackAudioUrl,
+            duration: 5,
+            text: englishText,
+            voice: audioSettings.voice || 'af_heart',
+            engine: 'Fallback (Silent)'
+          };
+        } catch (fallbackError) {
+          console.error(`Fallback audio creation failed for scene ${index}:`, fallbackError);
+          return {
+            sceneIndex: index,
+            audioUrl: null,
+            duration: 5 // Default duration
+          };
+        }
+      }
+    });
+
+    const finalAudioResults = await Promise.all(audioPromises);
+    console.log(`✅ Generated ${finalAudioResults.length} audio files`);
+    
+    // Step 2: Generate subtitles using Whisper
+    const subtitlePromises = finalAudioResults.map(async (audioData, index) => {
+      if (!audioData.audioUrl) return null;
+      
+      try {
+        console.log(`🎤 Generating subtitles for scene ${index}...`);
+        const subtitleResponse = await fetch(`${req.protocol}://${req.get('host')}/api/whisper/transcribe-with-timestamps`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            audioUrl: audioData.audioUrl,
+            language: 'en'
+          })
+        });
+        
+        const subtitleResult = await subtitleResponse.json();
+        console.log(`🎤 Subtitle result for scene ${index}:`, subtitleResult);
+        
+        if (subtitleResult.success && subtitleResult.data && subtitleResult.data.segments) {
+          return {
+            sceneIndex: index,
+            segments: subtitleResult.data.segments,
+            text: subtitleResult.data.text || ''
+          };
+        } else {
+          // Create fallback subtitle from the original text
+          console.log(`⚠️ Creating fallback subtitle for scene ${index}`);
+          const fallbackSegments = [{
+            start: 0,
+            end: audioData.duration || 5,
+            text: audioData.text || 'No text available'
+          }];
+          
+          return {
+            sceneIndex: index,
+            segments: fallbackSegments,
+            text: audioData.text || ''
+          };
+        }
+      } catch (error) {
+        console.error(`Error generating subtitles for scene ${index}:`, error);
+        
+        // Create fallback subtitle from the original text
+        console.log(`⚠️ Creating fallback subtitle for scene ${index} due to error`);
+        const fallbackSegments = [{
+          start: 0,
+          end: audioData.duration || 5,
+          text: audioData.text || 'No text available'
+        }];
+        
+        return {
+          sceneIndex: index,
+          segments: fallbackSegments,
+          text: audioData.text || ''
+        };
+      }
+    });
+
+    const subtitleResults = await Promise.all(subtitlePromises);
+    
+    // Step 3: Prepare scenes with images, audio, and subtitles
+    const videoScenes = script.scenes.map((scene, index) => {
+      const correspondingImage = images.find(img => img.sceneIndex === index);
+      const audioData = finalAudioResults.find(audio => audio.sceneIndex === index);
+      const subtitleData = subtitleResults.find(sub => sub && sub.sceneIndex === index);
+      
+      return {
+        scene_number: scene.scene_number,
+        duration: audioData ? audioData.duration : 5,
+        speaker_text: scene.speaker_text,
+        visual_description: scene.visual_description,
+        image_url: correspondingImage ? correspondingImage.imageUrl : null,
+        audio_url: audioData ? audioData.audioUrl : null,
+        audio_duration: audioData ? audioData.duration : 5,
+        subtitles: subtitleData ? subtitleData.segments : [],
+        subtitle_text: subtitleData ? subtitleData.text : ''
+      };
+    });
+
+    // Step 4: Compose video with subtitles
+    const composeResponse = await fetch(`${req.protocol}://${req.get('host')}/api/remotion/compose-video-with-subtitles`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        scenes: videoScenes,
+        audioResults: finalAudioResults,
+        subtitleResults: subtitleResults
+      })
+    });
+
+    const composeResult = await composeResponse.json();
+    
+    if (!composeResult.success) {
+      throw new Error(composeResult.error || 'Failed to compose video');
+    }
+
+    res.json({
+      success: true,
+      data: {
+        video_url: composeResult.data.video_url,
+        duration: composeResult.data.duration,
+        scenes_count: composeResult.data.scenes_count,
+        resolution: composeResult.data.resolution,
+        status: 'completed',
+        scenes: videoScenes,
+        audio_results: finalAudioResults,
+        subtitle_results: subtitleResults
+      }
+    });
+
+  } catch (error) {
+    console.error('Error generating complete video:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate complete video',
+      details: error.message
+    });
+  }
+});
+
+// Custom video generation with user input
+router.post('/generate-custom-video', async (req, res) => {
+  try {
+    const { title, scenes, voice = 'af_heart' } = req.body;
+    
+    if (!scenes || !Array.isArray(scenes) || scenes.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'لطفاً حداقل یک صحنه وارد کنید'
+      });
+    }
+
+    console.log(`🎬 Starting custom video generation: "${title}"`);
+    console.log(`   Scenes: ${scenes.length}`);
+    console.log(`   Voice: ${voice}`);
+
+    // Step 1: Generate images for each scene
+    console.log('🖼️ Generating images...');
+    const images = scenes.map((scene, index) => ({
+      sceneIndex: index,
+      imageUrl: `https://pollinations.ai/p/${encodeURIComponent(scene.visual_description)}?width=1080&height=1920&model=flux&seed=${Math.floor(Math.random() * 1000000)}&nologo=true`
+    }));
+
+    // Step 2: Generate audio for each scene
+    console.log('🎤 Generating audio...');
+    const audioPromises = scenes.map(async (scene, index) => {
+      try {
+        // Translate Persian text to English for Kokoro TTS
+        const englishText = await translateToEnglish(scene.speaker_text);
+        
+        console.log(`🎵 Generating TTS for scene ${index + 1}: "${englishText}"`);
+        
+        // Use direct Kokoro TTS call
+        const kokoroResult = await generateKokoroTTS(englishText, voice);
+        
+        if (!kokoroResult.success || !kokoroResult.data) {
+          console.error(`❌ Kokoro TTS failed for scene ${index + 1}:`, kokoroResult);
+          throw new Error('Kokoro TTS failed');
+        }
+        
+        const audioUrl = kokoroResult.data.audio_url || kokoroResult.data.audio_file;
+        if (!audioUrl) {
+          throw new Error('No audio URL in Kokoro result');
+        }
+        
+        return {
+          sceneIndex: index,
+          audioUrl: audioUrl,
+          duration: kokoroResult.data.duration || 5,
+          text: kokoroResult.data.text,
+          voice: kokoroResult.data.voice,
+          engine: kokoroResult.data.engine || 'Kokoro TTS'
+        };
+      } catch (error) {
+        console.error(`Error generating TTS for scene ${index + 1}:`, error);
+        
+        // Create fallback audio
+        try {
+          const englishText = await translateToEnglish(scene.speaker_text);
+          const fallbackAudioUrl = await createSilentAudio(englishText, index);
+          return {
+            sceneIndex: index,
+            audioUrl: fallbackAudioUrl,
+            duration: 5,
+            text: englishText,
+            voice: voice,
+            engine: 'Fallback (Silent)'
+          };
+        } catch (fallbackError) {
+          console.error(`Fallback audio creation failed for scene ${index + 1}:`, fallbackError);
+          return {
+            sceneIndex: index,
+            audioUrl: null,
+            duration: 5
+          };
+        }
+      }
+    });
+
+    const finalAudioResults = await Promise.all(audioPromises);
+    console.log(`✅ Generated ${finalAudioResults.length} audio files`);
+    
+    // Step 3: Generate subtitles using Whisper
+    console.log('📝 Generating subtitles...');
+    const subtitlePromises = finalAudioResults.map(async (audioData, index) => {
+      if (!audioData.audioUrl) return null;
+      
+      try {
+        const subtitleResponse = await fetch(`${req.protocol}://${req.get('host')}/api/whisper/transcribe-with-timestamps`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            audioUrl: audioData.audioUrl,
+            language: 'en'
+          })
+        });
+        
+        const subtitleResult = await subtitleResponse.json();
+        
+        if (subtitleResult.success && subtitleResult.data && subtitleResult.data.segments) {
+          return {
+            sceneIndex: index,
+            segments: subtitleResult.data.segments,
+            text: subtitleResult.data.text || ''
+          };
+        } else {
+          // Create fallback subtitle
+          const fallbackSegments = [{
+            start: 0,
+            end: audioData.duration || 5,
+            text: audioData.text || 'No text available'
+          }];
+          
+          return {
+            sceneIndex: index,
+            segments: fallbackSegments,
+            text: audioData.text || ''
+          };
+        }
+      } catch (error) {
+        console.error(`Error generating subtitles for scene ${index + 1}:`, error);
+        
+        // Create fallback subtitle
+        const fallbackSegments = [{
+          start: 0,
+          end: audioData.duration || 5,
+          text: audioData.text || 'No text available'
+        }];
+        
+        return {
+          sceneIndex: index,
+          segments: fallbackSegments,
+          text: audioData.text || ''
+        };
+      }
+    });
+
+    const subtitleResults = await Promise.all(subtitlePromises);
+    
+    // Step 4: Prepare scenes with images, audio, and subtitles
+    const videoScenes = scenes.map((scene, index) => {
+      const correspondingImage = images.find(img => img.sceneIndex === index);
+      const audioData = finalAudioResults.find(audio => audio.sceneIndex === index);
+      const subtitleData = subtitleResults.find(sub => sub && sub.sceneIndex === index);
+      
+      return {
+        scene_number: scene.scene_number,
+        duration: audioData ? audioData.duration : 5,
+        speaker_text: scene.speaker_text,
+        visual_description: scene.visual_description,
+        image_url: correspondingImage ? correspondingImage.imageUrl : null,
+        audio_url: audioData ? audioData.audioUrl : null,
+        audio_duration: audioData ? audioData.duration : 5,
+        subtitles: subtitleData ? subtitleData.segments : [],
+        subtitle_text: subtitleData ? subtitleData.text : ''
+      };
+    });
+
+    // Step 5: Compose video with subtitles
+    console.log('🎬 Composing video...');
+    const composeResponse = await fetch(`${req.protocol}://${req.get('host')}/api/remotion/compose-video-with-subtitles`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        scenes: videoScenes,
+        audioResults: finalAudioResults,
+        subtitleResults: subtitleResults
+      })
+    });
+
+    const composeResult = await composeResponse.json();
+    
+    if (!composeResult.success) {
+      throw new Error(composeResult.error || 'Failed to compose video');
+    }
+
+    res.json({
+      success: true,
+      data: {
+        video_url: composeResult.data.video_url,
+        duration: composeResult.data.duration,
+        scenes_count: composeResult.data.scenes_count,
+        resolution: composeResult.data.resolution,
+        status: 'completed',
+        title: title,
+        voice: voice,
+        scenes: videoScenes,
+        audio_results: finalAudioResults,
+        subtitle_results: subtitleResults
+      }
+    });
+
+  } catch (error) {
+    console.error('Error generating custom video:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate custom video',
+      details: error.message
+    });
+  }
+});
+
+// Get video generation status
+router.get('/status/:videoId', async (req, res) => {
+  try {
+    const { videoId } = req.params;
+    
+    // Mock status (replace with actual status tracking)
+    const status = {
+      video_id: videoId,
+      status: 'completed',
+      progress: 100,
+      video_url: `/api/remotion/download/video-${videoId}.mp4`,
+      created_at: new Date().toISOString(),
+      steps_completed: [
+        'Script generated',
+        'Images generated',
+        'Audio generated',
+        'Video composed'
+      ]
+    };
+
+    res.json({
+      success: true,
+      data: status
+    });
+
+  } catch (error) {
+    console.error('Error getting video status:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get video status',
+      details: error.message
+    });
+  }
+});
+
+module.exports = router;

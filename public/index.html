@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سازنده ویدیو هوش مصنوعی</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-robot"></i> سازنده ویدیو هوش مصنوعی</h1>
+                <p>تولید محتوا و تصاویر با استفاده از Gemini و Flax</p>
+                
+                <!-- Navigation -->
+                <nav class="nav-links">
+                    <a href="/" class="nav-link active">
+                        <i class="fas fa-home"></i> صفحه اصلی
+                    </a>
+                    <a href="/custom-video" class="nav-link">
+                        <i class="fas fa-cogs"></i> سفارشی‌سازی
+                    </a>
+                    <a href="/test-3-word-subtitles" class="nav-link">
+                        <i class="fas fa-microphone"></i> تست زیرنویس
+                    </a>
+                    <a href="/whisper-test" class="nav-link">
+                        <i class="fas fa-microphone"></i> تست ویسپر
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Idea Generation Section -->
+            <section class="idea-generation-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-lightbulb"></i> تولید اسکریپت خلاقانه</h2>
+                        <p>ایده خود را وارد کنید تا اسکریپت خلاقانه و جذاب برای یوتیوب تولید کنیم</p>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="userIdea">ایده شما:</label>
+                            <textarea 
+                                id="userIdea" 
+                                class="form-control" 
+                                rows="3" 
+                                placeholder="مثال: آموزش برنامه‌نویسی، بررسی گوشی‌های جدید، نکات سلامتی..."
+                            ></textarea>
+                        </div>
+                        
+                        <button id="generateNichesBtn" class="btn btn-primary">
+                            <i class="fas fa-magic"></i>
+                            تولید اسکریپت خلاقانه
+                        </button>
+                        
+                        <div id="nichesLoadingSection" class="loading-section hidden">
+                            <div class="loading-spinner">
+                                <i class="fas fa-cog fa-spin"></i>
+                            </div>
+                            <p>در حال تولید اسکریپت خلاقانه...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Niches Selection Section -->
+            <section id="nichesSection" class="niches-section hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-target"></i> نیچ‌های پرطرفدار یوتیوب</h2>
+                        <p>یکی از نیچ‌های زیر را انتخاب کنید</p>
+                    </div>
+                    <div class="card-body">
+                        <div id="nichesContainer" class="niches-container"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Content Generation Section -->
+            <section class="generation-section hidden" id="contentGenerationSection">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-magic"></i> تولید محتوا</h2>
+                        <p>محتوای یوتیوب بر اساس نیچ انتخابی شما</p>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div id="selectedNicheInfo" class="selected-niche-info"></div>
+                        
+                        <button id="generateContentBtn" class="btn btn-primary">
+                            <i class="fas fa-play"></i>
+                            تولید محتوای یوتیوب
+                        </button>
+                        
+                        <div id="contentLoadingSection" class="loading-section hidden">
+                            <div class="loading-spinner">
+                                <i class="fas fa-cog fa-spin"></i>
+                            </div>
+                            <p>در حال تولید محتوای کامل...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Custom Image Generation Section -->
+            <section class="custom-image-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-paint-brush"></i> تولید تصویر سفارشی</h2>
+                        <p>پرامپت خود را وارد کنید و تصویر بسازید</p>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="customPrompt">پرامپت تصویر:</label>
+                            <textarea 
+                                id="customPrompt" 
+                                class="form-control" 
+                                rows="4" 
+                                placeholder="مثال: یک ربات هوش مصنوعی در حال کار در یک آزمایشگاه مدرن..."
+                            ></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="imageWidth">عرض تصویر:</label>
+                            <select id="imageWidth" class="form-control">
+                                <option value="1080">1080 (عمودی)</option>
+                                <option value="1920">1920 (افقی)</option>
+                                <option value="1024">1024 (مربع)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="imageHeight">ارتفاع تصویر:</label>
+                            <select id="imageHeight" class="form-control">
+                                <option value="1920">1920 (عمودی)</option>
+                                <option value="1080">1080 (افقی)</option>
+                                <option value="1024">1024 (مربع)</option>
+                            </select>
+                        </div>
+                        
+                        <button id="generateCustomImageBtn" class="btn btn-secondary">
+                            <i class="fas fa-image"></i>
+                            تولید تصویر
+                        </button>
+                        
+                        <div id="customImageLoading" class="loading-section hidden">
+                            <div class="loading-spinner">
+                                <i class="fas fa-cog fa-spin"></i>
+                            </div>
+                            <p>در حال تولید تصویر...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Script Display Section -->
+            <section id="scriptSection" class="script-section hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-file-alt"></i> اسکریپت تولید شده</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="scriptContent"></div>
+                        <button id="generateImagesBtn" class="btn btn-secondary">
+                            <i class="fas fa-images"></i>
+                            تولید تصاویر
+                        </button>
+                        
+                        <button id="generateCompleteVideoBtn" class="btn btn-success hidden">
+                            <i class="fas fa-video"></i>
+                            تولید ویدیو کامل
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Image Generation Progress -->
+            <section id="imageProgressSection" class="image-progress-section hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-images"></i> تولید تصاویر</h2>
+                        <div class="progress-info">
+                            <span id="progressText">0 از 0 تصویر</span>
+                            <div class="progress-bar">
+                                <div id="progressFill" class="progress-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="imageGenerationStatus"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Custom Generated Image -->
+            <section id="customImageSection" class="custom-image-result hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-image"></i> تصویر سفارشی تولید شده</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="customImageContainer" class="custom-image-container"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Direct TTS Test Section -->
+            <section class="custom-image-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-microphone"></i> تست مستقیم تبدیل متن به صدا</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="directTtsText">متن برای تبدیل به صدا:</label>
+                            <textarea id="directTtsText" class="form-control" rows="3" placeholder="متن خود را اینجا بنویسید..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="directTtsVoice">انتخاب صدا:</label>
+                            <select id="directTtsVoice" class="form-control">
+                                <option value="default">صدای پیش‌فرض</option>
+                            </select>
+                        </div>
+                        <button id="generateDirectTtsBtn" class="btn">
+                            <i class="fas fa-volume-up"></i> تبدیل به صدا
+                        </button>
+                        <div id="directTtsResult" class="custom-image-result" style="display: none;">
+                            <h4>نتیجه تبدیل به صدا:</h4>
+                            <div id="directTtsContainer" class="custom-image-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Generated Images Gallery -->
+            <section id="imagesGallery" class="images-gallery hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-photo-video"></i> تصاویر تولید شده</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="imagesContainer" class="images-container"></div>
+                        
+                        <!-- Audio Settings -->
+                        <div id="audioSettings" class="audio-settings hidden">
+                            <h3><i class="fas fa-microphone"></i> تنظیمات صدا</h3>
+                            <div class="form-group">
+                                <label for="voiceSelect">انتخاب صدا:</label>
+                                <select id="voiceSelect" class="form-control">
+                                    <option value="default">صدای پیش‌فرض</option>
+                                    <option value="female">صدای زن</option>
+                                    <option value="male">صدای مرد</option>
+                                    <option value="child">صدای کودک</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Video Generation Progress -->
+            <section id="videoProgressSection" class="video-progress-section hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-video"></i> تولید ویدیو کامل</h2>
+                        <div class="progress-info">
+                            <span id="videoProgressText">0 از 4 مرحله</span>
+                            <div class="progress-bar">
+                                <div id="videoProgressFill" class="progress-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="videoGenerationStatus"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Generated Video -->
+            <section id="videoSection" class="video-result hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-play-circle"></i> ویدیو تولید شده</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="videoContainer" class="video-container"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 سازنده ویدیو هوش مصنوعی. تمامی حقوق محفوظ است.</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

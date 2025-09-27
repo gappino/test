@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Human Voice Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .audio-test {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        audio {
+            width: 100%;
+            margin: 10px 0;
+        }
+        .info {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎤 Real Human Voice Test Page</h1>
+    
+    <div class="audio-test">
+        <h2>Test 1: Direct File Access</h2>
+        <div class="info">
+            <strong>File:</strong> Real TTS Voice (pyttsx3)<br>
+            <strong>Duration:</strong> ~5.5 seconds<br>
+            <strong>Text:</strong> Hello world! This is real TTS speaking to you with pyttsx3.
+        </div>
+        <audio controls>
+            <source src="/audio/real_tts_final.wav" type="audio/wav">
+            Your browser does not support the audio element.
+        </audio>
+        <br>
+        <button onclick="playAudio('/audio/real_tts_final.wav')">Play Real TTS Voice</button>
+    </div>
+
+    <div class="audio-test">
+        <h2>Test 2: API Generated Audio</h2>
+        <div class="info">
+            <strong>Endpoint:</strong> /api/whisper/text-to-speech<br>
+            <strong>Voice:</strong> af_heart_0<br>
+            <strong>Text:</strong> Hello world! This is a test of Kokoro TTS system.
+        </div>
+        <button onclick="generateTestAudio()">Generate Test Audio</button>
+        <div id="apiResult"></div>
+    </div>
+
+    <div class="audio-test">
+        <h2>Test 3: Persian Text</h2>
+        <div class="info">
+            <strong>Text:</strong> آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟<br>
+            <strong>Translation:</strong> Did you know that artificial intelligence is changing our world?
+        </div>
+        <button onclick="generatePersianAudio()">Generate Persian Audio</button>
+        <div id="persianResult"></div>
+    </div>
+
+    <script>
+        function playAudio(url) {
+            const audio = new Audio(url);
+            audio.play().catch(error => {
+                console.error('Error playing audio:', error);
+                alert('Error playing audio: ' + error.message);
+            });
+        }
+
+        async function generateTestAudio() {
+            try {
+                const response = await fetch('/api/whisper/text-to-speech', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: 'Hello world! This is a test of Kokoro TTS system.',
+                        voice: 'af_heart_0'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    const resultDiv = document.getElementById('apiResult');
+                    resultDiv.innerHTML = `
+                        <div class="info">
+                            <strong>Generated Audio:</strong><br>
+                            <strong>Original Text:</strong> ${result.data.original_text}<br>
+                            <strong>English Text:</strong> ${result.data.text}<br>
+                            <strong>Voice:</strong> ${result.data.voice}<br>
+                            <strong>Duration:</strong> ${result.data.duration} seconds<br>
+                            <strong>Audio URL:</strong> ${result.data.audio_url}
+                        </div>
+                        <audio controls>
+                            <source src="${result.data.audio_url}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <br>
+                        <button onclick="playAudio('${result.data.audio_url}')">Play Generated Audio</button>
+                    `;
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function generatePersianAudio() {
+            try {
+                const response = await fetch('/api/whisper/text-to-speech', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: 'آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟',
+                        voice: 'af_heart_0'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    const resultDiv = document.getElementById('persianResult');
+                    resultDiv.innerHTML = `
+                        <div class="info">
+                            <strong>Generated Audio:</strong><br>
+                            <strong>Original Text:</strong> ${result.data.original_text}<br>
+                            <strong>English Text:</strong> ${result.data.text}<br>
+                            <strong>Voice:</strong> ${result.data.voice}<br>
+                            <strong>Duration:</strong> ${result.data.duration} seconds<br>
+                            <strong>Audio URL:</strong> ${result.data.audio_url}
+                        </div>
+                        <audio controls>
+                            <source src="${result.data.audio_url}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <br>
+                        <button onclick="playAudio('${result.data.audio_url}')">Play Generated Audio</button>
+                    `;
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
