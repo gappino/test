@@ -1,5 +1,7 @@
 const express = require('express');
 const axios = require('axios');
+const fs = require('fs-extra');
+const path = require('path');
 const router = express.Router();
 
 // Pollinations.ai configuration
@@ -28,10 +30,10 @@ router.post('/generate-image', async (req, res) => {
     });
     
     // Make request to Pollinations.ai
-    const imageUrl = `${POLLINATIONS_BASE_URL}/prompt/${encodeURIComponent(prompt)}?${params.toString()}`;
+    const pollinationsUrl = `${POLLINATIONS_BASE_URL}/prompt/${encodeURIComponent(prompt)}?${params.toString()}`;
     
     // First, make a request to generate the image
-    const response = await axios.get(imageUrl, {
+    const response = await axios.get(pollinationsUrl, {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -40,14 +42,26 @@ router.post('/generate-image', async (req, res) => {
       responseType: 'arraybuffer' // Get the image data
     });
     
-    // Convert the image data to base64
-    const imageBase64 = Buffer.from(response.data, 'binary').toString('base64');
-    const imageDataUrl = `data:image/png;base64,${imageBase64}`;
+    // Save image to file
+    const imagesDir = path.join(__dirname, '../generation');
+    await fs.ensureDir(imagesDir);
+    
+    const timestamp = Date.now();
+    const filename = `image_${timestamp}_${Math.random().toString(36).substr(2, 9)}.png`;
+    const imagePath = path.join(imagesDir, filename);
+    
+    // Save the image data to file
+    await fs.writeFile(imagePath, response.data);
+    
+    // Create URL for the saved image
+    const localImageUrl = `/generation/${filename}`;
     
     res.json({
       success: true,
       data: {
-        image_url: imageDataUrl,
+        image_url: localImageUrl,
+        image_path: imagePath,
+        filename: filename,
         prompt: prompt,
         parameters: {
           width: 1080,
@@ -107,19 +121,60 @@ router.post('/generate-image-url', async (req, res) => {
     
     const imageUrl = `${POLLINATIONS_BASE_URL}/prompt/${encodeURIComponent(prompt)}?${params.toString()}`;
     
-    res.json({
-      success: true,
-      data: {
-        image_url: imageUrl,
-        prompt: prompt,
-        parameters: {
-          width: parseInt(width),
-          height: parseInt(height),
-          model: 'flux',
-          seed: params.get('seed')
+    // Download and save the image
+    try {
+      const response = await axios.get(imageUrl, {
+        timeout: 120000,
+        responseType: 'arraybuffer'
+      });
+      
+      // Save image to file
+      const imagesDir = path.join(__dirname, '../generation');
+      await fs.ensureDir(imagesDir);
+      
+      const timestamp = Date.now();
+      const filename = `image_${timestamp}_${Math.random().toString(36).substr(2, 9)}.png`;
+      const imagePath = path.join(imagesDir, filename);
+      
+      // Save the image data to file
+      await fs.writeFile(imagePath, response.data);
+      
+      // Create URL for the saved image
+      const localImageUrl = `/generation/${filename}`;
+      
+      res.json({
+        success: true,
+        data: {
+          image_url: localImageUrl,
+          image_path: imagePath,
+          filename: filename,
+          prompt: prompt,
+          parameters: {
+            width: parseInt(width),
+            height: parseInt(height),
+            model: 'flux',
+            seed: params.get('seed')
+          }
         }
-      }
-    });
+      });
+      
+    } catch (downloadError) {
+      console.error('Error downloading image:', downloadError);
+      // Fallback to URL only
+      res.json({
+        success: true,
+        data: {
+          image_url: imageUrl,
+          prompt: prompt,
+          parameters: {
+            width: parseInt(width),
+            height: parseInt(height),
+            model: 'flux',
+            seed: params.get('seed')
+          }
+        }
+      });
+    }
     
   } catch (error) {
     console.error('Error generating image URL:', error);

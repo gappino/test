@@ -216,6 +216,26 @@ async function createVideoFromScenes(scenes, audioResults, outputPath) {
 async function downloadImage(imageUrl, outputPath) {
   try {
     console.log(`   📥 Downloading image: ${imageUrl}`);
+    
+    // Check if it's a local URL (starts with /)
+    if (imageUrl.startsWith('/')) {
+      // It's a local file, copy it instead of downloading
+      // Remove leading slash and build absolute path
+      const cleanPath = imageUrl.substring(1);
+      const localPath = path.resolve(process.cwd(), cleanPath);
+      console.log(`   📁 Copying local image: ${localPath}`);
+      
+      // Check if file exists
+      if (await fs.pathExists(localPath)) {
+        await fs.copy(localPath, outputPath);
+        console.log(`   ✅ Local image copied: ${outputPath}`);
+        return outputPath;
+      } else {
+        throw new Error(`Local image not found: ${localPath}`);
+      }
+    }
+    
+    // It's a remote URL, download it
     const axios = require('axios');
     const response = await axios.get(imageUrl, { 
       responseType: 'stream',
@@ -246,13 +266,14 @@ async function downloadAudio(audioUrl, outputPath) {
     console.log(`   📥 Downloading audio: ${audioUrl}`);
     
     // Handle relative URLs by reading from local filesystem
-    if (audioUrl.startsWith('/uploads/')) {
-      const localPath = path.join(__dirname, '..', audioUrl);
+    if (audioUrl.startsWith('/')) {
+      const cleanPath = audioUrl.substring(1);
+      const localPath = path.resolve(process.cwd(), cleanPath);
       console.log(`   📁 Reading local audio file: ${localPath}`);
       
-      if (fs.existsSync(localPath)) {
+      if (await fs.pathExists(localPath)) {
         // Copy file to output path
-        fs.copyFileSync(localPath, outputPath);
+        await fs.copy(localPath, outputPath);
         console.log(`   ✅ Audio copied: ${outputPath}`);
         return outputPath;
       } else {
