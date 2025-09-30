@@ -77,20 +77,30 @@ async function createVideoWithSubtitles(scenes, audioResults, subtitleResults, o
       const audioSegments = [];
       const subtitleFiles = [];
       
+      // Sort audio and subtitle results by sceneIndex to ensure correct order
+      const sortedAudioResults = audioResults.sort((a, b) => (a.sceneIndex || 0) - (b.sceneIndex || 0));
+      const sortedSubtitleResults = subtitleResults.sort((a, b) => (a.sceneIndex || 0) - (b.sceneIndex || 0));
+      
       // Process each scene
       for (let i = 0; i < scenes.length; i++) {
         console.log(`🎬 Processing scene ${i + 1}/${scenes.length}...`);
         
         const scene = scenes[i];
-        const audioResult = audioResults.find(audio => audio.sceneIndex === i);
-        const subtitleResult = subtitleResults.find(sub => sub && sub.sceneIndex === i);
+        
+        // Use direct indexing since arrays are now sorted
+        const audioResult = sortedAudioResults[i];
+        const subtitleResult = sortedSubtitleResults[i];
+        
         
         console.log(`   Scene ${i + 1}:`, {
           hasImage: !!scene.image_url,
           hasAudio: !!(audioResult && audioResult.audioUrl),
           hasSubtitles: !!(subtitleResult && subtitleResult.segments && subtitleResult.segments.length > 0),
           duration: audioResult ? audioResult.duration : 5,
-          audioResult: audioResult
+          audioResult: audioResult,
+          expectedSceneIndex: i,
+          actualSceneIndex: audioResult ? audioResult.sceneIndex : 'none',
+          audioText: audioResult ? audioResult.text : 'none'
         });
         
         try {
@@ -419,7 +429,8 @@ async function createVideoSegmentWithSubtitles(imagePath, audioPath, subtitlePat
       .fps(30);
     
     if (audioPath) {
-      command = command.input(audioPath);
+      command = command.input(audioPath)
+        .inputOptions([`-t ${duration}`]);
     }
     
     // Build video filters

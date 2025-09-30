@@ -41,6 +41,26 @@
         button:hover {
             background: #0056b3;
         }
+        .voice-selection {
+            margin: 10px 0;
+        }
+        .voice-selection label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .voice-selection select {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+        .text-input {
+            margin: 10px 0;
+        }
+        .text-input textarea {
+            font-family: Arial, sans-serif;
+            resize: vertical;
+        }
     </style>
 </head>
 <body>
@@ -73,13 +93,54 @@
     </div>
 
     <div class="audio-test">
-        <h2>Test 3: Persian Text</h2>
+        <h2>Test 3: Persian Text (فارسی)</h2>
         <div class="info">
             <strong>Text:</strong> آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟<br>
             <strong>Translation:</strong> Did you know that artificial intelligence is changing our world?
         </div>
-        <button onclick="generatePersianAudio()">Generate Persian Audio</button>
+        <div class="voice-selection">
+            <label for="persianVoice">انتخاب صدا:</label>
+            <select id="persianVoice">
+                <option value="fa_IR-amir-medium">امیر - صدای مرد</option>
+                <option value="fa_IR-ganji-medium">گنجی - صدای مرد</option>
+                <option value="fa_IR-ganji_adabi-medium">گنجی ادبی - صدای مرد</option>
+                <option value="fa_IR-gyro-medium">جیرو - صدای مرد</option>
+                <option value="fa_IR-reza_ibrahim-medium">رضا ابراهیم - صدای مرد</option>
+            </select>
+        </div>
+        <button onclick="generatePersianAudio()">تولید صدای فارسی</button>
         <div id="persianResult"></div>
+    </div>
+
+    <div class="audio-test">
+        <h2>Test 4: Custom Persian Text</h2>
+        <div class="info">
+            <strong>متن سفارشی فارسی:</strong>
+        </div>
+        <div class="text-input">
+            <textarea id="customPersianText" placeholder="متن فارسی خود را اینجا وارد کنید..." rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"></textarea>
+            <div class="example-texts" style="margin-top: 10px;">
+                <strong>مثال‌های متن فارسی:</strong>
+                <div class="example-buttons" style="margin-top: 5px;">
+                    <button type="button" onclick="setPersianText('سلام! من یک سیستم تبدیل متن به گفتار هستم.')" style="font-size: 12px; padding: 5px 10px;">سلام</button>
+                    <button type="button" onclick="setPersianText('هوش مصنوعی در حال تغییر دنیای ما است.')" style="font-size: 12px; padding: 5px 10px;">هوش مصنوعی</button>
+                    <button type="button" onclick="setPersianText('امروز هوا بسیار زیبا است و آسمان آبی است.')" style="font-size: 12px; padding: 5px 10px;">هوا</button>
+                    <button type="button" onclick="setPersianText('فناوری اطلاعات و ارتباطات نقش مهمی در زندگی ما دارد.')" style="font-size: 12px; padding: 5px 10px;">فناوری</button>
+                </div>
+            </div>
+        </div>
+        <div class="voice-selection">
+            <label for="customPersianVoice">انتخاب صدا:</label>
+            <select id="customPersianVoice">
+                <option value="fa_IR-amir-medium">امیر - صدای مرد</option>
+                <option value="fa_IR-ganji-medium">گنجی - صدای مرد</option>
+                <option value="fa_IR-ganji_adabi-medium">گنجی ادبی - صدای مرد</option>
+                <option value="fa_IR-gyro-medium">جیرو - صدای مرد</option>
+                <option value="fa_IR-reza_ibrahim-medium">رضا ابراهیم - صدای مرد</option>
+            </select>
+        </div>
+        <button onclick="generateCustomPersianAudio()">تولید صدای سفارشی</button>
+        <div id="customPersianResult"></div>
     </div>
 
     <script>
@@ -135,14 +196,15 @@
 
         async function generatePersianAudio() {
             try {
-                const response = await fetch('/api/whisper/text-to-speech', {
+                const selectedVoice = document.getElementById('persianVoice').value;
+                const response = await fetch('/api/kokoro/text-to-speech', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         text: 'آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟',
-                        voice: 'af_heart_0'
+                        voice: selectedVoice
                     })
                 });
 
@@ -153,14 +215,13 @@
                     resultDiv.innerHTML = `
                         <div class="info">
                             <strong>Generated Audio:</strong><br>
-                            <strong>Original Text:</strong> ${result.data.original_text}<br>
-                            <strong>English Text:</strong> ${result.data.text}<br>
+                            <strong>Original Text:</strong> ${result.data.text}<br>
                             <strong>Voice:</strong> ${result.data.voice}<br>
                             <strong>Duration:</strong> ${result.data.duration} seconds<br>
                             <strong>Audio URL:</strong> ${result.data.audio_url}
                         </div>
                         <audio controls>
-                            <source src="${result.data.audio_url}" type="audio/mpeg">
+                            <source src="${result.data.audio_url}" type="audio/wav">
                             Your browser does not support the audio element.
                         </audio>
                         <br>
@@ -173,6 +234,59 @@
                 console.error('Error:', error);
                 alert('Error: ' + error.message);
             }
+        }
+
+        async function generateCustomPersianAudio() {
+            try {
+                const customText = document.getElementById('customPersianText').value.trim();
+                const selectedVoice = document.getElementById('customPersianVoice').value;
+                
+                if (!customText) {
+                    alert('لطفاً متن فارسی را وارد کنید');
+                    return;
+                }
+                
+                const response = await fetch('/api/kokoro/text-to-speech', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: customText,
+                        voice: selectedVoice
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    const resultDiv = document.getElementById('customPersianResult');
+                    resultDiv.innerHTML = `
+                        <div class="info">
+                            <strong>Generated Audio:</strong><br>
+                            <strong>Original Text:</strong> ${result.data.text}<br>
+                            <strong>Voice:</strong> ${result.data.voice}<br>
+                            <strong>Duration:</strong> ${result.data.duration} seconds<br>
+                            <strong>Audio URL:</strong> ${result.data.audio_url}
+                        </div>
+                        <audio controls>
+                            <source src="${result.data.audio_url}" type="audio/wav">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <br>
+                        <button onclick="playAudio('${result.data.audio_url}')">Play Generated Audio</button>
+                    `;
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function setPersianText(text) {
+            document.getElementById('customPersianText').value = text;
         }
     </script>
 </body>

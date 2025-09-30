@@ -82,3 +82,5 @@ process.env.GEMINI_API_KEY = newApiKey;
 1. Google AI Studio Help: https://aistudio.google.com/help
 2. Google Cloud Support: https://cloud.google.com/support
 
+
+

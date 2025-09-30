@@ -11,7 +11,7 @@ function createFallbackAudio(text, voice, outputDir) {
     const filePath = path.join(outputDir, fileName);
     
     // Create a simple silent WAV file (5 seconds)
-    const sampleRate = 24000;
+    const sampleRate = 16000; // Piper uses 16kHz
     const duration = 5; // seconds
     const samples = sampleRate * duration;
     
@@ -48,10 +48,10 @@ function createFallbackAudio(text, voice, outputDir) {
   }
 }
 
-// Kokoro TTS endpoint
+// Piper TTS endpoint
 router.post('/text-to-speech', async (req, res) => {
   try {
-    const { text, voice = 'af_heart' } = req.body;
+    const { text, voice = 'en_US-lessac-medium' } = req.body;
     
     if (!text || text.trim() === '') {
       return res.status(400).json({
@@ -71,22 +71,24 @@ router.post('/text-to-speech', async (req, res) => {
       fs.mkdirSync(outputDir, { recursive: true });
     }
     
-    // Run Kokoro TTS script
-    const kokoroScript = path.join(__dirname, '..', 'kokoro_fixed.py');
+    // Run Piper TTS script
+    const piperScript = path.join(__dirname, '..', 'piper_tts.py');
+    const outputFile = path.join(outputDir, `piper_${timestamp}.wav`);
     
-    console.log(`🐍 Running Python script: ${kokoroScript}`);
+    console.log(`🐍 Running Piper TTS script: ${piperScript}`);
     console.log(`📝 Text: ${text}`);
     console.log(`🎤 Voice: ${voice}`);
-    console.log(`📁 Output dir: ${outputDir}`);
+    console.log(`📁 Output file: ${outputFile}`);
     
-    // On Windows with shell: true, we need to pass arguments as a single string
-    const args = `"${kokoroScript}" "${text}" "${voice}" "${outputDir}"`;
-    console.log(`🐍 Command: python ${args}`);
+    // Run Python script with proper arguments
+    const args = [piperScript, text, voice, outputDir];
+    console.log(`🐍 Command: python ${args.join(' ')}`);
     
-    const pythonProcess = spawn('python', [args], {
+    const pythonProcess = spawn('python', args, {
       cwd: path.join(__dirname, '..'),
       stdio: ['pipe', 'pipe', 'pipe'],
-      shell: true // Use shell on Windows
+      shell: false, // Don't use shell to avoid argument parsing issues
+      env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
     });
 
     let output = '';
@@ -129,9 +131,9 @@ router.post('/text-to-speech', async (req, res) => {
               duration: 5,
               text: text,
               voice: voice,
-              sample_rate: 24000,
+              sample_rate: 16000,
               words: text.split(' ').length,
-              file_size: 240000, // Approximate size
+              file_size: 160000, // Approximate size
               engine: 'Fallback Audio Generator'
             }
           });
@@ -162,9 +164,9 @@ router.post('/text-to-speech', async (req, res) => {
               duration: 5,
               text: text,
               voice: voice,
-              sample_rate: 24000,
+              sample_rate: 16000,
               words: text.split(' ').length,
-              file_size: 240000,
+              file_size: 160000,
               engine: 'Fallback Audio Generator'
             }
           });
@@ -187,9 +189,9 @@ router.post('/text-to-speech', async (req, res) => {
               duration: 5,
               text: text,
               voice: voice,
-              sample_rate: 24000,
+              sample_rate: 16000,
               words: text.split(' ').length,
-              file_size: 240000,
+              file_size: 160000,
               engine: 'Fallback Audio Generator'
             }
           });
@@ -209,9 +211,9 @@ router.post('/text-to-speech', async (req, res) => {
               duration: 5,
               text: text,
               voice: voice,
-              sample_rate: 24000,
+              sample_rate: 16000,
               words: text.split(' ').length,
-              file_size: 240000,
+              file_size: 160000,
               engine: 'Fallback Audio Generator'
             }
           });
@@ -253,9 +255,9 @@ router.post('/text-to-speech', async (req, res) => {
             duration: 5,
             text: text,
             voice: voice,
-            sample_rate: 24000,
+            sample_rate: 16000,
             words: text.split(' ').length,
-            file_size: 240000,
+            file_size: 160000,
             engine: 'Fallback Audio Generator'
           }
         });
@@ -266,13 +268,13 @@ router.post('/text-to-speech', async (req, res) => {
       console.error('Python process spawn error:', error);
       res.status(500).json({
         success: false,
-        error: 'خطا در اجرای کوکورو',
+        error: 'خطا در اجرای Piper TTS',
         details: error.message
       });
     });
 
   } catch (error) {
-    console.error('Kokoro TTS error:', error);
+    console.error('Piper TTS error:', error);
     res.status(500).json({
       success: false,
       error: 'خطای سرور',
@@ -284,18 +286,26 @@ router.post('/text-to-speech', async (req, res) => {
 // Get available voices
 router.get('/voices', (req, res) => {
   const voices = [
-    { id: 'af_heart', name: 'صدای زن - Heart', language: 'انگلیسی' },
-    { id: 'af_bella', name: 'صدای زن - Bella', language: 'انگلیسی' },
-    { id: 'af_jessica', name: 'صدای زن - Jessica', language: 'انگلیسی' },
-    { id: 'af_sarah', name: 'صدای زن - Sarah', language: 'انگلیسی' },
-    { id: 'am_adam', name: 'صدای مرد - Adam', language: 'انگلیسی' },
-    { id: 'am_eric', name: 'صدای مرد - Eric', language: 'انگلیسی' },
-    { id: 'am_michael', name: 'صدای مرد - Michael', language: 'انگلیسی' },
-    { id: 'am_liam', name: 'صدای مرد - Liam', language: 'انگلیسی' },
-    { id: 'bf_alice', name: 'صدای زن - Alice (بریتانیایی)', language: 'انگلیسی' },
-    { id: 'bf_emma', name: 'صدای زن - Emma (بریتانیایی)', language: 'انگلیسی' },
-    { id: 'bm_daniel', name: 'صدای مرد - Daniel (بریتانیایی)', language: 'انگلیسی' },
-    { id: 'bm_george', name: 'صدای مرد - George (بریتانیایی)', language: 'انگلیسی' }
+    // English voices
+    { id: 'en_US-lessac-medium', name: 'صدای زن - Lessac Medium', language: 'انگلیسی' },
+    { id: 'en_US-lessac-high', name: 'صدای زن - Lessac High', language: 'انگلیسی' },
+    { id: 'en_US-lessac-low', name: 'صدای زن - Lessac Low', language: 'انگلیسی' },
+    { id: 'en_US-libritts-high', name: 'صدای زن - LibriTTS High', language: 'انگلیسی' },
+    { id: 'en_US-libritts-medium', name: 'صدای زن - LibriTTS Medium', language: 'انگلیسی' },
+    { id: 'en_US-libritts-low', name: 'صدای زن - LibriTTS Low', language: 'انگلیسی' },
+    { id: 'en_US-vctk-medium', name: 'صدای زن - VCTK Medium', language: 'انگلیسی' },
+    { id: 'en_US-vctk-high', name: 'صدای زن - VCTK High', language: 'انگلیسی' },
+    { id: 'en_US-vctk-low', name: 'صدای زن - VCTK Low', language: 'انگلیسی' },
+    { id: 'en_US-arctic-medium', name: 'صدای زن - Arctic Medium', language: 'انگلیسی' },
+    { id: 'en_US-arctic-high', name: 'صدای زن - Arctic High', language: 'انگلیسی' },
+    { id: 'en_US-arctic-low', name: 'صدای زن - Arctic Low', language: 'انگلیسی' },
+    
+    // Persian voices
+    { id: 'fa_IR-amir-medium', name: 'امیر - صدای مرد', language: 'فارسی' },
+    { id: 'fa_IR-ganji-medium', name: 'گنجی - صدای مرد', language: 'فارسی' },
+    { id: 'fa_IR-ganji_adabi-medium', name: 'گنجی ادبی - صدای مرد', language: 'فارسی' },
+    { id: 'fa_IR-gyro-medium', name: 'جیرو - صدای مرد', language: 'فارسی' },
+    { id: 'fa_IR-reza_ibrahim-medium', name: 'رضا ابراهیم - صدای مرد', language: 'فارسی' }
   ];
 
   res.json({
@@ -310,7 +320,7 @@ router.get('/voices', (req, res) => {
 router.get('/health', (req, res) => {
   res.json({
     success: true,
-    message: 'Kokoro TTS service is running',
+    message: 'Piper TTS service is running',
     timestamp: new Date().toISOString()
   });
 });

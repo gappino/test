@@ -3,12 +3,13 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 
-// Generate Kokoro TTS directly
-async function generateKokoroTTS(text, voice) {
+// Generate Piper TTS directly
+async function generatePiperTTS(text, voice) {
   const { spawn } = require('child_process');
   
   return new Promise((resolve) => {
     try {
+      const timestamp = Date.now();
       const outputDir = path.join(__dirname, '../uploads/audio');
       
       // Ensure output directory exists
@@ -16,22 +17,22 @@ async function generateKokoroTTS(text, voice) {
         fs.mkdirSync(outputDir, { recursive: true });
       }
       
-      // Run Kokoro TTS script
-      const kokoroScript = path.join(__dirname, '..', 'kokoro_fixed.py');
+      // Run Piper TTS script
+      const piperScript = path.join(__dirname, '..', 'piper_tts.py');
       
-      console.log(`🐍 Running Python script: ${kokoroScript}`);
+      console.log(`🐍 Running Piper TTS script: ${piperScript}`);
       console.log(`📝 Text: ${text}`);
       console.log(`🎤 Voice: ${voice}`);
       console.log(`📁 Output dir: ${outputDir}`);
       
-      // On Windows with shell: true, we need to pass arguments as a single string
-      const args = `"${kokoroScript}" "${text}" "${voice}" "${outputDir}"`;
-      console.log(`🐍 Command: python ${args}`);
+      // Run Python script with proper arguments
+      const args = [piperScript, text, voice, outputDir];
+      console.log(`🐍 Command: python ${args.join(' ')}`);
       
-      const pythonProcess = spawn('python', [args], {
+      const pythonProcess = spawn('python', args, {
         cwd: path.join(__dirname, '..'),
         stdio: ['pipe', 'pipe', 'pipe'],
-        shell: true // Use shell on Windows
+        shell: false // Don't use shell to avoid argument parsing issues
       });
 
       let output = '';
@@ -74,9 +75,9 @@ async function generateKokoroTTS(text, voice) {
                 duration: 5,
                 text: text,
                 voice: voice,
-                sample_rate: 24000,
+                sample_rate: 16000,
                 words: text.split(' ').length,
-                file_size: 240000, // Approximate size
+                file_size: 160000, // Approximate size
                 engine: 'Fallback Audio Generator'
               }
             });
@@ -108,9 +109,9 @@ async function generateKokoroTTS(text, voice) {
                 duration: 5,
                 text: text,
                 voice: voice,
-                sample_rate: 24000,
+                sample_rate: 16000,
                 words: text.split(' ').length,
-                file_size: 240000,
+                file_size: 160000,
                 engine: 'Fallback Audio Generator'
               }
             });
@@ -134,9 +135,9 @@ async function generateKokoroTTS(text, voice) {
                 duration: 5,
                 text: text,
                 voice: voice,
-                sample_rate: 24000,
+                sample_rate: 16000,
                 words: text.split(' ').length,
-                file_size: 240000,
+                file_size: 160000,
                 engine: 'Fallback Audio Generator'
               }
             });
@@ -157,9 +158,9 @@ async function generateKokoroTTS(text, voice) {
                 duration: 5,
                 text: text,
                 voice: voice,
-                sample_rate: 24000,
+                sample_rate: 16000,
                 words: text.split(' ').length,
-                file_size: 240000,
+                file_size: 160000,
                 engine: 'Fallback Audio Generator'
               }
             });
@@ -230,7 +231,7 @@ async function generateKokoroTTS(text, voice) {
       });
 
     } catch (error) {
-      console.error('Kokoro TTS error:', error);
+      console.error('Piper TTS error:', error);
       const fallbackAudioUrl = createFallbackAudio(text, voice, outputDir);
       
       resolve({
@@ -257,7 +258,7 @@ function createFallbackAudio(text, voice, outputDir) {
     const filePath = path.join(outputDir, fileName);
     
     // Create a simple silent WAV file (5 seconds)
-    const sampleRate = 24000;
+    const sampleRate = 16000; // Piper uses 16kHz
     const duration = 5; // seconds
     const samples = sampleRate * duration;
     
@@ -307,7 +308,7 @@ async function createSilentAudio(text, index) {
     const filePath = path.join(outputDir, fileName);
     
     // Create a simple silent WAV file (5 seconds)
-    const sampleRate = 24000;
+    const sampleRate = 16000; // Piper uses 16kHz
     const duration = 5; // seconds
     const samples = sampleRate * duration;
     
@@ -386,35 +387,35 @@ router.post('/generate-complete-video', async (req, res) => {
     
     const audioPromises = script.scenes.map(async (scene, index) => {
       try {
-        // Ensure text is in English for Kokoro TTS
+        // Ensure text is in English for Piper TTS
         const englishText = await translateToEnglish(scene.speaker_text);
         
         console.log(`🎵 Generating TTS for scene ${index}: "${englishText}"`);
         
-        // Use direct Kokoro TTS call instead of API
-        const kokoroResult = await generateKokoroTTS(englishText, audioSettings.voice || 'af_heart');
+        // Use direct Piper TTS call instead of API
+        const piperResult = await generatePiperTTS(englishText, audioSettings.voice || 'en_US-lessac-medium');
         
-        console.log(`🎵 Kokoro Result for scene ${index}:`, kokoroResult);
+        console.log(`🎵 Piper Result for scene ${index}:`, piperResult);
         
-        if (!kokoroResult.success || !kokoroResult.data) {
-          console.error(`❌ Kokoro TTS failed for scene ${index}:`, kokoroResult);
-          throw new Error('Kokoro TTS failed');
+        if (!piperResult.success || !piperResult.data) {
+          console.error(`❌ Piper TTS failed for scene ${index}:`, piperResult);
+          throw new Error('Piper TTS failed');
         }
         
         // Handle both audio_url and audio_file properties
-        const audioUrl = kokoroResult.data.audio_url || kokoroResult.data.audio_file;
+        const audioUrl = piperResult.data.audio_url || piperResult.data.audio_file;
         if (!audioUrl) {
-          console.error(`❌ No audio URL found in result for scene ${index}:`, kokoroResult.data);
-          throw new Error('No audio URL in Kokoro result');
+          console.error(`❌ No audio URL found in result for scene ${index}:`, piperResult.data);
+          throw new Error('No audio URL in Piper result');
         }
         
         return {
           sceneIndex: index,
           audioUrl: audioUrl,
-          duration: kokoroResult.data.duration || 5,
-          text: kokoroResult.data.text,
-          voice: kokoroResult.data.voice,
-          engine: kokoroResult.data.engine || 'Kokoro TTS'
+          duration: piperResult.data.duration || 5,
+          text: piperResult.data.text,
+          voice: piperResult.data.voice,
+          engine: piperResult.data.engine || 'Piper TTS'
         };
       } catch (error) {
         console.error(`Error generating TTS for scene ${index}:`, error);
@@ -593,31 +594,31 @@ router.post('/generate-custom-video', async (req, res) => {
     console.log('🎤 Generating audio...');
     const audioPromises = scenes.map(async (scene, index) => {
       try {
-        // Translate Persian text to English for Kokoro TTS
+        // Translate Persian text to English for Piper TTS
         const englishText = await translateToEnglish(scene.speaker_text);
         
         console.log(`🎵 Generating TTS for scene ${index + 1}: "${englishText}"`);
         
-        // Use direct Kokoro TTS call
-        const kokoroResult = await generateKokoroTTS(englishText, voice);
+        // Use direct Piper TTS call
+        const piperResult = await generatePiperTTS(englishText, voice);
         
-        if (!kokoroResult.success || !kokoroResult.data) {
-          console.error(`❌ Kokoro TTS failed for scene ${index + 1}:`, kokoroResult);
-          throw new Error('Kokoro TTS failed');
+        if (!piperResult.success || !piperResult.data) {
+          console.error(`❌ Piper TTS failed for scene ${index + 1}:`, piperResult);
+          throw new Error('Piper TTS failed');
         }
         
-        const audioUrl = kokoroResult.data.audio_url || kokoroResult.data.audio_file;
+        const audioUrl = piperResult.data.audio_url || piperResult.data.audio_file;
         if (!audioUrl) {
-          throw new Error('No audio URL in Kokoro result');
+          throw new Error('No audio URL in Piper result');
         }
         
         return {
           sceneIndex: index,
           audioUrl: audioUrl,
-          duration: kokoroResult.data.duration || 5,
-          text: kokoroResult.data.text,
-          voice: kokoroResult.data.voice,
-          engine: kokoroResult.data.engine || 'Kokoro TTS'
+          duration: piperResult.data.duration || 5,
+          text: piperResult.data.text,
+          voice: piperResult.data.voice,
+          engine: piperResult.data.engine || 'Piper TTS'
         };
       } catch (error) {
         console.error(`Error generating TTS for scene ${index + 1}:`, error);

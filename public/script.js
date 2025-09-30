@@ -574,8 +574,8 @@ async function generateCompleteVideo() {
         updateVideoStatusItem(0, 'completed', 'تنظیمات صدا آماده شد', '');
         updateVideoProgress(1, 4);
         
-        // Step 2: Generate TTS for all scenes using Kokoro
-        addVideoStatusItem(1, 'processing', 'تولید صدا برای صحنه‌ها با کوکورو...', '');
+        // Step 2: Generate TTS for all scenes using Piper TTS
+        addVideoStatusItem(1, 'processing', 'تولید صدا برای صحنه‌ها با Piper TTS...', '');
         const ttsPromises = currentScript.scenes.map(async (scene, index) => {
             try {
                 const response = await fetch('/api/kokoro/text-to-speech', {
@@ -583,7 +583,7 @@ async function generateCompleteVideo() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         text: scene.speaker_text,
-                        voice: audioSettings.voice || 'af_heart'
+                        voice: audioSettings.voice || 'en_US-lessac-medium'
                     })
                 });
                 const result = await response.json();
