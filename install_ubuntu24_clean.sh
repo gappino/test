@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # ===========================================
-# VideoMaker Free V2 - Ubuntu 24 Installation Script (Final)
+# VideoMaker Free V2 - Ubuntu 24 Installation Script (Ultra Clean)
 # ===========================================
-# This script only uses packages available in Ubuntu 24
+# This script only installs packages that definitely exist in Ubuntu 24
 
 set -e  # Exit on any error
 
 echo "==========================================="
-echo "VideoMaker Free V2 - Ubuntu 24 Setup (Final)"
+echo "VideoMaker Free V2 - Ubuntu 24 Setup (Ultra Clean)"
 echo "==========================================="
 
 # Colors for output
@@ -38,7 +38,7 @@ print_header() {
 # Check if running as root
 if [[ $EUID -ne 0 ]]; then
    print_error "This script must be run as root on Ubuntu 24 server."
-   print_warning "Please run: sudo bash install_ubuntu24_final.sh"
+   print_warning "Please run: sudo bash install_ubuntu24_clean.sh"
    exit 1
 fi
 
@@ -48,7 +48,7 @@ print_status "Running as root on Ubuntu 24 server - OK"
 print_header "Updating system packages..."
 apt update && apt upgrade -y
 
-# Install essential system packages (only available packages)
+# Install essential system packages (only guaranteed available packages)
 print_header "Installing essential system packages..."
 apt install -y \
     curl \
@@ -96,7 +96,7 @@ PIP_VERSION=$(pip3 --version)
 print_status "Python installed: $PYTHON_VERSION"
 print_status "pip installed: $PIP_VERSION"
 
-# Install additional audio/video libraries
+# Install additional audio/video libraries (only available ones)
 print_header "Installing additional audio/video libraries..."
 apt install -y \
     libavcodec-dev \
@@ -119,8 +119,8 @@ apt install -y \
     libspeex-dev \
     libvorbis-dev
 
-# Install system dependencies for machine learning (only available packages)
-print_header "Installing ML system dependencies..."
+# Install basic ML dependencies (only available packages)
+print_header "Installing basic ML dependencies..."
 apt install -y \
     libopenblas-dev \
     liblapack-dev \
