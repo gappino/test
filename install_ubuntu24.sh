@@ -40,8 +40,8 @@ print_header() {
 if [[ $EUID -eq 0 ]]; then
    print_error "This script should not be run as root for security reasons."
    print_warning "Please run as a regular user. The script will ask for sudo when needed."
-   exit 1
-fi
+        exit 1
+    fi
 
 # Update system packages
 print_header "Updating system packages..."
@@ -50,15 +50,15 @@ sudo apt update && sudo apt upgrade -y
 # Install essential system packages
 print_header "Installing essential system packages..."
 sudo apt install -y \
-    curl \
-    wget \
-    git \
-    build-essential \
-    software-properties-common \
-    apt-transport-https \
-    ca-certificates \
-    gnupg \
-    lsb-release \
+        curl \
+        wget \
+        git \
+        build-essential \
+        software-properties-common \
+        apt-transport-https \
+        ca-certificates \
+        gnupg \
+        lsb-release \
     python3-venv \
     python3-pip \
     python3-dev \
@@ -108,21 +108,21 @@ print_status "pip installed: $PIP_VERSION"
 # Install additional audio/video libraries
 print_header "Installing additional audio/video libraries..."
 sudo apt install -y \
-    libavcodec-dev \
-    libavformat-dev \
-    libavutil-dev \
-    libswscale-dev \
-    libswresample-dev \
-    libavfilter-dev \
-    libavdevice-dev \
+        libavcodec-dev \
+        libavformat-dev \
+        libavutil-dev \
+        libswscale-dev \
+        libswresample-dev \
+        libavfilter-dev \
+        libavdevice-dev \
     libopus-dev \
     libvorbis-dev \
     libmp3lame-dev \
-    libx264-dev \
-    libx265-dev \
+        libx264-dev \
+        libx265-dev \
     libvpx-dev \
     libaom-dev \
-    libfdk-aac-dev \
+        libfdk-aac-dev \
     libxvidcore-dev \
     libtheora-dev \
     libspeex-dev \
@@ -132,10 +132,10 @@ sudo apt install -y \
 print_header "Installing ML system dependencies..."
 sudo apt install -y \
     libopenblas-dev \
-    liblapack-dev \
-    libatlas-base-dev \
-    gfortran \
-    libhdf5-dev \
+        liblapack-dev \
+        libatlas-base-dev \
+        gfortran \
+        libhdf5-dev \
     libhdf5-serial-dev \
     libhdf5-103 \
     libqtgui4 \
@@ -151,17 +151,18 @@ PROJECT_DIR="/opt/videomakerfree_v2"
 sudo mkdir -p $PROJECT_DIR
 sudo chown $USER:$USER $PROJECT_DIR
 
-# Clone or copy project (assuming current directory contains the project)
-print_header "Copying project files..."
-if [ -f "package.json" ]; then
-    print_status "Copying project from current directory..."
-    cp -r . $PROJECT_DIR/
-    cd $PROJECT_DIR
-else
-    print_error "package.json not found in current directory."
-    print_warning "Please run this script from the project root directory."
-    exit 1
+# Clone project from GitHub
+print_header "Cloning project from GitHub..."
+cd /opt
+if [ -d "videomakerfree_v2" ]; then
+    print_warning "Project directory already exists. Removing old version..."
+    sudo rm -rf videomakerfree_v2
 fi
+
+print_status "Cloning VideoMaker Free V2 from GitHub..."
+git clone https://github.com/gappino/test.git videomakerfree_v2
+sudo chown -R $USER:$USER $PROJECT_DIR
+cd $PROJECT_DIR
 
 # Set up Node.js dependencies
 print_header "Installing Node.js dependencies..."
@@ -214,14 +215,7 @@ mkdir -p output
 mkdir -p temp
 mkdir -p public/audio
 
-# Set up environment file
-print_header "Setting up environment configuration..."
-if [ ! -f ".env" ]; then
-    cp env.example .env
-    print_status "Environment file created from template."
-fi
-
-# Get Gemini API key from user
+# Get Gemini API key from user BEFORE installing dependencies
 print_header "Gemini API Key Setup..."
 echo ""
 echo -e "${YELLOW}Please provide your Gemini API key:${NC}"
@@ -234,9 +228,29 @@ if [ -z "$GEMINI_API_KEY" ]; then
     GEMINI_API_KEY="your_gemini_api_key_here"
 fi
 
-# Update .env file with the API key
-sed -i "s/GEMINI_API_KEY=.*/GEMINI_API_KEY=$GEMINI_API_KEY/" .env
-print_status "Gemini API key configured in .env file."
+# Set up environment file
+print_header "Setting up environment configuration..."
+if [ -f "env.example" ]; then
+    cp env.example .env
+    print_status "Environment file created from template."
+    
+    # Update .env file with the API key
+    sed -i "s/GEMINI_API_KEY=.*/GEMINI_API_KEY=$GEMINI_API_KEY/" .env
+    print_status "Gemini API key configured in .env file."
+else
+    print_warning "env.example not found. Creating basic .env file..."
+    cat > .env << EOF
+# Gemini API Configuration
+GEMINI_API_KEY=$GEMINI_API_KEY
+
+# Pollinations.ai Configuration (No API key needed - Free service)
+
+# Server Configuration
+PORT=3003
+NODE_ENV=production
+EOF
+    print_status "Basic .env file created with API key."
+fi
 
 # Set proper permissions
 print_header "Setting file permissions..."
@@ -263,8 +277,8 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 EOF
-
-# Reload systemd and enable service
+    
+    # Reload systemd and enable service
 sudo systemctl daemon-reload
 sudo systemctl enable videomakerfree.service
 
@@ -297,22 +311,22 @@ chmod +x $PROJECT_DIR/restart.sh
 
 # Test installations
 print_header "Testing installations..."
-
-# Test Node.js
+    
+    # Test Node.js
 if command -v node &> /dev/null; then
     print_status "✓ Node.js is working"
-else
+    else
     print_error "✗ Node.js installation failed"
-fi
-
-# Test Python
+    fi
+    
+    # Test Python
 if command -v python3 &> /dev/null; then
     print_status "✓ Python is working"
-else
+    else
     print_error "✗ Python installation failed"
-fi
-
-# Test FFmpeg
+    fi
+    
+    # Test FFmpeg
 if command -v ffmpeg &> /dev/null; then
     FFMPEG_VERSION=$(ffmpeg -version | head -n1)
     print_status "✓ FFmpeg is working: $FFMPEG_VERSION"
@@ -322,41 +336,61 @@ fi
 
 # Final setup instructions
 print_header "Installation Complete!"
-echo ""
+    echo ""
 echo -e "${GREEN}===========================================${NC}"
 echo -e "${GREEN}Setup Complete - Ready to Use!${NC}"
 echo -e "${GREEN}===========================================${NC}"
-echo ""
+    echo ""
 echo -e "${GREEN}✓ All dependencies installed${NC}"
 echo -e "${GREEN}✓ Project configured${NC}"
 echo -e "${GREEN}✓ Gemini API key configured${NC}"
 echo -e "${GREEN}✓ Service created${NC}"
-echo ""
+    echo ""
 echo "Server Management Commands:"
 echo "  • Start:   sudo systemctl start videomakerfree.service"
 echo "  • Stop:    sudo systemctl stop videomakerfree.service"
 echo "  • Restart: sudo systemctl restart videomakerfree.service"
 echo "  • Status:  sudo systemctl status videomakerfree.service"
 echo "  • Logs:    sudo journalctl -u videomakerfree.service -f"
-echo ""
+    echo ""
 echo -e "${YELLOW}Server URL: http://localhost:3003${NC}"
 echo -e "${YELLOW}Project Directory: $PROJECT_DIR${NC}"
-echo ""
+    echo ""
 echo -e "${GREEN}===========================================${NC}"
 echo -e "${GREEN}Ready to start your VideoMaker server!${NC}"
 echo -e "${GREEN}===========================================${NC}"
 
-# Optional: Start the service automatically
-read -p "Do you want to start the server now? (y/n): " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    print_header "Starting VideoMaker Free V2 server..."
-    sudo systemctl start videomakerfree.service
-    sleep 3
-    if sudo systemctl is-active --quiet videomakerfree.service; then
-        print_status "✓ Server started successfully!"
-        print_status "Server is running on: http://localhost:3003"
-    else
-        print_error "✗ Failed to start server. Check logs with: sudo journalctl -u videomakerfree.service"
-    fi
+# Start the service automatically
+print_header "Starting VideoMaker Free V2 server..."
+sudo systemctl start videomakerfree.service
+sleep 5
+
+# Check if service started successfully
+if sudo systemctl is-active --quiet videomakerfree.service; then
+    print_status "✓ Server started successfully!"
+    print_status "✓ Service is running and enabled for auto-start"
+    
+    # Get server IP for external access
+    SERVER_IP=$(hostname -I | awk '{print $1}')
+    
+    echo ""
+    echo -e "${GREEN}===========================================${NC}"
+    echo -e "${GREEN}🚀 VideoMaker Free V2 is now running!${NC}"
+    echo -e "${GREEN}===========================================${NC}"
+    echo ""
+    echo -e "${YELLOW}Access URLs:${NC}"
+    echo -e "  • Local:  http://localhost:3003"
+    echo -e "  • Server: http://$SERVER_IP:3003"
+    echo ""
+    echo -e "${YELLOW}Service Status:${NC}"
+    sudo systemctl status videomakerfree.service --no-pager -l
+    echo ""
+else
+    print_error "✗ Failed to start server."
+    print_warning "Checking logs for errors..."
+    sudo journalctl -u videomakerfree.service --no-pager -l --since "1 minute ago"
+    echo ""
+    print_warning "You can try starting manually with:"
+    print_warning "sudo systemctl start videomakerfree.service"
+    print_warning "sudo journalctl -u videomakerfree.service -f"
 fi
