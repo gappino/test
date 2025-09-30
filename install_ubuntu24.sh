@@ -36,12 +36,32 @@ print_header() {
     echo -e "${BLUE}[STEP]${NC} $1"
 }
 
-# Check if running as root
+# Check if running as root and create regular user if needed
 if [[ $EUID -eq 0 ]]; then
-   print_error "This script should not be run as root for security reasons."
-   print_warning "Please run as a regular user. The script will ask for sudo when needed."
+   print_warning "Running as root. Creating regular user for better security..."
+   
+   # Check if videomaker user already exists
+   if ! id "videomaker" &>/dev/null; then
+       print_status "Creating user 'videomaker'..."
+       useradd -m -s /bin/bash videomaker
+       usermod -aG sudo videomaker
+       print_status "User 'videomaker' created and added to sudo group."
+   else
+       print_status "User 'videomaker' already exists."
+   fi
+   
+   print_warning "Please run this script as the 'videomaker' user instead:"
+   print_warning "su - videomaker"
+   print_warning "bash install_ubuntu24.sh"
+   print_warning ""
+   print_warning "Or if you want to continue as root (not recommended), edit the script."
+   read -p "Continue as root anyway? (y/n): " -n 1 -r
+   echo
+   if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         exit 1
     fi
+   print_warning "Continuing as root..."
+fi
 
 # Update system packages
 print_header "Updating system packages..."
