@@ -89,16 +89,9 @@ NPM_VERSION=$(npm --version)
 print_status "Node.js installed: $NODE_VERSION"
 print_status "npm installed: $NPM_VERSION"
 
-# Install Python 3.11+ (required for Kokoro TTS)
-print_header "Installing Python 3.11..."
-apt install -y python3.11 python3.11-venv python3.11-dev python3.11-distutils
-
-# Create symbolic links for python3.11
-update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
-update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
-
-# Install pip for Python 3.11
-curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
+# Install Python 3.12+ (Ubuntu 24 default)
+print_header "Installing Python 3.12..."
+apt install -y python3 python3-venv python3-dev python3-distutils python3-pip
 
 # Verify Python installation
 PYTHON_VERSION=$(python3 --version)
