@@ -48,10 +48,7 @@ app.get('/video-history', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'video-history.html'));
 });
 
-// Audio history page
-app.get('/audio-history', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'audio-history.html'));
-});
+// Audio history page removed
 
 // Image history page
 app.get('/image-history', (req, res) => {
@@ -76,7 +73,7 @@ const remotionRoutes = require('./routes/remotion');
 const videoRoutes = require('./routes/video');
 const kokoroRoutes = require('./routes/kokoro');
 const videoHistoryRoutes = require('./routes/video-history');
-const audioHistoryRoutes = require('./routes/audio-history');
+// Audio history routes removed
 const imageHistoryRoutes = require('./routes/image-history');
 
 // Use real Gemini API for actual AI content generation
@@ -87,7 +84,7 @@ app.use('/api/remotion', remotionRoutes);
 app.use('/api/video', videoRoutes);
 app.use('/api/kokoro', kokoroRoutes);
 app.use('/api/video-history', videoHistoryRoutes);
-app.use('/api/audio-history', audioHistoryRoutes);
+// Audio history API removed
 app.use('/api/image-history', imageHistoryRoutes);
 
 // Pass io instance to routes
