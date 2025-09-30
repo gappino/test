@@ -36,40 +36,24 @@ print_header() {
     echo -e "${BLUE}[STEP]${NC} $1"
 }
 
-# Check if running as root and create regular user if needed
+# Set execution user for Ubuntu 24 server
 if [[ $EUID -eq 0 ]]; then
-   print_warning "Running as root. Creating regular user for better security..."
-   
-   # Check if videomaker user already exists
-   if ! id "videomaker" &>/dev/null; then
-       print_status "Creating user 'videomaker'..."
-       useradd -m -s /bin/bash videomaker
-       usermod -aG sudo videomaker
-       print_status "User 'videomaker' created and added to sudo group."
-   else
-       print_status "User 'videomaker' already exists."
-   fi
-   
-   print_warning "Please run this script as the 'videomaker' user instead:"
-   print_warning "su - videomaker"
-   print_warning "bash install_ubuntu24.sh"
-   print_warning ""
-   print_warning "Or if you want to continue as root (not recommended), edit the script."
-   read -p "Continue as root anyway? (y/n): " -n 1 -r
-   echo
-   if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit 1
-    fi
-   print_warning "Continuing as root..."
+   print_warning "Running as root on Ubuntu 24 server."
+   EXEC_USER="root"
+   SUDO_CMD=""
+else
+   print_status "Running as regular user."
+   EXEC_USER="$USER"
+   SUDO_CMD="sudo"
 fi
 
 # Update system packages
 print_header "Updating system packages..."
-sudo apt update && sudo apt upgrade -y
+$SUDO_CMD apt update && $SUDO_CMD apt upgrade -y
 
 # Install essential system packages
 print_header "Installing essential system packages..."
-sudo apt install -y \
+$SUDO_CMD apt install -y \
         curl \
         wget \
         git \
@@ -99,8 +83,8 @@ sudo apt install -y \
 
 # Install Node.js 20.x (LTS)
 print_header "Installing Node.js 20.x LTS..."
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
+curl -fsSL https://deb.nodesource.com/setup_20.x | $SUDO_CMD -E bash -
+$SUDO_CMD apt install -y nodejs
 
 # Verify Node.js installation
 NODE_VERSION=$(node --version)
@@ -110,11 +94,11 @@ print_status "npm installed: $NPM_VERSION"
 
 # Install Python 3.11+ (required for Kokoro TTS)
 print_header "Installing Python 3.11..."
-sudo apt install -y python3.11 python3.11-venv python3.11-dev python3.11-distutils
+$SUDO_CMD apt install -y python3.11 python3.11-venv python3.11-dev python3.11-distutils
 
 # Create symbolic links for python3.11
-sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
-sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+$SUDO_CMD update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
+$SUDO_CMD update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
 
 # Install pip for Python 3.11
 curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
@@ -127,7 +111,7 @@ print_status "pip installed: $PIP_VERSION"
 
 # Install additional audio/video libraries
 print_header "Installing additional audio/video libraries..."
-sudo apt install -y \
+$SUDO_CMD apt install -y \
         libavcodec-dev \
         libavformat-dev \
         libavutil-dev \
@@ -150,7 +134,7 @@ sudo apt install -y \
 
 # Install system dependencies for machine learning
 print_header "Installing ML system dependencies..."
-sudo apt install -y \
+$SUDO_CMD apt install -y \
     libopenblas-dev \
         liblapack-dev \
         libatlas-base-dev \
@@ -168,20 +152,20 @@ sudo apt install -y \
 # Set up project directory
 print_header "Setting up project directory..."
 PROJECT_DIR="/opt/videomakerfree_v2"
-sudo mkdir -p $PROJECT_DIR
-sudo chown $USER:$USER $PROJECT_DIR
+$SUDO_CMD mkdir -p $PROJECT_DIR
+$SUDO_CMD chown $EXEC_USER:$EXEC_USER $PROJECT_DIR
 
 # Clone project from GitHub
 print_header "Cloning project from GitHub..."
 cd /opt
 if [ -d "videomakerfree_v2" ]; then
     print_warning "Project directory already exists. Removing old version..."
-    sudo rm -rf videomakerfree_v2
+    $SUDO_CMD rm -rf videomakerfree_v2
 fi
 
 print_status "Cloning VideoMaker Free V2 from GitHub..."
 git clone https://github.com/gappino/test.git videomakerfree_v2
-sudo chown -R $USER:$USER $PROJECT_DIR
+$SUDO_CMD chown -R $EXEC_USER:$EXEC_USER $PROJECT_DIR
 cd $PROJECT_DIR
 
 # Set up Node.js dependencies
@@ -276,18 +260,18 @@ fi
 print_header "Setting file permissions..."
 chmod +x server.js
 chmod 755 -R $PROJECT_DIR
-chown -R $USER:$USER $PROJECT_DIR
+$SUDO_CMD chown -R $EXEC_USER:$EXEC_USER $PROJECT_DIR
 
 # Create systemd service for auto-start
 print_header "Creating systemd service..."
-sudo tee /etc/systemd/system/videomakerfree.service > /dev/null <<EOF
+$SUDO_CMD tee /etc/systemd/system/videomakerfree.service > /dev/null <<EOF
 [Unit]
 Description=VideoMaker Free V2 Server
 After=network.target
 
 [Service]
 Type=simple
-User=$USER
+User=$EXEC_USER
 WorkingDirectory=$PROJECT_DIR
 Environment=PATH=$PROJECT_DIR/venv/bin:/usr/local/bin:/usr/bin:/bin
 ExecStart=/usr/bin/node server.js
@@ -299,8 +283,8 @@ WantedBy=multi-user.target
 EOF
     
     # Reload systemd and enable service
-sudo systemctl daemon-reload
-sudo systemctl enable videomakerfree.service
+$SUDO_CMD systemctl daemon-reload
+$SUDO_CMD systemctl enable videomakerfree.service
 
 # Create startup script
 print_header "Creating startup script..."
@@ -382,11 +366,11 @@ echo -e "${GREEN}===========================================${NC}"
 
 # Start the service automatically
 print_header "Starting VideoMaker Free V2 server..."
-sudo systemctl start videomakerfree.service
+$SUDO_CMD systemctl start videomakerfree.service
 sleep 5
 
 # Check if service started successfully
-if sudo systemctl is-active --quiet videomakerfree.service; then
+if $SUDO_CMD systemctl is-active --quiet videomakerfree.service; then
     print_status "✓ Server started successfully!"
     print_status "✓ Service is running and enabled for auto-start"
     
@@ -403,14 +387,14 @@ if sudo systemctl is-active --quiet videomakerfree.service; then
     echo -e "  • Server: http://$SERVER_IP:3003"
     echo ""
     echo -e "${YELLOW}Service Status:${NC}"
-    sudo systemctl status videomakerfree.service --no-pager -l
+    $SUDO_CMD systemctl status videomakerfree.service --no-pager -l
     echo ""
 else
     print_error "✗ Failed to start server."
     print_warning "Checking logs for errors..."
-    sudo journalctl -u videomakerfree.service --no-pager -l --since "1 minute ago"
+    $SUDO_CMD journalctl -u videomakerfree.service --no-pager -l --since "1 minute ago"
     echo ""
     print_warning "You can try starting manually with:"
-    print_warning "sudo systemctl start videomakerfree.service"
-    print_warning "sudo journalctl -u videomakerfree.service -f"
+    print_warning "$SUDO_CMD systemctl start videomakerfree.service"
+    print_warning "$SUDO_CMD journalctl -u videomakerfree.service -f"
 fi
