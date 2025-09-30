@@ -91,7 +91,7 @@ print_status "npm installed: $NPM_VERSION"
 
 # Install Python 3.12+ (Ubuntu 24 default)
 print_header "Installing Python 3.12..."
-apt install -y python3 python3-venv python3-dev python3-distutils python3-pip
+apt install -y python3 python3-venv python3-dev python3-pip
 
 # Verify Python installation
 PYTHON_VERSION=$(python3 --version)

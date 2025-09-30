@@ -63,7 +63,6 @@ apt install -y \
     python3 \
     python3-venv \
     python3-dev \
-    python3-distutils \
     python3-pip \
     libffi-dev \
     libssl-dev \
