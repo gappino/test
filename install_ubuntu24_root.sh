@@ -210,11 +210,9 @@ print_header "Installing Python dependencies..."
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt
 
-# Install Kokoro TTS dependencies
-print_header "Installing Kokoro TTS..."
-cd kokoro
-pip install -e .
-cd ..
+# Skip Kokoro TTS (we use piper-tts instead)
+print_header "Skipping Kokoro TTS (using piper-tts instead)..."
+print_status "Piper TTS already installed from requirements.txt"
 
 # Install additional Python packages for audio processing
 print_header "Installing additional Python audio packages..."
