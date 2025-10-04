@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#3b82f6">
-    <title>ارک پلاس - سازنده ویدیو هوش مصنوعی</title>
+    <title>ارک پلاس - ویدیوهای بلند</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -14,35 +14,81 @@
         <!-- Header -->
         <header class="header">
             <div class="header-content">
-                <h1><i class="fas fa-robot"></i> ارک پلاس</h1>
-                <p>پلتفرم هوشمند تولید محتوا با استفاده از Gemini و Flax</p>
+                <h1><i class="fas fa-film"></i> ارک پلاس - ویدیوهای بلند</h1>
+                <p>تولید ویدیوهای طولانی با تصاویر افقی و زیرنویس</p>
             </div>
         </header>
 
         <!-- Main Content -->
         <main class="main-content">
+            <!-- Long Form Video Info Section -->
+            <section class="long-form-info-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-info-circle"></i> درباره ویدیوهای طولانی</h2>
+                        <p>ویژگی‌های مخصوص ویدیوهای طولانی</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="features-grid">
+                            <div class="feature-item">
+                                <i class="fas fa-scroll"></i>
+                                <h3>چند صحنه</h3>
+                                <p>از 3 تا 100 صحنه - انتخاب بر اساس نیاز شما</p>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                                <h3>تصاویر افقی</h3>
+                                <p>تمام تصاویر به صورت افقی (landscape) تولید می‌شوند</p>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-closed-captioning"></i>
+                                <h3>زیرنویس خودکار</h3>
+                                <p>زیرنویس‌های 3 کلمه‌ای روی ویدیو embed می‌شوند</p>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-clock"></i>
+                                <h3>تولید سریع</h3>
+                                <p>تست با 3 صحنه برای سرعت بیشتر</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Idea Generation Section -->
             <section class="idea-generation-section">
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fas fa-lightbulb"></i> تولید اسکریپت خلاقانه</h2>
-                        <p>ایده خود را وارد کنید تا اسکریپت خلاقانه و جذاب برای یوتیوب تولید کنیم</p>
+                        <h2><i class="fas fa-lightbulb"></i> تولید اسکریپت طولانی</h2>
+                        <p>ایده خود را وارد کنید تا اسکریپت طولانی و جامع برای ویدیو تولید کنیم</p>
                     </div>
                     
                     <div class="card-body">
                         <div class="form-group">
-                            <label for="userIdea">ایده شما:</label>
+                            <label for="longFormUserIdea">ایده شما:</label>
                             <textarea 
-                                id="userIdea" 
+                                id="longFormUserIdea" 
                                 class="form-control" 
-                                rows="3" 
-                                placeholder="مثال: آموزش برنامه‌نویسی، بررسی گوشی‌های جدید، نکات سلامتی..."
+                                rows="4" 
+                                placeholder="مثال: آموزش کامل برنامه‌نویسی، بررسی جامع گوشی‌های جدید، راهنمای کامل سلامتی و تناسب اندام..."
                             ></textarea>
                         </div>
                         
                         <div class="form-group">
-                            <label for="voiceSelect">انتخاب مدل صدا:</label>
-                            <select id="voiceSelect" class="form-control">
+                            <label for="videoLength">طول ویدیو مورد نظر:</label>
+                            <select id="videoLength" class="form-control">
+                                <option value="3" selected>3 صحنه (تست فوری)</option>
+                                <option value="5">5 صحنه (تست سریع)</option>
+                                <option value="20">20 صحنه (بهینه برای منابع محدود)</option>
+                                <option value="30">30 صحنه (ویدیو متوسط)</option>
+                                <option value="50">50 صحنه (ویدیو بلند)</option>
+                                <option value="100">100 صحنه (ویدیو بسیار طولانی)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="longFormVoiceSelect">انتخاب مدل صدا:</label>
+                            <select id="longFormVoiceSelect" class="form-control">
                                 <optgroup label="🎤 صداهای فارسی">
                                     <option value="fa_IR-amir-medium">امیر - صدای مرد فارسی</option>
                                     <option value="fa_IR-ganji-medium">گنجی - صدای مرد فارسی</option>
@@ -61,138 +107,107 @@
                             </select>
                         </div>
                         
-                        <button id="generateNichesBtn" class="btn btn-primary">
+                        <button id="generateLongFormScriptBtn" class="btn btn-primary">
                             <i class="fas fa-magic"></i>
-                            تولید اسکریپت خلاقانه
+                            تولید اسکریپت طولانی
                         </button>
                         
-                        <div id="nichesLoadingSection" class="loading-section hidden">
+                        <div id="longFormLoadingSection" class="loading-section hidden">
                             <div class="loading-spinner">
                                 <i class="fas fa-cog fa-spin"></i>
                             </div>
-                            <p>در حال تولید اسکریپت خلاقانه...</p>
+                            <p>در حال تولید اسکریپت طولانی...</p>
                         </div>
                     </div>
                 </div>
             </section>
-
-            <!-- Niches Selection Section -->
-            <section id="nichesSection" class="niches-section hidden">
-                <div class="card">
-                    <div class="card-header">
-                        <h2><i class="fas fa-target"></i> نیچ‌های پرطرفدار یوتیوب</h2>
-                        <p>یکی از نیچ‌های زیر را انتخاب کنید</p>
-                    </div>
-                    <div class="card-body">
-                        <div id="nichesContainer" class="niches-container"></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Content Generation Section -->
-            <section class="generation-section hidden" id="contentGenerationSection">
-                <div class="card">
-                    <div class="card-header">
-                        <h2><i class="fas fa-magic"></i> تولید محتوا</h2>
-                        <p>محتوای یوتیوب بر اساس نیچ انتخابی شما</p>
-                    </div>
-                    
-                    <div class="card-body">
-                        <div id="selectedNicheInfo" class="selected-niche-info"></div>
-                        
-                        <button id="generateContentBtn" class="btn btn-primary">
-                            <i class="fas fa-play"></i>
-                            تولید محتوای یوتیوب
-                        </button>
-                        
-                        <div id="contentLoadingSection" class="loading-section hidden">
-                            <div class="loading-spinner">
-                                <i class="fas fa-cog fa-spin"></i>
-                            </div>
-                            <p>در حال تولید محتوای کامل...</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
 
             <!-- Script Display Section -->
-            <section id="scriptSection" class="script-section hidden">
+            <section id="longFormScriptSection" class="script-section hidden">
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fas fa-file-alt"></i> اسکریپت تولید شده</h2>
+                        <h2><i class="fas fa-file-alt"></i> اسکریپت طولانی تولید شده</h2>
+                        <div class="script-stats">
+                            <span id="scriptStats"></span>
+                        </div>
                     </div>
                     <div class="card-body">
-                        <div id="scriptContent"></div>
-                        <button id="generateImagesBtn" class="btn btn-secondary">
+                        <div id="longFormScriptContent"></div>
+                        <button id="generateLongFormImagesBtn" class="btn btn-secondary">
                             <i class="fas fa-arrow-right"></i>
                             شروع تولید کامل
                         </button>
                         
-                        <button id="generateCompleteVideoBtn" class="btn btn-success hidden">
+                        <button id="generateLongFormCompleteVideoBtn" class="btn btn-success hidden">
                             <i class="fas fa-video"></i>
-                            تولید ویدیو کامل
+                            تولید ویدیو طولانی کامل
                         </button>
                     </div>
                 </div>
             </section>
 
             <!-- Image Generation Progress -->
-            <section id="imageProgressSection" class="image-progress-section hidden">
+            <section id="longFormImageProgressSection" class="image-progress-section hidden">
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fas fa-images"></i> تولید تصاویر</h2>
+                        <h2><i class="fas fa-images"></i> تولید تصاویر افقی</h2>
                         <div class="progress-info">
-                            <span id="progressText">0 از 0 تصویر</span>
+                            <span id="longFormProgressText">0 از 0 تصویر</span>
                             <div class="progress-bar">
-                                <div id="progressFill" class="progress-fill"></div>
+                                <div id="longFormProgressFill" class="progress-fill"></div>
                             </div>
                         </div>
                     </div>
                     <div class="card-body">
-                        <div id="imageGenerationStatus"></div>
+                        <div id="longFormImageGenerationStatus"></div>
                     </div>
                 </div>
             </section>
 
-
-
             <!-- Generated Images Gallery -->
-            <section id="imagesGallery" class="images-gallery hidden">
+            <section id="longFormImagesGallery" class="images-gallery hidden">
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fas fa-photo-video"></i> تصاویر تولید شده</h2>
+                        <h2><i class="fas fa-photo-video"></i> تصاویر افقی تولید شده</h2>
                     </div>
                     <div class="card-body">
-                        <div id="imagesContainer" class="images-container"></div>
+                        <div id="longFormImagesContainer" class="images-container horizontal-images"></div>
                         
+                        <!-- Queue Status -->
+                        <div id="queueStatusSection" class="queue-status-section hidden">
+                            <h3><i class="fas fa-tasks"></i> وضعیت صف پردازش</h3>
+                            <div id="queueInfo" class="queue-info">
+                                <p>در حال بررسی وضعیت صف...</p>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </section>
 
             <!-- Video Generation Progress -->
-            <section id="videoProgressSection" class="video-progress-section hidden">
+            <section id="longFormVideoProgressSection" class="video-progress-section hidden">
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fas fa-video"></i> تولید ویدیو کامل</h2>
+                        <h2><i class="fas fa-video"></i> تولید ویدیو طولانی</h2>
                         <div class="enhanced-progress-container">
                             <div class="progress-stats">
                                 <div class="progress-stat">
                                     <span class="stat-label">مرحله فعلی:</span>
-                                    <span id="currentStepText" class="stat-value">آماده‌سازی</span>
+                                    <span id="longFormCurrentStepText" class="stat-value">آماده‌سازی</span>
                                 </div>
                                 <div class="progress-stat">
                                     <span class="stat-label">پیشرفت:</span>
-                                    <span id="videoProgressText" class="stat-value">0 از 4 مرحله</span>
+                                    <span id="longFormVideoProgressText" class="stat-value">0 از 4 مرحله</span>
                                 </div>
                                 <div class="progress-stat">
                                     <span class="stat-label">زمان باقی‌مانده:</span>
-                                    <span id="estimatedTime" class="stat-value">محاسبه...</span>
+                                    <span id="longFormEstimatedTime" class="stat-value">محاسبه...</span>
                                 </div>
                             </div>
                             <div class="enhanced-progress-bar">
                                 <div class="progress-track">
-                                    <div id="videoProgressFill" class="progress-fill-enhanced"></div>
+                                    <div id="longFormVideoProgressFill" class="progress-fill-enhanced"></div>
                                     <div class="progress-steps">
                                         <div class="progress-step active" data-step="1">
                                             <i class="fas fa-cog"></i>
@@ -216,19 +231,20 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <div id="videoGenerationStatus"></div>
+                        <div id="longFormVideoGenerationStatus"></div>
                     </div>
                 </div>
             </section>
 
             <!-- Generated Video -->
-            <section id="videoSection" class="video-result hidden">
+            <section id="longFormVideoSection" class="video-result hidden">
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fas fa-play-circle"></i> ویدیو تولید شده</h2>
+                        <h2><i class="fas fa-play-circle"></i> ویدیو طولانی تولید شده</h2>
+                        <p>ویدیو شما آماده است و در زیر قابل مشاهده می‌باشد</p>
                     </div>
                     <div class="card-body">
-                        <div id="videoContainer" class="video-container"></div>
+                        <div id="longFormVideoContainer" class="video-container"></div>
                     </div>
                 </div>
             </section>
@@ -236,13 +252,14 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <p>&copy; 2024 ارک پلاس. تمامی حقوق محفوظ است.</p>
+            <p>&copy; 2024 سازنده ویدیو هوش مصنوعی. تمامی حقوق محفوظ است.</p>
         </footer>
     </div>
 
     <!-- Scripts -->
     <script src="/socket.io/socket.io.js"></script>
+    <script src="long-form-video.js"></script>
     <script src="ark-menu.js"></script>
-    <script src="script.js"></script>
 </body>
 </html>
+

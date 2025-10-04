@@ -43,6 +43,21 @@ app.get('/custom-video', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'custom_video.html'));
 });
 
+// TTS test page
+app.get('/test-tts', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'test-tts.html'));
+});
+
+// Long form video page
+app.get('/long-form-video', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'long-form-video.html'));
+});
+
+// Image generation test page
+app.get('/test-image-generation', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'test-image-generation.html'));
+});
+
 // Video history page
 app.get('/video-history', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'video-history.html'));

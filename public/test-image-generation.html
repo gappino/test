@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3b82f6">
+    <title>ارک پلاس - ساخت تصویر</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-paint-brush"></i> ارک پلاس - ساخت تصویر</h1>
+                <p>تست و آزمایش تولید تصاویر با هوش مصنوعی</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Custom Image Generation Section -->
+            <section class="image-generation-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-paint-brush"></i> تولید تصویر سفارشی</h2>
+                        <p>پرامپت خود را وارد کنید و تصویر بسازید</p>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="customPrompt">پرامپت تصویر:</label>
+                            <textarea 
+                                id="customPrompt" 
+                                class="form-control" 
+                                rows="4" 
+                                placeholder="مثال: یک ربات هوش مصنوعی در حال کار در یک آزمایشگاه مدرن..."
+                            ></textarea>
+                        </div>
+                        
+                        <div class="image-dimensions">
+                            <div class="form-group">
+                                <label for="imageWidth">عرض تصویر:</label>
+                                <select id="imageWidth" class="form-control">
+                                    <option value="1080">1080 (عمودی)</option>
+                                    <option value="1920">1920 (افقی)</option>
+                                    <option value="1024">1024 (مربع)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="imageHeight">ارتفاع تصویر:</label>
+                                <select id="imageHeight" class="form-control">
+                                    <option value="1920">1920 (عمودی)</option>
+                                    <option value="1080">1080 (افقی)</option>
+                                    <option value="1024">1024 (مربع)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button id="generateCustomImageBtn" class="btn btn-primary">
+                            <i class="fas fa-image"></i>
+                            تولید تصویر
+                        </button>
+                        
+                        <div id="customImageLoading" class="loading-section hidden">
+                            <div class="loading-spinner">
+                                <i class="fas fa-cog fa-spin"></i>
+                            </div>
+                            <p>در حال تولید تصویر...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Generated Image Result -->
+            <section id="customImageSection" class="custom-image-result hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-image"></i> تصویر سفارشی تولید شده</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="customImageContainer" class="custom-image-container"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Image Gallery -->
+            <section class="image-gallery-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-images"></i> گالری تصاویر تولید شده</h2>
+                        <p>تصاویر اخیر تولید شده</p>
+                    </div>
+                    <div class="card-body">
+                        <div id="imageGallery" class="image-gallery-grid"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 سازنده ویدیو هوش مصنوعی. تمامی حقوق محفوظ است.</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="test-image-generation.js"></script>
+    <script src="ark-menu.js"></script>
+</body>
+</html>
+
+
+
+
+

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3b82f6">
+    <title>ارک پلاس - تبدیل متن به صدا</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-microphone"></i> ارک پلاس - تبدیل متن به صدا</h1>
+                <p>تست و آزمایش مدل‌های مختلف تبدیل متن به صدا</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- TTS Test Section -->
+            <section class="tts-test-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-microphone"></i> تست مستقیم تبدیل متن به صدا</h2>
+                        <p>متن خود را وارد کنید و با مدل‌های مختلف صدا تست کنید</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="directTtsText">متن برای تبدیل به صدا:</label>
+                            <textarea id="directTtsText" class="form-control" rows="4" placeholder="متن خود را اینجا بنویسید..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="directTtsVoice">انتخاب مدل صدا:</label>
+                            <select id="directTtsVoice" class="form-control">
+                                <optgroup label="🎤 صداهای فارسی">
+                                    <option value="fa_IR-amir-medium">امیر - صدای مرد فارسی</option>
+                                    <option value="fa_IR-ganji-medium">گنجی - صدای مرد فارسی</option>
+                                    <option value="fa_IR-ganji_adabi-medium">گنجی ادبی - صدای مرد فارسی</option>
+                                    <option value="fa_IR-gyro-medium">جیرو - صدای مرد فارسی</option>
+                                    <option value="fa_IR-reza_ibrahim-medium">رضا ابراهیم - صدای مرد فارسی</option>
+                                </optgroup>
+                                <optgroup label="👩 صداهای زن انگلیسی">
+                                    <option value="en_US-kristin-medium">Kristin Medium - صدای زن</option>
+                                    <option value="en_US-lessac-high">Lessac High - صدای زن</option>
+                                </optgroup>
+                                <optgroup label="👨 صداهای مرد انگلیسی">
+                                    <option value="en_US-john-medium">John Medium - صدای مرد</option>
+                                    <option value="en_US-ryan-high">Ryan High - صدای مرد</option>
+                                    <option value="en_US-norman-medium">Norman Medium - صدای مرد</option>
+                                    <option value="en_US-kusal-medium">Kusal Medium - صدای مرد</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <button id="generateDirectTtsBtn" class="btn btn-primary">
+                            <i class="fas fa-volume-up"></i> تبدیل به صدا
+                        </button>
+                        
+                        <div id="directTtsLoading" class="loading-section hidden">
+                            <div class="loading-spinner">
+                                <i class="fas fa-cog fa-spin"></i>
+                            </div>
+                            <p>در حال تولید صدا...</p>
+                        </div>
+                        
+                        <div id="directTtsResult" class="tts-result hidden">
+                            <h3><i class="fas fa-check-circle"></i> نتیجه تبدیل به صدا</h3>
+                            <div id="directTtsContainer" class="tts-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Voice Comparison Section -->
+            <section class="voice-comparison-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-balance-scale"></i> مقایسه مدل‌های صدا</h2>
+                        <p>همه مدل‌های صدا را با یک متن تست کنید</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="comparisonText">متن برای مقایسه:</label>
+                            <textarea id="comparisonText" class="form-control" rows="3" placeholder="متن خود را اینجا بنویسید..."></textarea>
+                        </div>
+                        <button id="compareVoicesBtn" class="btn btn-secondary">
+                            <i class="fas fa-balance-scale"></i> مقایسه همه صداها
+                        </button>
+                        
+                        <div id="voiceComparisonLoading" class="loading-section hidden">
+                            <div class="loading-spinner">
+                                <i class="fas fa-cog fa-spin"></i>
+                            </div>
+                            <p>در حال تولید صداها برای مقایسه...</p>
+                        </div>
+                        
+                        <div id="voiceComparisonResult" class="voice-comparison-container hidden"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 سازنده ویدیو هوش مصنوعی. تمامی حقوق محفوظ است.</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="test-tts.js"></script>
+    <script src="ark-menu.js"></script>
+</body>
+</html>

@@ -328,4 +328,154 @@ Make sure:
     }
 });
 
+// Generate long form script
+router.post('/generate-long-form-script', async (req, res) => {
+    const { userIdea, sceneCount = 20 } = req.body;
+    
+    try {
+        
+        if (!userIdea || typeof userIdea !== 'string' || userIdea.trim().length === 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'User idea is required and must be a non-empty string'
+            });
+        }
+        
+        console.log('🤖 Calling Gemini API for long form script generation...');
+        console.log('💡 User idea:', userIdea.trim());
+        console.log('📊 Scene count:', sceneCount);
+        
+        const prompt = `Based on the user's idea: "${userIdea.trim()}"
+
+Create a comprehensive YouTube video script that:
+- Has exactly ${sceneCount} scenes (${sceneCount} scenes total)
+- Each scene has detailed speaker text with at least 30 words
+- Creates engaging, educational, or entertaining content
+- Maintains viewer engagement throughout the duration
+- Has strong storytelling and narrative flow
+- Is suitable for your chosen content format
+
+IMPORTANT: Respond with ONLY valid JSON. No markdown formatting, code blocks, or additional text.
+
+Critical Requirements:
+1. All speaker_text (narrator voice) must be in ENGLISH and detailed (minimum 30 words per scene)
+2. All image_prompt descriptions must be in ENGLISH and extremely detailed for horizontal/landscape images
+3. Create exactly ${sceneCount} scenes for the video
+4. Each image prompt must be optimized for horizontal/landscape format (16:9 aspect ratio)
+5. Content must be engaging and educational throughout the duration
+6. Each scene should build upon the previous one to create a cohesive narrative
+
+Provide the response in this JSON format:
+{
+  "title": "Comprehensive Long-Form Video Title",
+  "description": "Detailed SEO-optimized video description for long-form content",
+  "tags": ["longform", "education", "comprehensive", "detailed", "tutorial"],
+  "estimated_duration": "${Math.ceil(sceneCount * 4)}-${Math.ceil(sceneCount * 6)} seconds",
+  "scenes": [
+    {
+      "scene_number": 1,
+      "duration": "0-6 seconds",
+      "speaker_text": "Detailed English narrator text with at least 30 words that provides comprehensive information and engages the viewer",
+      "visual_description": "Description of what should be shown on screen for horizontal format",
+      "image_prompt": "Extremely detailed English prompt for horizontal AI image generation (16:9 aspect ratio) that perfectly matches the narrator text and creates engaging visual content"
+    }
+  ],
+  "content_type": "long-form educational/entertainment content",
+  "engagement_strategy": "How this long-form content maintains viewer engagement",
+  "educational_value": "High/Medium/Low with explanation of learning outcomes"
+}
+
+Make sure:
+- Content tells a complete, comprehensive story
+- Each scene connects to the next naturally with smooth transitions
+- Image prompts are optimized for horizontal/landscape format (16:9)
+- Content provides substantial value for long-form viewing
+- Uses storytelling techniques effectively for extended duration
+- All text (speaker_text, descriptions, etc.) is in English for global appeal
+- Each scene provides detailed, valuable information`;
+
+        let scriptData;
+        let response;
+        
+        try {
+            response = await callGeminiAPI(prompt);
+            console.log('✅ Received response from Gemini for long form script');
+            console.log('📄 Response length:', response.length);
+            console.log('📄 Response preview:', response.substring(0, 200) + '...');
+            
+            scriptData = JSON.parse(response);
+            console.log('✅ Successfully parsed JSON from Gemini for long form script');
+            console.log('📊 Generated long form script:', {
+                title: scriptData.title,
+                scenesCount: scriptData.scenes ? scriptData.scenes.length : 0,
+                estimatedDuration: scriptData.estimated_duration
+            });
+            
+        } catch (parseError) {
+            console.error('❌ JSON parse error:', parseError);
+            console.log('📄 Raw response that failed to parse:', response || 'No response available');
+            
+            // Try to extract JSON from the response
+            const jsonMatch = (response || '').match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                try {
+                    scriptData = JSON.parse(jsonMatch[0]);
+                    console.log('✅ Successfully extracted and parsed JSON from response');
+                } catch (extractError) {
+                    console.error('❌ Failed to parse extracted JSON:', extractError);
+                    throw new Error('Failed to parse JSON response from Gemini');
+                }
+            } else {
+                throw new Error('No JSON found in Gemini response');
+            }
+        }
+        
+        // Validate the script data
+        if (!scriptData.title || !scriptData.scenes || !Array.isArray(scriptData.scenes)) {
+            throw new Error('Invalid script data structure from Gemini');
+        }
+        
+        // Ensure we have the minimum number of scenes
+        if (scriptData.scenes.length < sceneCount) {
+            console.log(`⚠️ Generated ${scriptData.scenes.length} scenes, but requested ${sceneCount}. Using generated scenes.`);
+        }
+        
+        res.json({
+            success: true,
+            data: scriptData
+        });
+        
+    } catch (error) {
+        console.error('❌ Error generating long form script with Gemini:', error);
+        
+        // Return fallback data if Gemini fails - USE THE REQUESTED SCENE COUNT
+        const fallbackSceneCount = sceneCount || 3; // استفاده از تعداد صحنه‌های درخواستی
+        console.log(`⚠️ Creating fallback script with ${fallbackSceneCount} scenes`);
+        
+        const fallbackScript = {
+            title: `${userIdea.trim()} - Comprehensive Deep Dive`,
+            description: `A comprehensive exploration of ${userIdea.trim()} and its impact`,
+            tags: ["longform", userIdea.trim().split(' ')[0], "comprehensive", "education"],
+            estimated_duration: `${Math.ceil(fallbackSceneCount * 4)}-${Math.ceil(fallbackSceneCount * 6)} seconds`,
+            scenes: Array.from({ length: fallbackSceneCount }, (_, i) => ({
+                scene_number: i + 1,
+                duration: `${i * 6}-${(i + 1) * 6} seconds`,
+                speaker_text: `This is scene ${i + 1} of our comprehensive exploration of ${userIdea.trim()}. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of ${userIdea.trim()} in our modern world.`,
+                visual_description: `Scene ${i + 1} showing ${userIdea.trim()} concepts and applications`,
+                image_prompt: `Professional horizontal composition showing ${userIdea.trim()} concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization`
+            })),
+            content_type: "long-form educational content",
+            engagement_strategy: "Comprehensive coverage with detailed explanations",
+            educational_value: "High - provides in-depth understanding of concepts"
+        };
+        
+        res.json({
+            success: true,
+            data: fallbackScript,
+            fallback: true,
+            fallbackReason: error.message
+        });
+    }
+});
+
 module.exports = router;

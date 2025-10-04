@@ -94,7 +94,7 @@ dist
 
 # Gatsby files
 .cache/
-# public (commented out to include HTML files)
+# public/ directory is included in the repository
 
 # Storybook build outputs
 .out
@@ -128,3 +128,18 @@ af_heart/
 is/
 this/
 kokoro/
+
+# Audio files (temporary generated files)
+*.wav
+*.mp3
+*.mp4
+*.avi
+*.mov
+
+# TTS model files (too large for git)
+*.onnx
+*.onnx.json
+
+# Temporary test files
+piper_tts_*.wav
+kokoro_tts_*.wav

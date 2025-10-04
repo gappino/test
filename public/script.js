@@ -25,18 +25,17 @@ const selectedNicheInfo = document.getElementById('selectedNicheInfo');
 const generateContentBtn = document.getElementById('generateContentBtn');
 const contentLoadingSection = document.getElementById('contentLoadingSection');
 
-// Custom Image Elements
-const customPrompt = document.getElementById('customPrompt');
-const imageWidth = document.getElementById('imageWidth');
-const imageHeight = document.getElementById('imageHeight');
-const generateCustomImageBtn = document.getElementById('generateCustomImageBtn');
-const customImageLoading = document.getElementById('customImageLoading');
-const customImageSection = document.getElementById('customImageSection');
-const customImageContainer = document.getElementById('customImageContainer');
+// Custom Image Elements (removed from main page)
+// const customPrompt = document.getElementById('customPrompt');
+// const imageWidth = document.getElementById('imageWidth');
+// const imageHeight = document.getElementById('imageHeight');
+// const generateCustomImageBtn = document.getElementById('generateCustomImageBtn');
+// const customImageLoading = document.getElementById('customImageLoading');
+// const customImageSection = document.getElementById('customImageSection');
+// const customImageContainer = document.getElementById('customImageContainer');
 
 // Video Generation Elements
 const generateCompleteVideoBtn = document.getElementById('generateCompleteVideoBtn');
-const audioSettings = document.getElementById('audioSettings');
 const voiceSelect = document.getElementById('voiceSelect');
 const videoProgressSection = document.getElementById('videoProgressSection');
 const videoGenerationStatus = document.getElementById('videoGenerationStatus');
@@ -45,12 +44,17 @@ const videoProgressFill = document.getElementById('videoProgressFill');
 const videoSection = document.getElementById('videoSection');
 const videoContainer = document.getElementById('videoContainer');
 
-// Direct TTS Elements
-const directTtsText = document.getElementById('directTtsText');
-const directTtsVoice = document.getElementById('directTtsVoice');
-const generateDirectTtsBtn = document.getElementById('generateDirectTtsBtn');
-const directTtsResult = document.getElementById('directTtsResult');
-const directTtsContainer = document.getElementById('directTtsContainer');
+// Enhanced Progress Elements
+const currentStepText = document.getElementById('currentStepText');
+const estimatedTime = document.getElementById('estimatedTime');
+
+// Direct TTS Elements (moved to separate test page)
+// const directTtsText = document.getElementById('directTtsText');
+// const directTtsVoice = document.getElementById('directTtsVoice');
+// const generateDirectTtsBtn = document.getElementById('generateDirectTtsBtn');
+// const directTtsResult = document.getElementById('directTtsResult');
+// const directTtsContainer = document.getElementById('directTtsContainer');
+
 
 // Global variables
 let currentScript = null;
@@ -62,9 +66,9 @@ let currentUserIdea = '';
 // Event Listeners
 if (generateBtn) generateBtn.addEventListener('click', generateScript);
 generateImagesBtn.addEventListener('click', generateImages);
-generateCustomImageBtn.addEventListener('click', generateCustomImage);
+// generateCustomImageBtn.addEventListener('click', generateCustomImage); // Moved to test page
 generateCompleteVideoBtn.addEventListener('click', generateCompleteVideo);
-generateDirectTtsBtn.addEventListener('click', generateDirectTTS);
+// generateDirectTtsBtn.addEventListener('click', generateDirectTTS); // Moved to test page
 
 // Direct Creative Script Generation Event Listener
 generateNichesBtn.addEventListener('click', generateCreativeScript);
@@ -270,21 +274,54 @@ async function generateScript() {
     }
 }
 
-// Display generated script
+// Display generated script with editing capabilities
 function displayScript(script) {
     const html = `
         <div class="script-content">
             <h3 class="script-title">${script.title}</h3>
             <p class="script-description">${script.description}</p>
+            <div class="script-editing-info">
+                <i class="fas fa-edit"></i>
+                <span>می‌توانید متن گوینده و پرامپت تصویر هر صحنه را ویرایش کنید</span>
+            </div>
             <ul class="scenes-list">
-                ${script.scenes.map(scene => `
-                    <li class="scene-item">
+                ${script.scenes.map((scene, index) => `
+                    <li class="scene-item editable-scene">
                         <div class="scene-header">
                             <span class="scene-number">صحنه ${scene.scene_number}</span>
                             <span class="scene-duration">${scene.duration}</span>
+                            <button class="btn-edit-scene" onclick="toggleSceneEdit(${index})">
+                                <i class="fas fa-edit"></i> ویرایش
+                            </button>
                         </div>
-                        <div class="scene-text">${scene.speaker_text}</div>
-                        <div class="scene-visual">${scene.visual_description}</div>
+                        <div class="scene-content">
+                            <div class="scene-text-display" id="scene-text-${index}">
+                                <strong>متن گوینده:</strong>
+                                <p>${scene.speaker_text}</p>
+                            </div>
+                            <div class="scene-visual-display" id="scene-visual-${index}">
+                                <strong>پرامپت تصویر:</strong>
+                                <p>${scene.visual_description}</p>
+                            </div>
+                            <div class="scene-edit-form hidden" id="scene-edit-${index}">
+                                <div class="form-group">
+                                    <label>متن گوینده:</label>
+                                    <textarea class="form-control scene-speaker-edit" rows="3" data-scene="${index}">${scene.speaker_text}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>پرامپت تصویر:</label>
+                                    <textarea class="form-control scene-visual-edit" rows="2" data-scene="${index}">${scene.visual_description}</textarea>
+                                </div>
+                                <div class="scene-edit-actions">
+                                    <button class="btn btn-success btn-small" onclick="saveSceneEdit(${index})">
+                                        <i class="fas fa-save"></i> ذخیره
+                                    </button>
+                                    <button class="btn btn-secondary btn-small" onclick="cancelSceneEdit(${index})">
+                                        <i class="fas fa-times"></i> لغو
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </li>
                 `).join('')}
             </ul>
@@ -303,7 +340,10 @@ async function generateImages() {
     
     try {
         generateImagesBtn.disabled = true;
-        generateImagesBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال تولید تصاویر...';
+        generateImagesBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال تولید تصاویر و ویدیو...';
+        
+        // Show elegant warning notification
+        showPageWarningNotification();
         
         // Show progress section
         imageProgressSection.classList.remove('hidden');
@@ -318,12 +358,19 @@ async function generateImages() {
         for (let i = 0; i < currentScript.scenes.length; i++) {
             const scene = currentScript.scenes[i];
             
-            // Add status item
-            addStatusItem(i, 'generating', 'تولید تصویر...', scene.speaker_text);
+            // Add status item with indication if using edited prompt
+            const isEditedPrompt = scene.visual_description && scene.visual_description !== scene.image_prompt;
+            const statusText = isEditedPrompt ? 'تولید تصویر با پرامپت ویرایش شده...' : 'تولید تصویر...';
+            addStatusItem(i, 'generating', statusText, scene.speaker_text);
             
             try {
-                // Use the image prompt already generated by Gemini in the script
-                const imagePrompt = scene.image_prompt || scene.visual_description || 'A beautiful and engaging visual';
+                // Use the edited visual description if available, otherwise fall back to original prompts
+                const imagePrompt = scene.visual_description || scene.image_prompt || 'A beautiful and engaging visual';
+                
+                // Log which prompt is being used for debugging
+                console.log(`Scene ${i + 1} - Using prompt:`, imagePrompt);
+                console.log(`Scene ${i + 1} - Original image_prompt:`, scene.image_prompt);
+                console.log(`Scene ${i + 1} - Edited visual_description:`, scene.visual_description);
                 
                 imagePrompts.push({
                     sceneIndex: i,
@@ -352,7 +399,8 @@ async function generateImages() {
                             scene: scene
                         });
                         
-                        updateStatusItem(i, 'completed', 'تصویر تولید شد', scene.speaker_text);
+                        const completionText = isEditedPrompt ? 'تصویر با پرامپت ویرایش شده تولید شد' : 'تصویر تولید شد';
+                        updateStatusItem(i, 'completed', completionText, scene.speaker_text);
                         displayGeneratedImage(i, imageResult.data.image_url, scene);
                         
                     } else {
@@ -371,20 +419,26 @@ async function generateImages() {
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
         
-        // Show images gallery
-        imagesGallery.classList.remove('hidden');
-        imagesGallery.classList.add('fade-in');
+        // Hide images gallery after generation (as requested)
+        imagesGallery.classList.add('hidden');
         
-        // Show audio settings and complete video button
-        audioSettings.classList.remove('hidden');
-        generateCompleteVideoBtn.classList.remove('hidden');
+        // Show notification for next step
+        showNotification('تصاویر با موفقیت تولید شدند! در حال شروع تولید ویدیو...', 'success');
+        
+        // Automatically start video generation after a short delay
+        setTimeout(() => {
+            generateCompleteVideo();
+        }, 2000); // 2 second delay to show the success message
         
     } catch (error) {
         console.error('Error generating images:', error);
         alert('خطا در تولید تصاویر: ' + error.message);
     } finally {
         generateImagesBtn.disabled = false;
-        generateImagesBtn.innerHTML = '<i class="fas fa-images"></i> تولید تصاویر';
+        generateImagesBtn.innerHTML = '<i class="fas fa-arrow-right"></i> شروع تولید کامل';
+        
+        // Hide the complete video button since it's now automatic
+        generateCompleteVideoBtn.classList.add('hidden');
     }
 }
 
@@ -474,78 +528,11 @@ socket.on('imageGenerated', (data) => {
     console.log('Image generated:', data);
 });
 
-// Generate custom image
-async function generateCustomImage() {
-    try {
-        const prompt = customPrompt.value.trim();
-        
-        if (!prompt) {
-            alert('لطفاً پرامپت تصویر را وارد کنید');
-            return;
-        }
-        
-        // Show loading state
-        generateCustomImageBtn.disabled = true;
-        generateCustomImageBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال تولید...';
-        customImageLoading.classList.remove('hidden');
-        
-        // Get dimensions
-        const width = imageWidth.value;
-        const height = imageHeight.value;
-        
-        // Generate image using Pollinations.ai
-        const response = await fetch('/api/flax/generate-image-url', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                prompt: prompt,
-                width: parseInt(width),
-                height: parseInt(height)
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            displayCustomImage(result.data.image_url, prompt, width, height);
-            customImageSection.classList.remove('hidden');
-            customImageSection.classList.add('fade-in');
-        } else {
-            throw new Error(result.error || 'خطا در تولید تصویر');
-        }
-        
-    } catch (error) {
-        console.error('Error generating custom image:', error);
-        alert('خطا در تولید تصویر: ' + error.message);
-    } finally {
-        // Reset button state
-        generateCustomImageBtn.disabled = false;
-        generateCustomImageBtn.innerHTML = '<i class="fas fa-image"></i> تولید تصویر';
-        customImageLoading.classList.add('hidden');
-    }
-}
+// Generate custom image (moved to test-image-generation.js)
+// async function generateCustomImage() { ... }
 
-// Display custom generated image
-function displayCustomImage(imageUrl, prompt, width, height) {
-    const imageItem = document.createElement('div');
-    imageItem.className = 'custom-image-item fade-in';
-    
-    imageItem.innerHTML = `
-        <img src="${imageUrl}" alt="Custom Generated Image" 
-             onerror="this.parentElement.innerHTML='<i class=\\"fas fa-image\\"></i> خطا در بارگذاری تصویر'">
-        <div class="custom-image-info">
-            <h4>تصویر سفارشی تولید شده</h4>
-            <p><strong>پرامپت:</strong> ${prompt}</p>
-            <p><strong>ابعاد:</strong> ${width} × ${height} پیکسل</p>
-            <p><strong>سرویس:</strong> Pollinations.ai</p>
-        </div>
-    `;
-    
-    customImageContainer.innerHTML = '';
-    customImageContainer.appendChild(imageItem);
-}
+// Display custom generated image (moved to test-image-generation.js)
+// function displayCustomImage(imageUrl, prompt, width, height) { ... }
 
 // Generate complete video
 async function generateCompleteVideo() {
@@ -558,6 +545,9 @@ async function generateCompleteVideo() {
         // Show loading state
         generateCompleteVideoBtn.disabled = true;
         generateCompleteVideoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال تولید ویدیو...';
+        
+        // Show elegant warning notification
+        showPageWarningNotification();
         
         // Show video progress section
         videoProgressSection.classList.remove('hidden');
@@ -719,11 +709,66 @@ function updateVideoStatusItem(index, status, statusText, description) {
     }
 }
 
-// Update video progress bar
+// Update video progress bar with enhanced features
 function updateVideoProgress(current, total) {
     const percentage = (current / total) * 100;
     videoProgressFill.style.width = `${percentage}%`;
     videoProgressText.textContent = `${current} از ${total} مرحله`;
+    
+    // Update step indicators
+    updateProgressSteps(current);
+    
+    // Update current step text
+    updateCurrentStepText(current);
+    
+    // Update estimated time
+    updateEstimatedTime(current, total);
+}
+
+// Update progress step indicators
+function updateProgressSteps(currentStep) {
+    const steps = document.querySelectorAll('.progress-step');
+    steps.forEach((step, index) => {
+        step.classList.remove('active', 'completed', 'pending');
+        if (index < currentStep) {
+            step.classList.add('completed');
+        } else if (index === currentStep - 1) {
+            step.classList.add('active');
+        } else {
+            step.classList.add('pending');
+        }
+    });
+}
+
+// Update current step text
+function updateCurrentStepText(currentStep) {
+    const stepTexts = [
+        'آماده‌سازی',
+        'تولید صدا',
+        'ترکیب تصاویر',
+        'تولید نهایی'
+    ];
+    
+    if (currentStepText && stepTexts[currentStep - 1]) {
+        currentStepText.textContent = stepTexts[currentStep - 1];
+    }
+}
+
+// Update estimated time
+function updateEstimatedTime(current, total) {
+    if (estimatedTime) {
+        const remainingSteps = total - current;
+        const estimatedSeconds = remainingSteps * 15; // Assume 15 seconds per step
+        
+        if (remainingSteps === 0) {
+            estimatedTime.textContent = 'تقریباً تمام شد';
+        } else if (estimatedSeconds < 60) {
+            estimatedTime.textContent = `تقریباً ${estimatedSeconds} ثانیه`;
+        } else {
+            const minutes = Math.ceil(estimatedSeconds / 60);
+            estimatedTime.textContent = `تقریباً ${minutes} دقیقه`;
+        }
+    }
 }
 
 // Display audio results with play buttons
@@ -825,82 +870,11 @@ function displayGeneratedVideo(videoData) {
     videoContainer.appendChild(videoItem);
 }
 
-// Generate direct TTS
-async function generateDirectTTS() {
-    try {
-        const text = directTtsText.value.trim();
-        const voice = directTtsVoice.value;
-        
-        if (!text) {
-            alert('لطفاً متنی برای تبدیل به صدا وارد کنید');
-            return;
-        }
-        
-        // Show loading state
-        generateDirectTtsBtn.disabled = true;
-        generateDirectTtsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال تولید صدا...';
-        
-        // Call Kokoro TTS API
-        const response = await fetch('/api/kokoro/text-to-speech', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text: text,
-                voice: voice
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            // Display the result
-            displayDirectTTSResult(result.data);
-            directTtsResult.style.display = 'block';
-        } else {
-            alert('خطا در تولید صدا: ' + result.error);
-        }
-        
-    } catch (error) {
-        console.error('Error generating TTS:', error);
-        alert('خطا در تولید صدا: ' + error.message);
-    } finally {
-        // Reset button state
-        generateDirectTtsBtn.disabled = false;
-        generateDirectTtsBtn.innerHTML = '<i class="fas fa-volume-up"></i> تبدیل به صدا';
-    }
-}
+// Generate direct TTS (moved to test-tts.js)
+// async function generateDirectTTS() { ... }
 
-// Display direct TTS result
-function displayDirectTTSResult(audioData) {
-    const audioItem = document.createElement('div');
-    audioItem.className = 'custom-image-item';
-    
-    audioItem.innerHTML = `
-        <div class="custom-image-info">
-            <h4>صدا تولید شده با کوکورو</h4>
-            <p><strong>متن:</strong> ${audioData.text}</p>
-            <p><strong>صدا:</strong> ${audioData.voice}</p>
-            <p><strong>موتور:</strong> ${audioData.engine}</p>
-            <p><strong>مدت زمان:</strong> ${audioData.duration.toFixed(1)} ثانیه</p>
-            <p><strong>تعداد کلمات:</strong> ${audioData.words}</p>
-            <p><strong>نرخ نمونه‌برداری:</strong> ${audioData.sample_rate} Hz</p>
-        </div>
-        <div class="audio-controls">
-            <audio controls class="audio-player">
-                <source src="${audioData.audio_url}" type="audio/wav">
-                مرورگر شما از پخش صدا پشتیبانی نمی‌کند.
-            </audio>
-            <div class="audio-info">
-                <small>فایل صوتی با کیفیت بالا تولید شده توسط کوکورو TTS</small>
-            </div>
-        </div>
-    `;
-    
-    directTtsContainer.innerHTML = '';
-    directTtsContainer.appendChild(audioItem);
-}
+// Display direct TTS result (moved to test-tts.js)
+// function displayDirectTTSResult(audioData) { ... }
 
 // Load available voices
 async function loadAvailableVoices() {
@@ -1003,9 +977,177 @@ function showQuotaWarning() {
     }, 10000);
 }
 
+// Scene editing functions
+function toggleSceneEdit(sceneIndex) {
+    const editForm = document.getElementById(`scene-edit-${sceneIndex}`);
+    const textDisplay = document.getElementById(`scene-text-${sceneIndex}`);
+    const visualDisplay = document.getElementById(`scene-visual-${sceneIndex}`);
+    const editBtn = document.querySelector(`[onclick="toggleSceneEdit(${sceneIndex})"]`);
+    
+    if (editForm.classList.contains('hidden')) {
+        // Show edit form
+        editForm.classList.remove('hidden');
+        textDisplay.classList.add('hidden');
+        visualDisplay.classList.add('hidden');
+        editBtn.innerHTML = '<i class="fas fa-times"></i> لغو ویرایش';
+        editBtn.onclick = () => cancelSceneEdit(sceneIndex);
+    } else {
+        // Hide edit form
+        editForm.classList.add('hidden');
+        textDisplay.classList.remove('hidden');
+        visualDisplay.classList.remove('hidden');
+        editBtn.innerHTML = '<i class="fas fa-edit"></i> ویرایش';
+        editBtn.onclick = () => toggleSceneEdit(sceneIndex);
+    }
+}
+
+function saveSceneEdit(sceneIndex) {
+    const speakerText = document.querySelector(`.scene-speaker-edit[data-scene="${sceneIndex}"]`).value;
+    const visualDescription = document.querySelector(`.scene-visual-edit[data-scene="${sceneIndex}"]`).value;
+    
+    // Update current script
+    if (currentScript && currentScript.scenes && currentScript.scenes[sceneIndex]) {
+        currentScript.scenes[sceneIndex].speaker_text = speakerText;
+        currentScript.scenes[sceneIndex].visual_description = visualDescription;
+    }
+    
+    // Update display
+    const textDisplay = document.getElementById(`scene-text-${sceneIndex}`);
+    const visualDisplay = document.getElementById(`scene-visual-${sceneIndex}`);
+    
+    textDisplay.querySelector('p').textContent = speakerText;
+    visualDisplay.querySelector('p').textContent = visualDescription;
+    
+    // Hide edit form
+    toggleSceneEdit(sceneIndex);
+    
+    // Show success message
+    showNotification('تغییرات با موفقیت ذخیره شد و در تولید تصاویر اعمال خواهد شد', 'success');
+}
+
+function cancelSceneEdit(sceneIndex) {
+    // Reset form values to original
+    const speakerText = currentScript.scenes[sceneIndex].speaker_text;
+    const visualDescription = currentScript.scenes[sceneIndex].visual_description;
+    
+    document.querySelector(`.scene-speaker-edit[data-scene="${sceneIndex}"]`).value = speakerText;
+    document.querySelector(`.scene-visual-edit[data-scene="${sceneIndex}"]`).value = visualDescription;
+    
+    // Hide edit form
+    toggleSceneEdit(sceneIndex);
+}
+
+
+// Notification system
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 3000);
+}
+
+// Elegant Page Warning Notification
+function showPageWarningNotification() {
+    // Remove any existing warning notification
+    const existingWarning = document.querySelector('.page-warning-notification');
+    if (existingWarning) {
+        existingWarning.remove();
+    }
+    
+    const warningNotification = document.createElement('div');
+    warningNotification.className = 'page-warning-notification';
+    warningNotification.innerHTML = `
+        <div class="page-warning-content">
+            <div class="page-warning-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="page-warning-text">
+                <div class="page-warning-title">⚠️ توجه مهم</div>
+                <div class="page-warning-message">
+                    لطفاً تا پایان ساخت ویدیو از صفحه خارج نشوید و صفحه را ریلود نکنید. 
+                    این کار ممکن است باعث قطع شدن فرآیند تولید شود.
+                </div>
+            </div>
+            <button class="page-warning-close" onclick="closePageWarningNotification()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(warningNotification);
+    
+    // Auto remove after 15 seconds
+    setTimeout(() => {
+        if (warningNotification.parentElement) {
+            closePageWarningNotification();
+        }
+    }, 15000);
+}
+
+// Close Page Warning Notification
+function closePageWarningNotification() {
+    const warningNotification = document.querySelector('.page-warning-notification');
+    if (warningNotification) {
+        warningNotification.style.animation = 'fadeOutUp 0.5s ease-out forwards';
+        setTimeout(() => {
+            if (warningNotification.parentElement) {
+                warningNotification.remove();
+            }
+        }, 500);
+    }
+}
+
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
     console.log('AI Video Maker initialized');
     loadAvailableVoices();
+    
+    // Add beforeunload event listener to warn users about leaving during generation
+    let isGenerating = false;
+    
+    // Track generation state
+    const originalGenerateImages = generateImages;
+    const originalGenerateCompleteVideo = generateCompleteVideo;
+    
+    generateImages = async function() {
+        isGenerating = true;
+        try {
+            await originalGenerateImages.call(this);
+        } finally {
+            isGenerating = false;
+        }
+    };
+    
+    generateCompleteVideo = async function() {
+        isGenerating = true;
+        try {
+            await originalGenerateCompleteVideo.call(this);
+        } finally {
+            isGenerating = false;
+        }
+    };
+    
+    window.addEventListener('beforeunload', (event) => {
+        if (isGenerating) {
+            const message = 'آیا مطمئن هستید که می‌خواهید صفحه را ترک کنید؟ فرآیند تولید ویدیو ممکن است قطع شود.';
+            event.preventDefault();
+            event.returnValue = message;
+            return message;
+        }
+    });
 });
 

@@ -10,6 +10,7 @@ import json
 import subprocess
 import tempfile
 import time
+import uuid
 import shutil
 from pathlib import Path
 
@@ -35,7 +36,7 @@ def get_audio_duration(audio_file):
             print(f"ffprobe error: {result.stderr}")
             # Fallback to file size estimation
             file_size = os.path.getsize(audio_file)
-            sample_rate = 16000
+            sample_rate = 22050  # Use 22kHz for better quality
             duration = file_size / (sample_rate * 2)
             return duration
             
@@ -44,7 +45,7 @@ def get_audio_duration(audio_file):
         # Fallback to file size estimation
         try:
             file_size = os.path.getsize(audio_file)
-            sample_rate = 16000
+            sample_rate = 22050  # Use 22kHz for better quality
             duration = file_size / (sample_rate * 2)
             return duration
         except:
@@ -73,7 +74,7 @@ def download_voice_if_needed(voice_name, data_dir=None):
             return False
     return True
 
-def generate_speech(text, voice_name="en_US-lessac-medium", output_file=None, data_dir=None):
+def generate_speech(text, voice_name="en_US-kristin-medium", output_file=None, data_dir=None):
     """
     Generate speech using Piper TTS
     
@@ -106,14 +107,19 @@ def generate_speech(text, voice_name="en_US-lessac-medium", output_file=None, da
         
         # Create output file if not provided
         if output_file is None:
-            # Use the data_dir as the output directory
-            output_file = os.path.join(os.path.abspath(data_dir), f"piper_tts_{int(time.time() * 1000)}.wav")
+            # Use the data_dir as the output directory with a unique filename
+            unique_id = uuid.uuid4().hex
+            output_file = os.path.join(os.path.abspath(data_dir), f"piper_tts_{unique_id}.wav")
         
         # Ensure output directory exists
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         
+        # Print without encoding errors
         print(f"Generating speech with voice: {voice_name}")
-        print(f"Text: {text[:50].encode('utf-8', errors='ignore').decode('utf-8')}...")
+        try:
+            print(f"Text length: {len(text)} characters")
+        except:
+            pass
         print(f"Output: {output_file}")
         
         # Run Piper TTS with proper encoding
@@ -125,7 +131,8 @@ def generate_speech(text, voice_name="en_US-lessac-medium", output_file=None, da
             '--', text
         ]
         
-        print(f"Running command: {' '.join(cmd)}")
+        # Don't print command with Persian text to avoid encoding errors
+        print(f"Running Piper TTS...")
         
         # Use UTF-8 encoding for subprocess
         result = subprocess.run(
@@ -224,8 +231,13 @@ if __name__ == "__main__":
         sys.exit(1)
     
     text = sys.argv[1]
-    voice = sys.argv[2] if len(sys.argv) > 2 else "en_US-lessac-medium"
+    voice = sys.argv[2] if len(sys.argv) > 2 else "en_US-kristin-medium"
     output_dir = sys.argv[3] if len(sys.argv) > 3 else None
+    unique_suffix = sys.argv[4] if len(sys.argv) > 4 else None
     
-    result = generate_speech(text, voice, data_dir=output_dir)
+    target_output = None
+    if output_dir and unique_suffix:
+        target_output = os.path.join(os.path.abspath(output_dir), f"piper_tts_{unique_suffix}.wav")
+
+    result = generate_speech(text, voice, output_file=target_output, data_dir=output_dir)
     print(json.dumps(result, ensure_ascii=True))

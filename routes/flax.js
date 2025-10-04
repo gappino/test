@@ -186,6 +186,106 @@ router.post('/generate-image-url', async (req, res) => {
   }
 });
 
+// Generate horizontal image using Pollinations.ai
+router.post('/generate-horizontal-image-url', async (req, res) => {
+  try {
+    const { prompt, width = 1920, height = 1080 } = req.body;
+    
+    if (!prompt) {
+      return res.status(400).json({
+        success: false,
+        error: 'Prompt is required'
+      });
+    }
+    
+    console.log('🖼️ Generating horizontal image with Pollinations.ai...');
+    console.log('📝 Prompt:', prompt);
+    console.log('📐 Dimensions:', `${width}x${height}`);
+    
+    // Create direct URL for Pollinations.ai with horizontal dimensions
+    const params = new URLSearchParams({
+      prompt: prompt,
+      width: width.toString(),
+      height: height.toString(),
+      model: 'flux',
+      seed: Math.floor(Math.random() * 1000000).toString(),
+      nologo: 'true'
+    });
+    
+    const imageUrl = `${POLLINATIONS_BASE_URL}/prompt/${encodeURIComponent(prompt)}?${params.toString()}`;
+    
+    console.log('🔗 Generated image URL:', imageUrl);
+    
+    // Try to download and save the image
+    try {
+      const response = await axios.get(imageUrl, {
+        timeout: 120000,
+        responseType: 'arraybuffer'
+      });
+      
+      // Save image to file
+      const imagesDir = path.join(__dirname, '../generation');
+      await fs.ensureDir(imagesDir);
+      
+      const timestamp = Date.now();
+      const filename = `horizontal_image_${timestamp}_${Math.random().toString(36).substr(2, 9)}.png`;
+      const imagePath = path.join(imagesDir, filename);
+      
+      // Save the image data to file
+      await fs.writeFile(imagePath, response.data);
+      
+      // Create URL for the saved image
+      const localImageUrl = `/generation/${filename}`;
+      
+      console.log('✅ Horizontal image saved successfully:', localImageUrl);
+      
+      res.json({
+        success: true,
+        data: {
+          image_url: localImageUrl,
+          image_path: imagePath,
+          filename: filename,
+          prompt: prompt,
+          parameters: {
+            width: parseInt(width),
+            height: parseInt(height),
+            model: 'flux',
+            seed: params.get('seed'),
+            orientation: 'horizontal'
+          }
+        }
+      });
+      
+    } catch (downloadError) {
+      console.log('⚠️ Could not download image, returning URL only:', downloadError.message);
+      
+      // Fallback to URL only
+      res.json({
+        success: true,
+        data: {
+          image_url: imageUrl,
+          prompt: prompt,
+          parameters: {
+            width: parseInt(width),
+            height: parseInt(height),
+            model: 'flux',
+            seed: params.get('seed'),
+            orientation: 'horizontal'
+          }
+        }
+      });
+    }
+    
+  } catch (error) {
+    console.error('❌ Error generating horizontal image URL:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate horizontal image URL',
+      details: error.message
+    });
+  }
+});
+
 // Check Pollinations.ai status
 router.get('/status', async (req, res) => {
   try {

@@ -294,15 +294,24 @@ router.get('/audio/:audioId', async (req, res) => {
 // Get available voices
 router.get('/voices', async (req, res) => {
   try {
-    // Kokoro voices based on the GitHub repository
+    // Curated voices - Persian and selected English voices
     const voices = [
-      { id: 'af_heart_0', name: 'American Female Heart 0', language: 'en' },
-      { id: 'af_heart_1', name: 'American Female Heart 1', language: 'en' },
-      { id: 'af_soft_0', name: 'American Female Soft 0', language: 'en' },
-      { id: 'am_gentle_0', name: 'American Male Gentle 0', language: 'en' },
-      { id: 'am_strong_0', name: 'American Male Strong 0', language: 'en' },
-      { id: 'bf_warm_0', name: 'British Female Warm 0', language: 'en' },
-      { id: 'bm_confident_0', name: 'British Male Confident 0', language: 'en' }
+      // Persian voices (preserved)
+      { id: 'fa_IR-amir-medium', name: 'امیر - صدای مرد فارسی', language: 'fa' },
+      { id: 'fa_IR-ganji-medium', name: 'گنجی - صدای مرد فارسی', language: 'fa' },
+      { id: 'fa_IR-ganji_adabi-medium', name: 'گنجی ادبی - صدای مرد فارسی', language: 'fa' },
+      { id: 'fa_IR-gyro-medium', name: 'جیرو - صدای مرد فارسی', language: 'fa' },
+      { id: 'fa_IR-reza_ibrahim-medium', name: 'رضا ابراهیم - صدای مرد فارسی', language: 'fa' },
+      
+      // English female voices (selected)
+      { id: 'en_US-kristin-medium', name: 'Kristin Medium - Female Voice', language: 'en' },
+      { id: 'en_US-lessac-high', name: 'Lessac High - Female Voice', language: 'en' },
+      
+      // English male voices (selected)
+      { id: 'en_US-john-medium', name: 'John Medium - Male Voice', language: 'en' },
+      { id: 'en_US-ryan-high', name: 'Ryan High - Male Voice', language: 'en' },
+      { id: 'en_US-norman-medium', name: 'Norman Medium - Male Voice', language: 'en' },
+      { id: 'en_US-kusal-medium', name: 'Kusal Medium - Male Voice', language: 'en' }
     ];
 
     res.json({
@@ -510,14 +519,34 @@ router.post('/transcribe-with-timestamps', async (req, res) => {
 // Download audio from URL
 async function downloadAudioFromUrl(audioUrl, outputPath) {
   const axios = require('axios');
-  const response = await axios.get(audioUrl, { responseType: 'stream' });
-  const writer = fs.createWriteStream(outputPath);
-  response.data.pipe(writer);
   
-  return new Promise((resolve, reject) => {
-    writer.on('finish', () => resolve(outputPath));
-    writer.on('error', reject);
-  });
+  // تبدیل URL نسبی به کامل
+  let fullAudioUrl = audioUrl;
+  if (audioUrl.startsWith('/')) {
+    fullAudioUrl = `http://localhost:${process.env.PORT || 3004}${audioUrl}`;
+  }
+  
+  console.log(`📥 Downloading audio from: ${fullAudioUrl}`);
+  
+  try {
+    const response = await axios.get(fullAudioUrl, { responseType: 'stream' });
+    const writer = fs.createWriteStream(outputPath);
+    response.data.pipe(writer);
+    
+    return new Promise((resolve, reject) => {
+      writer.on('finish', () => {
+        console.log(`✅ Audio downloaded to: ${outputPath}`);
+        resolve(outputPath);
+      });
+      writer.on('error', (error) => {
+        console.error(`❌ Error writing audio file: ${error}`);
+        reject(error);
+      });
+    });
+  } catch (error) {
+    console.error(`❌ Error downloading audio from ${fullAudioUrl}:`, error);
+    throw error;
+  }
 }
 
 module.exports = router;
