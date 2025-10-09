@@ -701,6 +701,23 @@
                     </div>
                 </div>
 
+                <!-- Background Music Selection -->
+                <h3 style="color: hsl(210, 40%, 98%); margin-bottom: 20px;">🎵 انتخاب موزیک بک‌گراند</h3>
+                <div style="background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px); padding: 25px; border-radius: 15px; margin-bottom: 30px; border: 1px solid rgba(71, 85, 105, 0.3);">
+                    <div class="form-group">
+                        <label for="customBackgroundMusic">موزیک بک‌گراند:</label>
+                        <select id="customBackgroundMusic" class="form-group input" style="width: 100%; padding: 12px; border: 2px solid rgba(71, 85, 105, 0.3); border-radius: 10px; font-size: 15px; font-family: 'Vazirmatn', sans-serif; background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px); color: hsl(210, 40%, 98%);">
+                            <option value="">بدون موزیک بک‌گراند</option>
+                            <!-- موزیک‌ها به صورت داینامیک بارگذاری می‌شوند -->
+                        </select>
+                    </div>
+                    <div id="musicPreview" style="margin-top: 15px; display: none;">
+                        <audio controls style="width: 100%;" id="musicPreviewPlayer">
+                            مرورگر شما از پخش صدا پشتیبانی نمی‌کند.
+                        </audio>
+                    </div>
+                </div>
+
                 <!-- Subtitle Customization -->
                 <div class="subtitle-controls">
                     <h3>🎨 سفارشی‌سازی زیرنویس</h3>
@@ -779,6 +796,9 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            // Load background music options
+            loadBackgroundMusic();
+            
             // Voice selection
             document.querySelectorAll('.voice-card').forEach(card => {
                 card.addEventListener('click', function() {
@@ -799,6 +819,21 @@
                 });
             });
 
+            // Background music selection
+            document.getElementById('customBackgroundMusic').addEventListener('change', function() {
+                const selectedMusic = this.value;
+                const musicPreview = document.getElementById('musicPreview');
+                const musicPreviewPlayer = document.getElementById('musicPreviewPlayer');
+                
+                if (selectedMusic && selectedMusic.trim() !== '') {
+                    musicPreview.style.display = 'block';
+                    musicPreviewPlayer.src = `/api/music/files/${selectedMusic}`;
+                } else {
+                    musicPreview.style.display = 'none';
+                    musicPreviewPlayer.src = '';
+                }
+            });
+
             // Subtitle customization listeners
             document.getElementById('subtitleColor').addEventListener('input', updateSubtitlePreview);
             document.getElementById('subtitleSize').addEventListener('input', updateSubtitlePreview);
@@ -806,6 +841,56 @@
             
             updateSubtitlePreview();
         });
+
+        // Load background music options
+        async function loadBackgroundMusic() {
+            try {
+                console.log('🎵 Loading custom video background music options...');
+                const response = await fetch('/api/music/list');
+                const data = await response.json();
+                
+                console.log('🎵 Custom video API response:', data);
+                
+                const backgroundMusicSelect = document.getElementById('customBackgroundMusic');
+                console.log('🎵 customBackgroundMusic element:', backgroundMusicSelect);
+                
+                if (data.success && backgroundMusicSelect) {
+                    // Clear existing options except the first one
+                    backgroundMusicSelect.innerHTML = '<option value="">بدون موزیک بک‌گراند</option>';
+                    
+                    // Group music by category
+                    const categories = {};
+                    data.music.forEach(music => {
+                        if (!categories[music.type]) {
+                            categories[music.type] = [];
+                        }
+                        categories[music.type].push(music);
+                    });
+                    
+                    // Add music options grouped by category
+                    Object.entries(categories).forEach(([category, musicList]) => {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = `🎵 ${category}`;
+                        
+                        musicList.forEach(music => {
+                            const option = document.createElement('option');
+                            option.value = music.filename;
+                            option.textContent = music.name;
+                            optgroup.appendChild(option);
+                        });
+                        
+                        backgroundMusicSelect.appendChild(optgroup);
+                    });
+                    
+                    console.log('✅ Custom video background music options loaded:', data.music.length);
+                } else {
+                    console.error('❌ Failed to load custom video background music:', data);
+                    console.error('❌ customBackgroundMusic element:', backgroundMusicSelect);
+                }
+            } catch (error) {
+                console.error('❌ Error loading custom video background music:', error);
+            }
+        }
 
         function updateSubtitlePreview() {
             const previewFa = document.getElementById('subtitlePreviewFa');
@@ -983,6 +1068,10 @@
                     <strong style="color: hsl(210, 40%, 98%);">📐 جهت ویدیو:</strong>
                     <p style="color: rgba(226, 232, 240, 0.7); margin-top: 5px;">${orientationName}</p>
                 </div>
+                <div style="background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px); padding: 20px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(71, 85, 105, 0.3);">
+                    <strong style="color: hsl(210, 40%, 98%);">🎵 موزیک بک‌گراند:</strong>
+                    <p style="color: rgba(226, 232, 240, 0.7); margin-top: 5px;">${document.getElementById('customBackgroundMusic').selectedOptions[0] ? document.getElementById('customBackgroundMusic').selectedOptions[0].textContent : 'بدون موزیک'}</p>
+                </div>
                 <div style="background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px); padding: 20px; border-radius: 10px; border: 1px solid rgba(71, 85, 105, 0.3);">
                     <strong style="color: hsl(210, 40%, 98%);">🎨 زیرنویس:</strong>
                     <p style="color: rgba(226, 232, 240, 0.7); margin-top: 5px;">
@@ -1078,6 +1167,9 @@
                 showProgress(40, 'تصاویر تولید شدند، در حال تولید صدا...');
 
                 // Step 2: Generate video with generated images
+                const selectedBackgroundMusic = document.getElementById('customBackgroundMusic').value;
+                console.log('🎵 Custom video background music selected:', selectedBackgroundMusic);
+                
                 const response = await fetch('/api/video/generate-custom-video', {
                     method: 'POST',
                     headers: {
@@ -1089,7 +1181,8 @@
                         voice: selectedVoice,
                         orientation: selectedOrientation,
                         subtitleSettings: subtitleSettings,
-                        generatedImages: images
+                        generatedImages: images,
+                        backgroundMusic: selectedBackgroundMusic
                     })
                 });
 

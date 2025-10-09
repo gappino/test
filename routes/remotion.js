@@ -7,12 +7,16 @@ const router = express.Router();
 // Video composition with subtitles endpoint
 router.post('/compose-video-with-subtitles', async (req, res) => {
   try {
-    const { scenes, audioResults, subtitleResults } = req.body;
+    const { scenes, audioResults, subtitleResults, backgroundMusic } = req.body;
     
     console.log('🎬 Starting video composition with subtitles...');
     console.log(`   Scenes: ${scenes ? scenes.length : 'undefined'}`);
     console.log(`   Audio results: ${audioResults ? audioResults.length : 'undefined'}`);
     console.log(`   Subtitle results: ${subtitleResults ? subtitleResults.length : 'undefined'}`);
+    console.log(`   Background music: ${backgroundMusic || 'none'}`);
+    console.log('🎵 Full request body:', req.body);
+    console.log('🎵 backgroundMusic type:', typeof backgroundMusic);
+    console.log('🎵 backgroundMusic value:', backgroundMusic);
     
     if (!scenes || !Array.isArray(scenes)) {
       console.error('❌ Scenes array is required');
@@ -33,7 +37,7 @@ router.post('/compose-video-with-subtitles', async (req, res) => {
     
     // Create video with subtitles using ffmpeg
     console.log('🔄 Creating video with subtitles...');
-    await createVideoWithSubtitles(scenes, audioResults, subtitleResults, finalOutputPath);
+    await createVideoWithSubtitles(scenes, audioResults, subtitleResults, finalOutputPath, backgroundMusic);
     console.log('✅ Video creation completed');
     
     const videoData = {
@@ -552,7 +556,7 @@ function findSceneAsset(lookup, scene, fallbackIndex, explicitSceneIndex = null)
 }
 
 // Create video with subtitles using ffmpeg
-async function createVideoWithSubtitles(scenes, audioResults, subtitleResults, outputPath) {
+async function createVideoWithSubtitles(scenes, audioResults, subtitleResults, outputPath, backgroundMusic = '') {
   return new Promise(async (resolve, reject) => {
     try {
       console.log('🔄 Starting video creation process...');
@@ -684,8 +688,17 @@ async function createVideoWithSubtitles(scenes, audioResults, subtitleResults, o
         
         try {
           // Create image path (download from Pollinations.ai if needed)
-          const imagePath = await downloadImage(scene.image_url, path.join(tempDir, `scene-${i}.jpg`));
-          console.log(`   ✅ Image downloaded: ${imagePath}`);
+          let imagePath;
+          if (scene.image_url) {
+            imagePath = await downloadImage(scene.image_url, path.join(tempDir, `scene-${i}.jpg`));
+            console.log(`   ✅ Image downloaded: ${imagePath}`);
+          } else {
+            // Generate fallback image using Pollinations.ai
+            console.log(`   🖼️ No image URL provided, generating fallback image for scene ${i}`);
+            const fallbackImageUrl = `https://pollinations.ai/p/${encodeURIComponent(scene.visual_description || 'abstract art')}?width=1080&height=1920&model=flux&seed=${Math.floor(Math.random() * 1000000)}&nologo=true`;
+            imagePath = await downloadImage(fallbackImageUrl, path.join(tempDir, `scene-${i}.jpg`));
+            console.log(`   ✅ Fallback image generated: ${imagePath}`);
+          }
           
           // Create audio path
           let audioPath = null;
@@ -764,8 +777,8 @@ async function createVideoWithSubtitles(scenes, audioResults, subtitleResults, o
       }
       
       console.log(`🔄 Concatenating ${videoSegments.length} video segments...`);
-      // Concatenate all video segments
-      await concatenateVideos(videoSegments, outputPath);
+      // Concatenate all video segments with background music
+      await concatenateVideos(videoSegments, outputPath, backgroundMusic);
       console.log(`✅ Video concatenation completed: ${outputPath}`);
       
       // Clean up temporary files
@@ -818,7 +831,7 @@ async function createVideoFromScenes(scenes, audioResults, outputPath) {
       }
       
       // Concatenate all video segments
-      await concatenateVideos(videoSegments, outputPath);
+      await concatenateVideos(videoSegments, outputPath, backgroundMusic);
       
       // Clean up temporary files
       await fs.remove(tempDir);
@@ -835,6 +848,11 @@ async function createVideoFromScenes(scenes, audioResults, outputPath) {
 async function downloadImage(imageUrl, outputPath) {
   try {
     console.log(`   📥 Downloading image: ${imageUrl}`);
+    
+    // Check if imageUrl is null or undefined
+    if (!imageUrl) {
+      throw new Error('Image URL is null or undefined');
+    }
     
     // Check if it's a local URL (starts with /)
     if (imageUrl.startsWith('/')) {
@@ -1112,13 +1130,16 @@ async function createVideoSegmentWithSubtitles(imagePath, audioPath, subtitlePat
       console.log(`   📝 Adding subtitle filter: ${escapedSubtitlePath}`);
       
       // Get subtitle settings from scene or use defaults
+      // For short videos (vertical orientation), use custom styling
+      const isShortVideo = !isHorizontal; // Short videos are vertical
       const subtitleSettings = (scene && scene.subtitleSettings) ? scene.subtitleSettings : {
         font: 'Arial',
-        size: 24,
-        color: '#ffffff',
+        size: isShortVideo ? 12 : 24, // Smaller font for short videos
+        color: isShortVideo ? '#ffff00' : '#ffffff', // Yellow for short videos
         outline: 2,
         position: 2,
-        margin: 30
+        margin: 30,
+        backgroundColor: isShortVideo ? '#808080' : 'transparent' // Gray background for short videos
       };
       
       // Convert hex color to ASS format (&HAABBGGRR - note: BGR not RGB)
@@ -1131,8 +1152,17 @@ async function createVideoSegmentWithSubtitles(imagePath, audioPath, subtitlePat
       
       const primaryColor = hexToAss(subtitleSettings.color || '#ffffff');
       const outlineColor = hexToAss('#000000');
+      const backgroundColor = subtitleSettings.backgroundColor ? hexToAss(subtitleSettings.backgroundColor) : '&H00000000'; // Transparent by default
       
-      const subtitleFilter = `subtitles='${escapedSubtitlePath}':force_style='FontName=${subtitleSettings.font || 'Arial'},FontSize=${subtitleSettings.size || 24},PrimaryColour=${primaryColor},OutlineColour=${outlineColor},Outline=${subtitleSettings.outline || 2},Shadow=1,Alignment=${subtitleSettings.position || 2},MarginV=${subtitleSettings.margin || 30}'`;
+      // Build subtitle filter with background support for short videos
+      let subtitleFilter;
+      if (isShortVideo && subtitleSettings.backgroundColor) {
+        // For short videos with background, use a more complex filter
+        subtitleFilter = `subtitles='${escapedSubtitlePath}':force_style='FontName=${subtitleSettings.font || 'Arial'},FontSize=${subtitleSettings.size || 12},PrimaryColour=${primaryColor},OutlineColour=${outlineColor},Outline=${subtitleSettings.outline || 2},Shadow=1,Alignment=${subtitleSettings.position || 2},MarginV=${subtitleSettings.margin || 30},BackColour=${backgroundColor},BorderStyle=3'`;
+      } else {
+        // Standard subtitle filter for long videos
+        subtitleFilter = `subtitles='${escapedSubtitlePath}':force_style='FontName=${subtitleSettings.font || 'Arial'},FontSize=${subtitleSettings.size || 24},PrimaryColour=${primaryColor},OutlineColour=${outlineColor},Outline=${subtitleSettings.outline || 2},Shadow=1,Alignment=${subtitleSettings.position || 2},MarginV=${subtitleSettings.margin || 30}'`;
+      }
       videoFilters.push(subtitleFilter);
     }
     
@@ -1193,17 +1223,45 @@ async function createVideoSegment(imagePath, audioPath, outputPath, duration) {
 }
 
 // Concatenate video segments
-async function concatenateVideos(segmentPaths, outputPath) {
+async function concatenateVideos(segmentPaths, outputPath, backgroundMusic = '') {
   return new Promise((resolve, reject) => {
     // Create concat file for ffmpeg
     const concatFile = path.join(path.dirname(outputPath), 'concat.txt');
     const concatContent = segmentPaths.map(segment => `file '${segment}'`).join('\n');
     fs.writeFileSync(concatFile, concatContent);
     
-    ffmpeg()
+    let ffmpegCommand = ffmpeg()
       .input(concatFile)
-      .inputOptions(['-f', 'concat', '-safe', '0'])
-      .outputOptions(['-c', 'copy'])
+      .inputOptions(['-f', 'concat', '-safe', '0']);
+    
+    // Add background music if specified
+    if (backgroundMusic && backgroundMusic.trim() !== '') {
+      const musicPath = path.join(__dirname, '../background_music', backgroundMusic);
+      console.log(`🎵 Checking background music: ${backgroundMusic}`);
+      console.log(`🎵 Music path: ${musicPath}`);
+      console.log(`🎵 Music exists: ${fs.existsSync(musicPath)}`);
+      
+      if (fs.existsSync(musicPath)) {
+        console.log(`🎵 Adding background music: ${backgroundMusic}`);
+        ffmpegCommand = ffmpegCommand
+          .input(musicPath)
+          .inputOptions(['-stream_loop', '-1']) // Loop the music
+          .complexFilter([
+            '[0:a]volume=1.0[voice]',
+            '[1:a]volume=0.3[music]',
+            '[voice][music]amix=inputs=2:duration=first:dropout_transition=2[a]'
+          ])
+          .outputOptions(['-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '128k']);
+      } else {
+        console.log(`⚠️ Background music file not found: ${musicPath}`);
+        ffmpegCommand = ffmpegCommand.outputOptions(['-c', 'copy']);
+      }
+    } else {
+      console.log(`🎵 No background music specified`);
+      ffmpegCommand = ffmpegCommand.outputOptions(['-c', 'copy']);
+    }
+    
+    ffmpegCommand
       .output(outputPath)
       .on('end', () => {
         fs.removeSync(concatFile);
@@ -1271,13 +1329,17 @@ router.get('/download/:filename', async (req, res) => {
 // Long form video composition with resource limits
 router.post('/compose-long-form-video-with-subtitles', async (req, res) => {
   try {
-    const { scenes, audioResults, subtitleResults, videoType = 'long-form' } = req.body;
+    const { scenes, audioResults, subtitleResults, videoType = 'long-form', backgroundMusic = '' } = req.body;
     
     console.log('🎬 Starting long form video composition with resource limits...');
     console.log(`   Video Type: ${videoType}`);
     console.log(`   Scenes: ${scenes ? scenes.length : 'undefined'}`);
     console.log(`   Audio results: ${audioResults ? audioResults.length : 'undefined'}`);
     console.log(`   Subtitle results: ${subtitleResults ? subtitleResults.length : 'undefined'}`);
+    console.log(`   Background music: ${backgroundMusic || 'none'}`);
+    console.log('🎵 Full request body:', req.body);
+    console.log('🎵 backgroundMusic type:', typeof backgroundMusic);
+    console.log('🎵 backgroundMusic value:', backgroundMusic);
     
     if (!scenes || !Array.isArray(scenes)) {
       console.error('❌ Scenes array is required');
@@ -1304,14 +1366,14 @@ router.post('/compose-long-form-video-with-subtitles', async (req, res) => {
     
     // Create video with subtitles using ffmpeg
     console.log('🔄 Creating video with subtitles...');
-    await createVideoWithSubtitles(scenes, audioResults, subtitleResults, finalOutputPath);
+    await createVideoWithSubtitles(scenes, audioResults, subtitleResults, finalOutputPath, backgroundMusic);
     console.log('✅ Video creation completed');
     
     const videoData = {
-      video_url: `/api/remotion/download/video-${videoId}.mp4`,
+      video_url: `/api/remotion/download/long-form-video-${videoId}.mp4`,
       duration: scenes.reduce((total, scene) => total + (scene.audio_duration || 5), 0),
       scenes_count: scenes.length,
-      resolution: '1080x1920',
+      resolution: '1920x1080',
       status: 'completed',
       video_id: videoId
     };

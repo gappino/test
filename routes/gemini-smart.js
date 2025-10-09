@@ -1,6 +1,145 @@
 const express = require('express');
 const router = express.Router();
 
+// Helper function to generate script using Pollinations AI
+async function generateScriptWithPollinations(userIdea, sceneCount = 30) {
+  try {
+    console.log('🤖 Using Pollinations AI as fallback for script generation...');
+    
+    // Create comprehensive prompt for Pollinations AI
+    const pollinationsPrompt = `Create a comprehensive long-form YouTube video script based on the user's idea: "${userIdea}"
+
+PRIORITY FOCUS:
+- Follow the user's exact idea and concept (fun, scary, entertaining, etc.)
+- Create content that matches the user's intended tone and style
+- Build upon the user's creative vision rather than making it educational
+- Honor the user's specific request for content type and mood
+
+Requirements:
+- Create exactly ${sceneCount} scenes
+- Each scene should have detailed speaker text (minimum 30 words)
+- All content must be in English
+- Create engaging, entertaining content based on user's idea suitable for long-form viewing
+- Each scene should build upon the previous one for cohesive narrative
+- Focus on hooks, engagement, and viral potential
+
+Return ONLY valid JSON in this exact format:
+{
+  "title": "Video Title Based on User's Idea",
+  "description": "SEO-optimized description with strong hook",
+  "tags": ["viral", "entertainment", "engaging", "user-idea"],
+  "estimated_duration": "${Math.ceil(sceneCount * 4)}-${Math.ceil(sceneCount * 6)} seconds",
+  "scenes": [
+    {
+      "scene_number": 1,
+      "duration": "0-6 seconds",
+      "speaker_text": "Powerful English narrator text with at least 30 words that hooks viewers based on user's specific idea",
+      "visual_description": "What should be shown on screen",
+      "image_prompt": "Detailed English prompt for horizontal AI image generation (16:9 aspect ratio) that matches user's creative vision"
+    }
+  ],
+  "content_type": "long-form entertainment content based on user's idea",
+  "engagement_strategy": "How content maintains engagement through hooks and CTAs",
+  "viral_potential": "High/Medium/Low with explanation of shareability"
+}`;
+
+    console.log('📝 Sending prompt to Pollinations AI...');
+    const encodedPrompt = encodeURIComponent(pollinationsPrompt);
+    const pollinationsUrl = `https://text.pollinations.ai/${encodedPrompt}`;
+
+    const response = await fetch(pollinationsUrl, {
+      method: 'GET',
+      headers: {
+        'Accept': 'text/plain, */*',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      },
+      timeout: 45000 // 45 seconds timeout for long responses
+    });
+
+    if (!response.ok) {
+      throw new Error(`Pollinations AI HTTP error! status: ${response.status}`);
+    }
+
+    const aiResponse = await response.text();
+    console.log('✅ Received response from Pollinations AI');
+    console.log('📄 Response length:', aiResponse.length);
+    
+    // Clean up the response
+    let cleanedResponse = aiResponse.trim();
+    
+    // Remove any HTML tags
+    cleanedResponse = cleanedResponse.replace(/<[^>]*>/g, '').trim();
+    
+    // Try to extract JSON from the response
+    const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        // Clean JSON string - remove control characters and fix common issues
+        let jsonString = jsonMatch[0];
+        
+        // Remove control characters except newlines and tabs
+        jsonString = jsonString.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+        
+        // Fix common JSON issues
+        jsonString = jsonString
+          .replace(/\n/g, '\\n')  // Escape newlines
+          .replace(/\r/g, '\\r')  // Escape carriage returns
+          .replace(/\t/g, '\\t')  // Escape tabs
+          .replace(/\\/g, '\\\\') // Escape backslashes
+          .replace(/\n/g, '\\n')  // Fix any remaining newlines
+          .replace(/\r/g, '\\r'); // Fix any remaining carriage returns
+        
+        // Try to fix unescaped quotes in strings
+        jsonString = jsonString.replace(/"([^"]*)"([^",}\]]*)"([^"]*)"/g, '"$1\\"$2\\"$3"');
+        
+        console.log('🧹 Cleaned JSON string length:', jsonString.length);
+        console.log('🧹 JSON preview:', jsonString.substring(0, 200) + '...');
+        
+        const scriptData = JSON.parse(jsonString);
+        console.log('✅ Successfully parsed JSON from Pollinations AI');
+        return scriptData;
+        
+      } catch (parseError) {
+        console.error('❌ Failed to parse JSON from Pollinations AI:', parseError);
+        console.log('📄 Problematic JSON:', jsonMatch[0].substring(14050, 14070)); // Show the problematic area
+        
+        // Try alternative parsing methods
+        try {
+          console.log('🔄 Trying alternative JSON parsing...');
+          
+          // Try to fix the JSON by replacing problematic characters
+          let fixedJson = jsonMatch[0];
+          
+          // Remove all control characters
+          fixedJson = fixedJson.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+          
+          // Fix common JSON issues
+          fixedJson = fixedJson
+            .replace(/([^\\])\\([^"\\\/bfnrt])/g, '$1\\\\$2') // Fix unescaped backslashes
+            .replace(/([^\\])\\([^"\\\/bfnrt])/g, '$1\\\\$2') // Double fix
+            .replace(/\n/g, '\\n')  // Escape newlines
+            .replace(/\r/g, '\\r')  // Escape carriage returns
+            .replace(/\t/g, '\\t'); // Escape tabs
+          
+          const scriptData = JSON.parse(fixedJson);
+          console.log('✅ Successfully parsed JSON with alternative method');
+          return scriptData;
+          
+        } catch (alternativeError) {
+          console.error('❌ Alternative parsing also failed:', alternativeError);
+          throw new Error('Failed to parse JSON response from Pollinations AI after multiple attempts');
+        }
+      }
+    } else {
+      throw new Error('No JSON found in Pollinations AI response');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error with Pollinations AI:', error);
+    throw error;
+  }
+}
+
 // Smart Gemini API integration - Gemini 2.0 Flash only
 async function callGeminiAPI(prompt, retryCount = 0) {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -108,48 +247,58 @@ router.post('/generate-creative-script', async (req, res) => {
         
         const prompt = `Based on the user's idea: "${userIdea.trim()}"
 
-Create a creative, engaging and interesting YouTube script that:
-- Has strong storytelling
-- Engages viewers from start to finish
-- Has viral and shareable content potential
-- Is suitable for YouTube monetization
-- Is creative and unique
+Create a viral, engaging YouTube script that PRIORITIZES the user's specific idea and vision. The content should be:
+
+PRIORITY FOCUS:
+- Follow the user's exact idea and concept (fun, scary, entertaining, etc.)
+- Create content that matches the user's intended tone and style
+- Build upon the user's creative vision rather than making it educational
+
+ENGAGEMENT ELEMENTS:
+- Start with a powerful hook that immediately grabs attention
+- Include compelling call-to-action elements
+- Create shareable, viral-worthy content
+- Focus on entertainment value and viewer engagement
+- Make content that people want to watch and share
 
 IMPORTANT: Respond with ONLY valid JSON. No markdown formatting, code blocks, or additional text.
 
 Critical Requirements:
-1. All speaker_text (narrator voice) must be in ENGLISH and engaging
+1. All speaker_text (narrator voice) must be in ENGLISH and highly engaging
 2. All image_prompt descriptions must be in ENGLISH and extremely detailed
 3. Create exactly 8 scenes for the video
 4. Each image prompt must perfectly match and synchronize with the narrator text
-5. Content must be engaging from the first second
+5. Content must hook viewers from the very first second
+6. Include compelling call-to-action elements throughout
 
 Provide the response in this JSON format:
 {
-  "title": "Creative and Engaging Video Title",
-  "description": "SEO-optimized video description",
-  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+  "title": "Viral and Engaging Video Title Based on User's Idea",
+  "description": "SEO-optimized video description with strong hook",
+  "tags": ["viral", "entertainment", "engaging", "hook", "cta"],
   "estimated_duration": "60-90 seconds",
   "scenes": [
     {
       "scene_number": 1,
       "duration": "0-8 seconds",
-      "speaker_text": "English narrator text that hooks the viewer from the first second",
+      "speaker_text": "Powerful English hook that immediately grabs attention based on user's idea",
       "visual_description": "Description of what should be shown on screen",
-      "image_prompt": "Extremely detailed English prompt for AI image generation that perfectly matches the narrator text"
+      "image_prompt": "Extremely detailed English prompt for AI image generation that perfectly matches the narrator text and user's vision"
     }
   ],
-  "hook_factor": "Why this video is engaging",
-  "viral_potential": "High/Medium/Low with explanation"
+  "hook_strategy": "How the opening hooks viewers based on user's idea",
+  "call_to_action": "Compelling CTA elements included",
+  "viral_potential": "High/Medium/Low with explanation of shareability"
 }
 
 Make sure:
-- Content tells a complete story
-- Each scene connects to the next naturally
-- Image prompts in English are very detailed and descriptive
-- Content is engaging for international audiences
-- Uses storytelling techniques effectively
-- All text (speaker_text, descriptions, etc.) is in English for global appeal`;
+- Content follows the user's exact idea and creative vision
+- Each scene builds engagement and maintains viewer interest
+- Image prompts in English are very detailed and match user's concept
+- Content is optimized for sharing and viral potential
+- Uses strong hooks and compelling CTAs effectively
+- All text (speaker_text, descriptions, etc.) is in English for global appeal
+- Focus on entertainment and engagement rather than education`;
         
         let scriptData;
         
@@ -195,77 +344,17 @@ Make sure:
             }
             
         } catch (apiError) {
-            console.log('⚠️ Gemini API failed, using fallback script...');
+            console.log('⚠️ Gemini API failed, trying Pollinations AI as fallback...');
             console.log('❌ API Error:', apiError.message);
             
-            // Create a creative fallback script based on user idea
-            scriptData = {
-                title: `The Secret Truth About ${userIdea.trim()} That Nobody Talks About!`,
-                description: `Discover the amazing facts about ${userIdea.trim()} that you've never heard before. This video will change your perspective forever!`,
-                tags: ["interesting", "facts", "educational", userIdea.trim().split(' ')[0] || "viral", "discovery"],
-                estimated_duration: "60-90 seconds",
-                scenes: [
-                    {
-                        scene_number: 1,
-                        duration: "0-8 seconds",
-                        speaker_text: `Did you know that ${userIdea.trim()} has secrets that nobody talks about?`,
-                        visual_description: "Mysterious and intriguing visual",
-                        image_prompt: "Mysterious and intriguing visual with dark background, glowing effects, question marks floating, cinematic lighting, high quality, photorealistic"
-                    },
-                    {
-                        scene_number: 2,
-                        duration: "8-16 seconds",
-                        speaker_text: `Today I want to share facts with you that will blow your mind.`,
-                        visual_description: "Mind-blowing animation",
-                        image_prompt: "Dynamic animation showing earth shaking, dramatic effects, bright colors, explosion of information, mind-blowing visual effects"
-                    },
-                    {
-                        scene_number: 3,
-                        duration: "16-24 seconds",
-                        speaker_text: `Most people think ${userIdea.trim()} is just what they see, but the reality is completely different.`,
-                        visual_description: "Comparison of perceptions vs reality",
-                        image_prompt: "Split screen showing common perception vs reality, contrasting images, before and after comparison, dramatic lighting"
-                    },
-                    {
-                        scene_number: 4,
-                        duration: "24-32 seconds",
-                        speaker_text: `The first truth you need to know is that ${userIdea.trim()} has a deeper impact than you can imagine.`,
-                        visual_description: "Deep impact visualization",
-                        image_prompt: "Deep impact visualization, ripple effects, waves of influence spreading, powerful visual metaphors, high contrast"
-                    },
-                    {
-                        scene_number: 5,
-                        duration: "32-40 seconds",
-                        speaker_text: `But this is just the beginning. What's truly amazing is...`,
-                        visual_description: "Building suspense and curiosity",
-                        image_prompt: "Suspenseful moment, dramatic pause, mysterious atmosphere, anticipation building, cinematic tension"
-                    },
-                    {
-                        scene_number: 6,
-                        duration: "40-48 seconds",
-                        speaker_text: `${userIdea.trim()} has capabilities that even experts are unaware of.`,
-                        visual_description: "Discovering hidden capabilities",
-                        image_prompt: "Hidden capabilities revealed, experts surprised, discovery moment, enlightenment visualization, bright revelation"
-                    },
-                    {
-                        scene_number: 7,
-                        duration: "48-56 seconds",
-                        speaker_text: `Now that you know this truth, you can use it in a completely different way.`,
-                        visual_description: "New and different applications",
-                        image_prompt: "New applications, innovative usage, transformation in action, practical implementation, success visualization"
-                    },
-                    {
-                        scene_number: 8,
-                        duration: "56-64 seconds",
-                        speaker_text: `If this video was helpful to you, make sure to like it and subscribe for more amazing content!`,
-                        visual_description: "Call to action",
-                        image_prompt: "Call to action, like and subscribe buttons, engaging end screen, colorful animations, positive energy"
-                    }
-                ],
-                hook_factor: "Mysterious opening with engaging question that sparks curiosity",
-                viral_potential: "High - Curiosity-driven content with strong storytelling structure"
-            };
-            console.log('✅ Using creative fallback script');
+            try {
+                // Use Pollinations AI as fallback
+                scriptData = await generateScriptWithPollinations(userIdea.trim(), 8); // Default to 8 scenes for regular script
+                console.log('✅ Using Pollinations AI fallback script');
+            } catch (pollinationsError) {
+                console.error('❌ Pollinations AI fallback also failed:', pollinationsError);
+                throw new Error(`Both Gemini and Pollinations AI failed: Gemini: ${apiError.message}, Pollinations: ${pollinationsError.message}`);
+            }
         }
         
         // Validate the parsed data
@@ -293,37 +382,11 @@ Make sure:
     } catch (error) {
         console.error('❌ Error generating creative script:', error);
         
-        // Final fallback script on any error
-        const fallbackScript = {
-            title: `The Amazing Story of ${req.body.userIdea || 'Interesting Topic'}`,
-            description: `Discover fascinating facts and amazing stories you've never heard before!`,
-            tags: ["interesting", "facts", "story", "educational", "viral"],
-            estimated_duration: "60-90 seconds",
-            scenes: [
-                {
-                    scene_number: 1,
-                    duration: "0-10 seconds",
-                    speaker_text: "Are you ready to hear facts that will change your world?",
-                    visual_description: "Captivating and intriguing visual",
-                    image_prompt: "Captivating question mark with glowing effects, mysterious atmosphere, cinematic lighting, high quality"
-                },
-                {
-                    scene_number: 2,
-                    duration: "10-20 seconds",
-                    speaker_text: "Today we'll go on an exciting journey that you'll never forget.",
-                    visual_description: "Exciting journey animation",
-                    image_prompt: "Exciting journey animation with dynamic movement, adventure theme, bright colors, engaging visuals"
-                }
-            ],
-            hook_factor: "Curiosity-inducing start with engaging question",
-            viral_potential: "High - Engaging and curiosity-driven content"
-        };
-        
-        res.json({
-            success: true,
-            data: fallbackScript,
-            source: 'fallback',
-            message: 'اسکریپت پیش‌فرض تولید شد'
+        // Return error if all AI services fail
+        res.status(500).json({
+            success: false,
+            error: 'Failed to generate script with both Gemini and Pollinations AI',
+            details: error.message
         });
     }
 });
@@ -347,52 +410,60 @@ router.post('/generate-long-form-script', async (req, res) => {
         
         const prompt = `Based on the user's idea: "${userIdea.trim()}"
 
-Create a comprehensive YouTube video script that:
-- Has exactly ${sceneCount} scenes (${sceneCount} scenes total)
-- Each scene has detailed speaker text with at least 30 words
-- Creates engaging, educational, or entertaining content
-- Maintains viewer engagement throughout the duration
-- Has strong storytelling and narrative flow
-- Is suitable for your chosen content format
+Create a comprehensive YouTube video script that PRIORITIZES the user's specific idea and vision:
+
+PRIORITY FOCUS:
+- Follow the user's exact idea and concept (fun, scary, entertaining, etc.)
+- Create content that matches the user's intended tone and style
+- Build upon the user's creative vision rather than making it educational
+- Honor the user's specific request for content type and mood
+
+ENGAGEMENT ELEMENTS:
+- Start with a powerful hook that immediately grabs attention
+- Include compelling call-to-action elements throughout
+- Create shareable, viral-worthy content
+- Focus on entertainment value and viewer engagement
+- Maintain high engagement throughout the extended duration
 
 IMPORTANT: Respond with ONLY valid JSON. No markdown formatting, code blocks, or additional text.
 
 Critical Requirements:
-1. All speaker_text (narrator voice) must be in ENGLISH and detailed (minimum 30 words per scene)
+1. All speaker_text (narrator voice) must be in ENGLISH and highly engaging (minimum 30 words per scene)
 2. All image_prompt descriptions must be in ENGLISH and extremely detailed for horizontal/landscape images
 3. Create exactly ${sceneCount} scenes for the video
 4. Each image prompt must be optimized for horizontal/landscape format (16:9 aspect ratio)
-5. Content must be engaging and educational throughout the duration
+5. Content must be engaging and entertaining throughout the duration based on user's idea
 6. Each scene should build upon the previous one to create a cohesive narrative
 
 Provide the response in this JSON format:
 {
-  "title": "Comprehensive Long-Form Video Title",
-  "description": "Detailed SEO-optimized video description for long-form content",
-  "tags": ["longform", "education", "comprehensive", "detailed", "tutorial"],
+  "title": "Comprehensive Long-Form Video Title Based on User's Idea",
+  "description": "Detailed SEO-optimized video description with strong hook for long-form content",
+  "tags": ["longform", "viral", "entertainment", "engaging", "user-idea"],
   "estimated_duration": "${Math.ceil(sceneCount * 4)}-${Math.ceil(sceneCount * 6)} seconds",
   "scenes": [
     {
       "scene_number": 1,
       "duration": "0-6 seconds",
-      "speaker_text": "Detailed English narrator text with at least 30 words that provides comprehensive information and engages the viewer",
+      "speaker_text": "Powerful English narrator text with at least 30 words that hooks viewers based on user's specific idea",
       "visual_description": "Description of what should be shown on screen for horizontal format",
-      "image_prompt": "Extremely detailed English prompt for horizontal AI image generation (16:9 aspect ratio) that perfectly matches the narrator text and creates engaging visual content"
+      "image_prompt": "Extremely detailed English prompt for horizontal AI image generation (16:9 aspect ratio) that perfectly matches the narrator text and user's creative vision"
     }
   ],
-  "content_type": "long-form educational/entertainment content",
-  "engagement_strategy": "How this long-form content maintains viewer engagement",
-  "educational_value": "High/Medium/Low with explanation of learning outcomes"
+  "content_type": "long-form entertainment/engaging content based on user's idea",
+  "engagement_strategy": "How this long-form content maintains viewer engagement through hooks and CTAs",
+  "viral_potential": "High/Medium/Low with explanation of shareability and entertainment value"
 }
 
 Make sure:
-- Content tells a complete, comprehensive story
+- Content follows the user's exact idea and creative vision throughout
 - Each scene connects to the next naturally with smooth transitions
 - Image prompts are optimized for horizontal/landscape format (16:9)
-- Content provides substantial value for long-form viewing
+- Content provides substantial entertainment value for long-form viewing
 - Uses storytelling techniques effectively for extended duration
 - All text (speaker_text, descriptions, etc.) is in English for global appeal
-- Each scene provides detailed, valuable information`;
+- Each scene maintains high engagement and follows user's specific concept
+- Focus on entertainment and engagement rather than education`;
 
         let scriptData;
         let response;
@@ -448,33 +519,49 @@ Make sure:
     } catch (error) {
         console.error('❌ Error generating long form script with Gemini:', error);
         
-        // Return fallback data if Gemini fails - USE THE REQUESTED SCENE COUNT
-        const fallbackSceneCount = sceneCount || 3; // استفاده از تعداد صحنه‌های درخواستی
-        console.log(`⚠️ Creating fallback script with ${fallbackSceneCount} scenes`);
+        console.log('⚠️ Gemini API failed, trying Pollinations AI as fallback...');
         
-        const fallbackScript = {
-            title: `${userIdea.trim()} - Comprehensive Deep Dive`,
-            description: `A comprehensive exploration of ${userIdea.trim()} and its impact`,
-            tags: ["longform", userIdea.trim().split(' ')[0], "comprehensive", "education"],
-            estimated_duration: `${Math.ceil(fallbackSceneCount * 4)}-${Math.ceil(fallbackSceneCount * 6)} seconds`,
-            scenes: Array.from({ length: fallbackSceneCount }, (_, i) => ({
-                scene_number: i + 1,
-                duration: `${i * 6}-${(i + 1) * 6} seconds`,
-                speaker_text: `This is scene ${i + 1} of our comprehensive exploration of ${userIdea.trim()}. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of ${userIdea.trim()} in our modern world.`,
-                visual_description: `Scene ${i + 1} showing ${userIdea.trim()} concepts and applications`,
-                image_prompt: `Professional horizontal composition showing ${userIdea.trim()} concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization`
-            })),
-            content_type: "long-form educational content",
-            engagement_strategy: "Comprehensive coverage with detailed explanations",
-            educational_value: "High - provides in-depth understanding of concepts"
-        };
-        
-        res.json({
-            success: true,
-            data: fallbackScript,
-            fallback: true,
-            fallbackReason: error.message
-        });
+        try {
+            // Use Pollinations AI as fallback
+            const scriptData = await generateScriptWithPollinations(userIdea.trim(), sceneCount);
+            
+            // Validate the script data
+            if (!scriptData.title || !scriptData.scenes || !Array.isArray(scriptData.scenes)) {
+                throw new Error('Invalid script data structure from Pollinations AI');
+            }
+            
+            // Ensure we have the minimum number of scenes
+            if (scriptData.scenes.length < sceneCount) {
+                console.log(`⚠️ Pollinations AI generated ${scriptData.scenes.length} scenes, but requested ${sceneCount}. Using generated scenes.`);
+            }
+            
+            console.log('✅ Successfully generated script using Pollinations AI fallback');
+            console.log('📊 Generated script:', {
+                title: scriptData.title,
+                scenesCount: scriptData.scenes ? scriptData.scenes.length : 0,
+                estimatedDuration: scriptData.estimated_duration
+            });
+            
+            res.json({
+                success: true,
+                data: scriptData,
+                fallback: 'pollinations',
+                source: 'Pollinations AI (Gemini unavailable)'
+            });
+            
+        } catch (pollinationsError) {
+            console.error('❌ Pollinations AI fallback also failed:', pollinationsError);
+            
+            // Return error if both fail
+            res.status(500).json({
+                success: false,
+                error: 'Failed to generate script with both Gemini and Pollinations AI',
+                details: {
+                    gemini: error.message,
+                    pollinations: pollinationsError.message
+                }
+            });
+        }
     }
 });
 

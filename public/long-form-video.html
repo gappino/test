@@ -16,44 +16,21 @@
             <div class="header-content">
                 <h1><i class="fas fa-film"></i> ارک پلاس - ویدیوهای بلند</h1>
                 <p>تولید ویدیوهای طولانی با تصاویر افقی و زیرنویس</p>
+                <div class="header-actions">
+                    <a href="/video-history.html" class="btn btn-primary">
+                        <i class="fas fa-history"></i>
+                        تاریخچه ویدیوها
+                    </a>
+                    <a href="/" class="btn btn-secondary">
+                        <i class="fas fa-home"></i>
+                        صفحه اصلی
+                    </a>
+                </div>
             </div>
         </header>
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Long Form Video Info Section -->
-            <section class="long-form-info-section">
-                <div class="card">
-                    <div class="card-header">
-                        <h2><i class="fas fa-info-circle"></i> درباره ویدیوهای طولانی</h2>
-                        <p>ویژگی‌های مخصوص ویدیوهای طولانی</p>
-                    </div>
-                    <div class="card-body">
-                        <div class="features-grid">
-                            <div class="feature-item">
-                                <i class="fas fa-scroll"></i>
-                                <h3>چند صحنه</h3>
-                                <p>از 3 تا 100 صحنه - انتخاب بر اساس نیاز شما</p>
-                            </div>
-                            <div class="feature-item">
-                                <i class="fas fa-expand-arrows-alt"></i>
-                                <h3>تصاویر افقی</h3>
-                                <p>تمام تصاویر به صورت افقی (landscape) تولید می‌شوند</p>
-                            </div>
-                            <div class="feature-item">
-                                <i class="fas fa-closed-captioning"></i>
-                                <h3>زیرنویس خودکار</h3>
-                                <p>زیرنویس‌های 3 کلمه‌ای روی ویدیو embed می‌شوند</p>
-                            </div>
-                            <div class="feature-item">
-                                <i class="fas fa-clock"></i>
-                                <h3>تولید سریع</h3>
-                                <p>تست با 3 صحنه برای سرعت بیشتر</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
             <!-- Idea Generation Section -->
             <section class="idea-generation-section">
@@ -79,10 +56,9 @@
                             <select id="videoLength" class="form-control">
                                 <option value="3" selected>3 صحنه (تست فوری)</option>
                                 <option value="5">5 صحنه (تست سریع)</option>
-                                <option value="20">20 صحنه (بهینه برای منابع محدود)</option>
-                                <option value="30">30 صحنه (ویدیو متوسط)</option>
-                                <option value="50">50 صحنه (ویدیو بلند)</option>
-                                <option value="100">100 صحنه (ویدیو بسیار طولانی)</option>
+                                <option value="10">10 صحنه (ویدیو کوتاه)</option>
+                                <option value="15">15 صحنه (ویدیو متوسط)</option>
+                                <option value="20">20 صحنه (ویدیو بلند)</option>
                             </select>
                         </div>
                         
@@ -104,6 +80,14 @@
                                     <option value="en_US-norman-medium">Norman Medium - صدای مرد</option>
                                     <option value="en_US-kusal-medium">Kusal Medium - صدای مرد</option>
                                 </optgroup>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="longFormBackgroundMusic">انتخاب موزیک بک‌گراند:</label>
+                            <select id="longFormBackgroundMusic" class="form-control">
+                                <option value="">بدون موزیک بک‌گراند</option>
+                                <!-- موزیک‌ها به صورت داینامیک بارگذاری می‌شوند -->
                             </select>
                         </div>
                         
@@ -142,6 +126,11 @@
                             <i class="fas fa-video"></i>
                             تولید ویدیو طولانی کامل
                         </button>
+                        
+                        <a href="/video-history.html" class="btn btn-info hidden" id="trackingLink" target="_blank">
+                            <i class="fas fa-history"></i>
+                            مشاهده پیشرفت در تاریخچه
+                        </a>
                     </div>
                 </div>
             </section>
@@ -252,7 +241,7 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <p>&copy; 2024 سازنده ویدیو هوش مصنوعی. تمامی حقوق محفوظ است.</p>
+            <p>&copy; 2024 ارک پلاس. تمامی حقوق محفوظ است. | <a href="https://eexo.ir/%d9%82%d9%88%d8%a7%d9%86%db%8c%d9%86-%d8%a7%d8%b1%da%a9/" target="_blank" style="color: #3b82f6; text-decoration: none;">قوانین و مقررات</a></p>
         </footer>
     </div>
 

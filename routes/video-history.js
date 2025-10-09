@@ -3,6 +3,21 @@ const fs = require('fs-extra');
 const path = require('path');
 const router = express.Router();
 
+const TRACKING_FILE = path.join(__dirname, '../video-tracking.json');
+
+// Helper function to load tracking data
+async function loadTrackingData() {
+    try {
+        if (await fs.pathExists(TRACKING_FILE)) {
+            const data = await fs.readJson(TRACKING_FILE);
+            return Array.isArray(data) ? data : [];
+        }
+    } catch (error) {
+        console.error('Error loading tracking data:', error);
+    }
+    return [];
+}
+
 // Get video history endpoint
 router.get('/history', async (req, res) => {
   try {
@@ -19,14 +34,59 @@ router.get('/history', async (req, res) => {
     // Get processing videos from uploads directory
     const processingVideos = await getVideoFiles(uploadsDir, 'processing');
     
-    // Combine and sort by creation time (newest first)
-    const allVideos = [...completedVideos, ...processingVideos]
+    // Get tracking data for additional video information
+    const trackingData = await loadTrackingData();
+    
+    // Combine tracking data with file-based videos
+    const allVideos = [...completedVideos, ...processingVideos];
+    
+    // Merge tracking data with file data
+    const enrichedVideos = allVideos.map(video => {
+      const tracking = trackingData.find(t => t.id === video.id);
+      if (tracking) {
+        return {
+          ...video,
+          title: tracking.title,
+          status: video.status, // Use file status for completed videos
+          progress: tracking.progress,
+          currentStep: tracking.currentStep,
+          steps: tracking.steps,
+          metadata: tracking.metadata,
+          createdAt: tracking.createdAt,
+          updatedAt: tracking.updatedAt
+        };
+      }
+      return video;
+    });
+    
+    // Add tracking-only videos (videos that are being processed but don't have files yet)
+    // Only include videos that are still processing or have errors
+    const trackingOnlyVideos = trackingData.filter(tracking => 
+      !allVideos.some(video => video.id === tracking.id) && 
+      (tracking.status === 'processing' || tracking.status === 'error')
+    ).map(tracking => ({
+      id: tracking.id,
+      filename: `${tracking.id}.mp4`,
+      status: tracking.status,
+      createdAt: new Date(tracking.createdAt),
+      modifiedAt: new Date(tracking.updatedAt),
+      size: tracking.metadata?.fileSize || null,
+      url: tracking.metadata?.videoUrl || null,
+      title: tracking.title,
+      progress: tracking.progress,
+      currentStep: tracking.currentStep,
+      steps: tracking.steps,
+      metadata: tracking.metadata
+    }));
+    
+    // Combine all videos and sort by creation time (newest first)
+    const finalVideos = [...enrichedVideos, ...trackingOnlyVideos]
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     
     res.json({
       success: true,
-      videos: allVideos,
-      total: allVideos.length
+      videos: finalVideos,
+      total: finalVideos.length
     });
     
   } catch (error) {

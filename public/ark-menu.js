@@ -229,6 +229,13 @@ class ArkPlusMenu {
                             <h3 class="ark-menu-item-title">تاریخچه ویدیوها</h3>
                             <p class="ark-menu-item-desc">مشاهده و مدیریت ویدیوهای تولید شده</p>
                         </a>
+
+                        <!-- موزیک بک‌گراند -->
+                        <a href="/music-player" class="ark-menu-item music-item">
+                            <span class="ark-menu-icon">🎵</span>
+                            <h3 class="ark-menu-item-title">موزیک بک‌گراند</h3>
+                            <p class="ark-menu-item-desc">انتخاب و پخش موزیک‌های بک‌گراند</p>
+                        </a>
                     </div>
                 </div>
             </div>

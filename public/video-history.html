@@ -240,6 +240,48 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .progress-container {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(71, 85, 105, 0.3);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(71, 85, 105, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            animation: progressGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes progressGlow {
+            0% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
+            100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.8); }
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: rgba(226, 232, 240, 0.8);
+            text-align: center;
+            font-weight: 600;
+        }
+
         .btn-play:disabled,
         .btn-download:disabled {
             background: rgba(71, 85, 105, 0.5);
@@ -468,9 +510,21 @@
         // Create video card HTML
         function createVideoCard(video) {
             const createdAt = new Date(video.createdAt).toLocaleString('fa-IR');
-            const sizeInMB = (video.size / (1024 * 1024)).toFixed(2);
+            const sizeInMB = video.size ? (video.size / (1024 * 1024)).toFixed(2) : 'نامشخص';
             const statusText = video.status === 'completed' ? 'تکمیل شده' : 'در حال پردازش';
             const statusClass = video.status === 'completed' ? 'status-completed' : 'status-processing';
+            
+            // Get title from tracking data or use filename
+            const title = video.title || video.filename;
+            
+            // Create progress bar for processing videos
+            const progressBar = video.status === 'processing' && video.progress !== undefined ? 
+                `<div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${video.progress}%"></div>
+                    </div>
+                    <div class="progress-text">${video.progress}% - ${video.currentStep || 'در حال پردازش'}</div>
+                </div>` : '';
 
             return `
                 <div class="video-card" data-video-id="${video.id}">
@@ -488,12 +542,15 @@
                         <div class="status-badge ${statusClass}">${statusText}</div>
                     </div>
                     <div class="video-info">
-                        <div class="video-title">${video.filename}</div>
+                        <div class="video-title">${title}</div>
                         <div class="video-meta">
                             <div><strong>شناسه:</strong> ${video.id}</div>
                             <div><strong>تاریخ ایجاد:</strong> ${createdAt}</div>
                             <div><strong>حجم:</strong> ${sizeInMB} مگابایت</div>
+                            ${video.metadata && video.metadata.voice ? `<div><strong>صدا:</strong> ${video.metadata.voice}</div>` : ''}
+                            ${video.metadata && video.metadata.scenes ? `<div><strong>تعداد صحنه‌ها:</strong> ${video.metadata.scenes.length}</div>` : ''}
                         </div>
+                        ${progressBar}
                         <div class="video-actions">
                             ${video.status === 'completed' ? 
                                 `<button class="action-btn btn-play" onclick="playVideo('${video.url}')">

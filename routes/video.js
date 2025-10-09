@@ -3,7 +3,73 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 const fsPromises = require('fs').promises;
+const fsExtra = require('fs-extra');
 const resourceManager = require('../resource-manager');
+
+const TRACKING_FILE = path.join(__dirname, '../video-tracking.json');
+
+// Helper function to load tracking data
+async function loadTrackingData() {
+    try {
+        if (await fsExtra.pathExists(TRACKING_FILE)) {
+            const data = await fsExtra.readJson(TRACKING_FILE);
+            return Array.isArray(data) ? data : [];
+        }
+    } catch (error) {
+        console.error('Error loading tracking data:', error);
+    }
+    return [];
+}
+
+// Helper function to save tracking data
+async function saveTrackingData(data) {
+    try {
+        await fsExtra.writeJson(TRACKING_FILE, data, { spaces: 2 });
+        return true;
+    } catch (error) {
+        console.error('Error saving tracking data:', error);
+        return false;
+    }
+}
+
+// Helper function to update video tracking
+async function updateVideoTracking(videoId, updateData) {
+    try {
+        const trackingData = await loadTrackingData();
+        const videoIndex = trackingData.findIndex(video => video.id === videoId);
+        
+        if (videoIndex !== -1) {
+            trackingData[videoIndex] = {
+                ...trackingData[videoIndex],
+                ...updateData,
+                updatedAt: new Date().toISOString()
+            };
+            await saveTrackingData(trackingData);
+            console.log('✅ Video tracking updated:', videoId);
+        } else {
+            console.log('⚠️ Video tracking entry not found:', videoId);
+        }
+    } catch (error) {
+        console.error('❌ Error updating video tracking:', error);
+    }
+}
+
+// Helper function to remove video from tracking
+async function removeVideoFromTracking(videoId) {
+    try {
+        const trackingData = await loadTrackingData();
+        const filteredData = trackingData.filter(video => video.id !== videoId);
+        
+        if (filteredData.length < trackingData.length) {
+            await saveTrackingData(filteredData);
+            console.log('✅ Video removed from tracking:', videoId);
+        } else {
+            console.log('ℹ️ Video not found in tracking:', videoId);
+        }
+    } catch (error) {
+        console.error('❌ Error removing video from tracking:', error);
+    }
+}
 
 // Generate Piper TTS directly
 async function generatePiperTTS(text, voice) {
@@ -378,6 +444,15 @@ router.post('/generate-complete-video', async (req, res) => {
   try {
     const { script, images, audioSettings = {}, audioResults = [] } = req.body;
     
+    console.log('🎵 Received request body:', req.body);
+    console.log('🎵 Audio settings received:', audioSettings);
+    console.log('🎵 Background music received:', audioSettings.backgroundMusic);
+    console.log('🎵 audioSettings type:', typeof audioSettings);
+    console.log('🎵 audioSettings keys:', Object.keys(audioSettings));
+    console.log('🎵 req.body.audioSettings:', req.body.audioSettings);
+    console.log('🎵 req.body.audioSettings type:', typeof req.body.audioSettings);
+    console.log('🎵 req.body.audioSettings keys:', req.body.audioSettings ? Object.keys(req.body.audioSettings) : 'null');
+    
     if (!script || !images || !Array.isArray(images)) {
       return res.status(400).json({
         success: false,
@@ -552,15 +627,25 @@ router.post('/generate-complete-video', async (req, res) => {
     });
 
     // Step 4: Compose video with subtitles
-    const composeResponse = await fetch(`${req.protocol}://${req.get('host')}/api/remotion/compose-video-with-subtitles`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        scenes: videoScenes,
-        audioResults: finalAudioResults,
-        subtitleResults: subtitleResults
-      })
-    });
+        console.log('🎵 Sending to Remotion:', {
+          scenes: videoScenes.length,
+          audioResults: finalAudioResults.length,
+          subtitleResults: subtitleResults.length,
+          backgroundMusic: audioSettings.backgroundMusic
+        });
+        console.log('🎵 Full audioSettings object:', audioSettings);
+        console.log('🎵 audioSettings.backgroundMusic:', audioSettings.backgroundMusic);
+        
+        const composeResponse = await fetch(`${req.protocol}://${req.get('host')}/api/remotion/compose-video-with-subtitles`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            scenes: videoScenes,
+            audioResults: finalAudioResults,
+            subtitleResults: subtitleResults,
+            backgroundMusic: audioSettings.backgroundMusic
+          })
+        });
 
     const composeResult = await composeResponse.json();
     
@@ -595,7 +680,7 @@ router.post('/generate-complete-video', async (req, res) => {
 // Custom video generation with user input
 router.post('/generate-custom-video', async (req, res) => {
   try {
-    const { title, scenes, voice = 'en_US-kristin-medium', orientation = 'vertical', subtitleSettings = {}, generatedImages = [] } = req.body;
+    const { title, scenes, voice = 'en_US-kristin-medium', orientation = 'vertical', subtitleSettings = {}, generatedImages = [], backgroundMusic = '' } = req.body;
     
     if (!scenes || !Array.isArray(scenes) || scenes.length === 0) {
       return res.status(400).json({
@@ -609,6 +694,7 @@ router.post('/generate-custom-video', async (req, res) => {
     console.log(`   Voice: ${voice}`);
     console.log(`   Orientation: ${orientation}`);
     console.log(`   Generated Images: ${generatedImages.length}`);
+    console.log(`   Background Music: ${backgroundMusic || 'none'}`);
 
     // Use pre-generated images if available
     let images = generatedImages;
@@ -791,13 +877,15 @@ router.post('/generate-custom-video', async (req, res) => {
 
     // Step 5: Compose video with subtitles
     console.log('🎬 Composing video...');
+    console.log('🎵 Custom video background music:', backgroundMusic);
     const composeResponse = await fetch(`${req.protocol}://${req.get('host')}/api/remotion/compose-video-with-subtitles`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         scenes: videoScenes,
         audioResults: finalAudioResults,
-        subtitleResults: subtitleResults
+        subtitleResults: subtitleResults,
+        backgroundMusic: backgroundMusic
       })
     });
 
@@ -871,7 +959,16 @@ router.get('/status/:videoId', async (req, res) => {
 // Generate long form video with resource management
 router.post('/generate-long-form-video', async (req, res) => {
   try {
-    const { script, images, audioSettings = {}, audioResults = [], videoType = 'long-form' } = req.body;
+    const { script, images, audioSettings = {}, audioResults = [], videoType = 'long-form', videoId } = req.body;
+    
+    console.log('🎵 Long form received request body:', req.body);
+    console.log('🎵 Long form audio settings received:', audioSettings);
+    console.log('🎵 Long form background music received:', audioSettings.backgroundMusic);
+    console.log('🎵 Long form audioSettings type:', typeof audioSettings);
+    console.log('🎵 Long form audioSettings keys:', Object.keys(audioSettings));
+    console.log('🎵 Long form req.body.audioSettings:', req.body.audioSettings);
+    console.log('🎵 Long form req.body.audioSettings type:', typeof req.body.audioSettings);
+    console.log('🎵 Long form req.body.audioSettings keys:', req.body.audioSettings ? Object.keys(req.body.audioSettings) : 'null');
     
     if (!script || !images || !Array.isArray(images)) {
       return res.status(400).json({
@@ -885,12 +982,14 @@ router.post('/generate-long-form-video', async (req, res) => {
     console.log(`📊 Scenes: ${script.scenes.length}`);
     console.log(`📊 Images: ${images.length}`);
     console.log(`📊 Video Type: ${videoType}`);
+    console.log(`📊 Video ID: ${videoId}`);
+    console.log(`📊 Background Music: ${audioSettings.backgroundMusic || 'none'}`);
 
     // اضافه کردن به صف با محدودیت منابع
-    const taskId = `long-form-video-${Date.now()}`;
+    const taskId = videoId || `long-form-video-${Date.now()}`;
     
     const result = await resourceManager.addTask(async () => {
-      return await generateLongFormVideoContent(script, images, audioSettings, audioResults, videoType, req);
+      return await generateLongFormVideoContent(script, images, audioSettings, audioResults, videoType, req, videoId);
     }, taskId);
 
     res.json(result);
@@ -906,9 +1005,10 @@ router.post('/generate-long-form-video', async (req, res) => {
 });
 
 // تابع اصلی تولید ویدیو طولانی
-async function generateLongFormVideoContent(script, images, audioSettings, audioResults, videoType, req) {
+async function generateLongFormVideoContent(script, images, audioSettings, audioResults, videoType, req, videoId) {
   try {
     console.log('🎬 Starting long form video generation with resource limits...');
+    console.log(`📊 Background Music: ${audioSettings.backgroundMusic || 'none'}`);
     
     // Step 1: Always generate audio for each scene (with fallback)
     console.log('🔄 Generating audio for all long form scenes...');
@@ -1080,6 +1180,7 @@ async function generateLongFormVideoContent(script, images, audioSettings, audio
 
     // Step 4: Compose long form video with subtitles
     console.log('🎬 Composing long form video...');
+    console.log(`📊 Background Music: ${audioSettings.backgroundMusic || 'none'}`);
     
     // اطمینان از صحت URL ها قبل از ارسال
     const validatedScenes = videoScenes.map(scene => {
@@ -1098,20 +1199,30 @@ async function generateLongFormVideoContent(script, images, audioSettings, audio
     
     let composeResult;
     try {
-      const composeResponse = await fetch(`${req.protocol}://${req.get('host')}/api/remotion/compose-long-form-video-with-subtitles`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Connection': 'keep-alive'
-        },
-        body: JSON.stringify({
-          scenes: validatedScenes,
-          audioResults: finalAudioResults,
-          subtitleResults: subtitleResults,
-          videoType: videoType
-        }),
-        signal: controller.signal
-      });
+    console.log('🎵 Long form sending to Remotion:', {
+      scenes: validatedScenes.length,
+      audioResults: finalAudioResults.length,
+      subtitleResults: subtitleResults.length,
+      backgroundMusic: audioSettings.backgroundMusic
+    });
+    console.log('🎵 Full audioSettings object:', audioSettings);
+    console.log('🎵 audioSettings.backgroundMusic:', audioSettings.backgroundMusic);
+        
+        const composeResponse = await fetch(`${req.protocol}://${req.get('host')}/api/remotion/compose-long-form-video-with-subtitles`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Connection': 'keep-alive'
+          },
+          body: JSON.stringify({
+            scenes: validatedScenes,
+            audioResults: finalAudioResults,
+            subtitleResults: subtitleResults,
+            videoType: videoType,
+            backgroundMusic: audioSettings.backgroundMusic
+          }),
+          signal: controller.signal
+        });
 
       composeResult = await composeResponse.json();
       clearTimeout(timeoutId);
@@ -1152,12 +1263,22 @@ async function generateLongFormVideoContent(script, images, audioSettings, audio
               video_type: 'long-form'
             }
           };
+          
+          // Remove video from tracking for timeout case since it's completed
+          if (videoId) {
+            await removeVideoFromTracking(videoId);
+          }
         } else {
           throw new Error('Request timed out and no video file was found');
         }
       } else {
         throw fetchError;
       }
+    }
+
+    // Remove video from tracking since it's now completed and has a file
+    if (videoId) {
+      await removeVideoFromTracking(videoId);
     }
 
     return {
@@ -1177,9 +1298,363 @@ async function generateLongFormVideoContent(script, images, audioSettings, audio
 
   } catch (error) {
     console.error('Error generating long form video content:', error);
+    
+    // Update video tracking to error status
+    if (videoId) {
+      await updateVideoTracking(videoId, {
+        status: 'error',
+        progress: 0,
+        currentStep: 'خطا در تولید',
+        steps: [
+          { name: 'در صف انتظار', status: 'completed', timestamp: null },
+          { name: 'تولید اسکریپت', status: 'completed', timestamp: null },
+          { name: 'تولید تصاویر', status: 'completed', timestamp: null },
+          { name: 'تولید صدا', status: 'pending', timestamp: null },
+          { name: 'ترکیب ویدیو', status: 'error', timestamp: new Date().toISOString() },
+          { name: 'آماده', status: 'pending', timestamp: null }
+        ],
+        metadata: {
+          errorMessage: error.message
+        }
+      });
+    }
+    
     throw error;
   }
 }
+
+// Complete long form video generation in backend (images + video)
+router.post('/generate-long-form-complete', async (req, res) => {
+  try {
+    const { script, videoId, voice = 'en_US-kristin-medium' } = req.body;
+    
+    if (!script || !script.scenes || !Array.isArray(script.scenes)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Script with scenes is required'
+      });
+    }
+
+    console.log('🎬 Starting complete long form video generation in backend...');
+    console.log(`📊 Video ID: ${videoId}`);
+    console.log(`📊 Scenes: ${script.scenes.length}`);
+    console.log(`📊 Voice: ${voice}`);
+
+    // Update tracking to show process started
+    if (videoId) {
+      await updateVideoTracking(videoId, {
+        progress: 0,
+        currentStep: 'شروع فرآیند کامل',
+        steps: [
+          { name: 'در صف انتظار', status: 'completed', timestamp: null },
+          { name: 'تولید اسکریپت', status: 'completed', timestamp: null },
+          { name: 'تولید تصاویر', status: 'active', timestamp: new Date().toISOString() },
+          { name: 'تولید صدا', status: 'pending', timestamp: null },
+          { name: 'ترکیب ویدیو', status: 'pending', timestamp: null },
+          { name: 'آماده', status: 'pending', timestamp: null }
+        ]
+      });
+    }
+
+    // Step 1: Generate images
+    console.log('🖼️ Step 1: Generating images...');
+    const images = [];
+    
+    for (let i = 0; i < script.scenes.length; i++) {
+      const scene = script.scenes[i];
+      
+      try {
+        console.log(`🖼️ Generating image ${i + 1}/${script.scenes.length}...`);
+        
+        // Modify image prompt for horizontal format
+        const basePrompt = scene.visual_description || scene.image_prompt || 'A beautiful and engaging visual';
+        const horizontalPrompt = `${basePrompt}, horizontal format, landscape orientation, wide aspect ratio`;
+        
+        // Generate image using internal API
+        const imageResponse = await fetch(`${req.protocol}://${req.get('host')}/api/flax/generate-image-url`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: horizontalPrompt,
+            width: 1920,
+            height: 1080
+          })
+        });
+        
+        const imageResult = await imageResponse.json();
+        
+        if (imageResult.success) {
+          images.push({
+            sceneIndex: i,
+            imageUrl: imageResult.data.image_url,
+            prompt: horizontalPrompt,
+            scene: scene
+          });
+          
+          console.log(`✅ Image ${i + 1} generated successfully`);
+        } else {
+          throw new Error(imageResult.error || 'خطا در تولید تصویر');
+        }
+        
+        // Update progress
+        const progress = Math.round(((i + 1) / script.scenes.length) * 30); // 30% for images
+        if (videoId) {
+          await updateVideoTracking(videoId, {
+            progress: progress,
+            currentStep: `تولید تصاویر (${i + 1}/${script.scenes.length})`
+          });
+        }
+        
+        // Small delay between requests
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+      } catch (error) {
+        console.error(`❌ Error generating image ${i + 1}:`, error);
+        throw error;
+      }
+    }
+    
+    // Update tracking to show images completed
+    if (videoId) {
+      await updateVideoTracking(videoId, {
+        progress: 30,
+        currentStep: 'تولید تصاویر تکمیل شد',
+        steps: [
+          { name: 'در صف انتظار', status: 'completed', timestamp: null },
+          { name: 'تولید اسکریپت', status: 'completed', timestamp: null },
+          { name: 'تولید تصاویر', status: 'completed', timestamp: new Date().toISOString() },
+          { name: 'تولید صدا', status: 'active', timestamp: new Date().toISOString() },
+          { name: 'ترکیب ویدیو', status: 'pending', timestamp: null },
+          { name: 'آماده', status: 'pending', timestamp: null }
+        ]
+      });
+    }
+    
+    console.log('✅ All images generated successfully');
+    
+    // Step 2: Generate complete video
+    console.log('🎬 Step 2: Generating complete video...');
+    
+    // Update tracking to show video generation started
+    if (videoId) {
+      await updateVideoTracking(videoId, {
+        progress: 30,
+        currentStep: 'تولید صدا',
+        steps: [
+          { name: 'در صف انتظار', status: 'completed', timestamp: null },
+          { name: 'تولید اسکریپت', status: 'completed', timestamp: null },
+          { name: 'تولید تصاویر', status: 'completed', timestamp: null },
+          { name: 'تولید صدا', status: 'active', timestamp: new Date().toISOString() },
+          { name: 'ترکیب ویدیو', status: 'pending', timestamp: null },
+          { name: 'آماده', status: 'pending', timestamp: null }
+        ]
+      });
+    }
+    
+    // Get background music from the request
+    const backgroundMusic = req.body.backgroundMusic || '';
+    console.log('🎵 Background music for complete video:', backgroundMusic);
+    
+    // Generate complete video using existing function with background music
+    const videoResult = await generateLongFormVideoContent(script, images, { voice, backgroundMusic }, [], 'long-form', req, videoId);
+    
+    if (videoResult.success) {
+      console.log('✅ Complete video generated successfully');
+      
+      res.json({
+        success: true,
+        data: {
+          video_url: videoResult.data.video_url,
+          duration: videoResult.data.duration,
+          scenes_count: videoResult.data.scenes_count,
+          resolution: videoResult.data.resolution,
+          status: 'completed',
+          video_type: 'long-form',
+          videoId: videoId,
+          images: images
+        }
+      });
+    } else {
+      throw new Error(videoResult.error || 'خطا در تولید ویدیو');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error generating complete long form video:', error);
+    
+    // Update tracking to error status
+    if (req.body.videoId) {
+      await updateVideoTracking(req.body.videoId, {
+        status: 'error',
+        progress: 0,
+        currentStep: 'خطا در تولید',
+        steps: [
+          { name: 'در صف انتظار', status: 'completed', timestamp: null },
+          { name: 'تولید اسکریپت', status: 'completed', timestamp: null },
+          { name: 'تولید تصاویر', status: 'error', timestamp: new Date().toISOString() },
+          { name: 'تولید صدا', status: 'pending', timestamp: null },
+          { name: 'ترکیب ویدیو', status: 'pending', timestamp: null },
+          { name: 'آماده', status: 'pending', timestamp: null }
+        ],
+        metadata: {
+          errorMessage: error.message
+        }
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate complete video',
+      details: error.message
+    });
+  }
+});
+
+// Generate images for long form video in backend
+router.post('/generate-long-form-images', async (req, res) => {
+  try {
+    const { script, videoId } = req.body;
+    
+    if (!script || !script.scenes || !Array.isArray(script.scenes)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Script with scenes is required'
+      });
+    }
+
+    console.log('🖼️ Starting long form image generation in backend...');
+    console.log(`📊 Video ID: ${videoId}`);
+    console.log(`📊 Scenes: ${script.scenes.length}`);
+
+    // Update tracking to show image generation started
+    if (videoId) {
+      await updateVideoTracking(videoId, {
+        progress: 0,
+        currentStep: 'تولید تصاویر در backend',
+        steps: [
+          { name: 'در صف انتظار', status: 'completed', timestamp: null },
+          { name: 'تولید اسکریپت', status: 'completed', timestamp: null },
+          { name: 'تولید تصاویر', status: 'active', timestamp: new Date().toISOString() },
+          { name: 'تولید صدا', status: 'pending', timestamp: null },
+          { name: 'ترکیب ویدیو', status: 'pending', timestamp: null },
+          { name: 'آماده', status: 'pending', timestamp: null }
+        ]
+      });
+    }
+
+    const images = [];
+    
+    // Generate images for each scene
+    for (let i = 0; i < script.scenes.length; i++) {
+      const scene = script.scenes[i];
+      
+      try {
+        console.log(`🖼️ Generating image ${i + 1}/${script.scenes.length}...`);
+        
+        // Modify image prompt for horizontal format
+        const basePrompt = scene.visual_description || scene.image_prompt || 'A beautiful and engaging visual';
+        const horizontalPrompt = `${basePrompt}, horizontal format, landscape orientation, wide aspect ratio`;
+        
+        // Generate image using internal API
+        const imageResponse = await fetch(`${req.protocol}://${req.get('host')}/api/flax/generate-image-url`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: horizontalPrompt,
+            width: 1920,
+            height: 1080
+          })
+        });
+        
+        const imageResult = await imageResponse.json();
+        
+        if (imageResult.success) {
+          images.push({
+            sceneIndex: i,
+            imageUrl: imageResult.data.image_url,
+            prompt: horizontalPrompt,
+            scene: scene
+          });
+          
+          console.log(`✅ Image ${i + 1} generated successfully`);
+        } else {
+          throw new Error(imageResult.error || 'خطا در تولید تصویر');
+        }
+        
+        // Update progress
+        const progress = Math.round(((i + 1) / script.scenes.length) * 30); // 30% for images
+        if (videoId) {
+          await updateVideoTracking(videoId, {
+            progress: progress,
+            currentStep: `تولید تصاویر (${i + 1}/${script.scenes.length})`
+          });
+        }
+        
+        // Small delay between requests
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+      } catch (error) {
+        console.error(`❌ Error generating image ${i + 1}:`, error);
+        throw error;
+      }
+    }
+    
+    // Update tracking to show images completed
+    if (videoId) {
+      await updateVideoTracking(videoId, {
+        progress: 30,
+        currentStep: 'تولید تصاویر تکمیل شد',
+        steps: [
+          { name: 'در صف انتظار', status: 'completed', timestamp: null },
+          { name: 'تولید اسکریپت', status: 'completed', timestamp: null },
+          { name: 'تولید تصاویر', status: 'completed', timestamp: new Date().toISOString() },
+          { name: 'تولید صدا', status: 'pending', timestamp: null },
+          { name: 'ترکیب ویدیو', status: 'pending', timestamp: null },
+          { name: 'آماده', status: 'pending', timestamp: null }
+        ]
+      });
+    }
+    
+    console.log('✅ All images generated successfully');
+    
+    res.json({
+      success: true,
+      data: {
+        images: images,
+        totalImages: images.length,
+        videoId: videoId
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error generating long form images:', error);
+    
+    // Update tracking to error status
+    if (req.body.videoId) {
+      await updateVideoTracking(req.body.videoId, {
+        status: 'error',
+        progress: 0,
+        currentStep: 'خطا در تولید تصاویر',
+        steps: [
+          { name: 'در صف انتظار', status: 'completed', timestamp: null },
+          { name: 'تولید اسکریپت', status: 'completed', timestamp: null },
+          { name: 'تولید تصاویر', status: 'error', timestamp: new Date().toISOString() },
+          { name: 'تولید صدا', status: 'pending', timestamp: null },
+          { name: 'ترکیب ویدیو', status: 'pending', timestamp: null },
+          { name: 'آماده', status: 'pending', timestamp: null }
+        ],
+        metadata: {
+          errorMessage: error.message
+        }
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate images',
+      details: error.message
+    });
+  }
+});
 
 // دریافت وضعیت صف و منابع
 router.get('/queue-status', (req, res) => {

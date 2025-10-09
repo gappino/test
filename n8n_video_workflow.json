@@ -1,0 +1,600 @@
+{
+  "name": "ارک پلاس - ساخت ویدیو خودکار",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "video-generation",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "دریافت ایده کاربر",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "video-generation-webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "idea-validation",
+              "leftValue": "={{ $json.userIdea }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "validate-input",
+      "name": "بررسی ایده کاربر",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://82.115.18.108:3004/api/gemini/generate-creative-script",
+        "authentication": "none",
+        "requestMethod": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "userIdea",
+              "value": "={{ $json.userIdea }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "generate-script",
+      "name": "تولید اسکریپت با جمینی",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "script-success",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-script",
+      "name": "بررسی موفقیت اسکریپت",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// پردازش اسکریپت و آماده‌سازی برای تولید تصاویر\nconst scriptData = $input.first().json.data;\nconst scenes = scriptData.scenes || [];\n\n// تنظیمات پیش‌فرض\nconst defaultSettings = {\n  voice: 'fa_IR-amir-medium',\n  orientation: 'vertical',\n  subtitleSettings: {\n    color: '#ffffff',\n    size: 24,\n    outline: 2\n  }\n};\n\n// ایجاد آرایه‌ای از صحنه‌ها برای تولید تصاویر\nconst imageGenerationTasks = scenes.map((scene, index) => ({\n  sceneIndex: index,\n  scene_number: scene.scene_number,\n  speaker_text: scene.speaker_text,\n  image_prompt: scene.image_prompt,\n  visual_description: scene.visual_description,\n  duration: scene.duration\n}));\n\nreturn {\n  json: {\n    script: scriptData,\n    scenes: imageGenerationTasks,\n    totalScenes: scenes.length,\n    settings: defaultSettings,\n    title: scriptData.title,\n    description: scriptData.description,\n    tags: scriptData.tags\n  }\n};"
+      },
+      "id": "process-script",
+      "name": "پردازش اسکریپت",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "split-scenes",
+      "name": "تقسیم صحنه‌ها",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1340, 200]
+    },
+    {
+      "parameters": {
+        "url": "http://82.115.18.108:3004/api/flax/generate-image-url",
+        "authentication": "none",
+        "requestMethod": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "prompt",
+              "value": "={{ $json.image_prompt }}"
+            },
+            {
+              "name": "width",
+              "value": "={{ $('process-script').item.json.settings.orientation === 'horizontal' ? 1920 : 1080 }}"
+            },
+            {
+              "name": "height",
+              "value": "={{ $('process-script').item.json.settings.orientation === 'horizontal' ? 1080 : 1920 }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 180000
+        }
+      },
+      "id": "generate-image",
+      "name": "تولید تصویر",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1560, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "image-success",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-image",
+      "name": "بررسی موفقیت تصویر",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1780, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ترکیب اطلاعات صحنه با تصویر تولید شده\nconst sceneData = $('split-scenes').item.json;\nconst imageData = $json.data;\n\nreturn {\n  json: {\n    sceneIndex: sceneData.sceneIndex,\n    scene_number: sceneData.scene_number,\n    speaker_text: sceneData.speaker_text,\n    visual_description: sceneData.visual_description,\n    image_prompt: sceneData.image_prompt,\n    duration: sceneData.duration,\n    imageUrl: imageData.image_url,\n    imagePath: imageData.image_path,\n    filename: imageData.filename,\n    parameters: imageData.parameters\n  }\n};"
+      },
+      "id": "combine-scene-image",
+      "name": "ترکیب صحنه و تصویر",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ایجاد تصویر پیش‌فرض در صورت شکست\nconst sceneData = $('split-scenes').item.json;\n\nreturn {\n  json: {\n    sceneIndex: sceneData.sceneIndex,\n    scene_number: sceneData.scene_number,\n    speaker_text: sceneData.speaker_text,\n    visual_description: sceneData.visual_description,\n    image_prompt: sceneData.image_prompt,\n    duration: sceneData.duration,\n    imageUrl: `https://pollinations.ai/p/${encodeURIComponent(sceneData.image_prompt)}?width=${$('process-script').item.json.settings.orientation === 'horizontal' ? 1920 : 1080}&height=${$('process-script').item.json.settings.orientation === 'horizontal' ? 1080 : 1920}&model=flux&seed=${Math.floor(Math.random() * 1000000)}&nologo=true`,\n    imagePath: null,\n    filename: null,\n    parameters: {\n      width: $('process-script').item.json.settings.orientation === 'horizontal' ? 1920 : 1080,\n      height: $('process-script').item.json.settings.orientation === 'horizontal' ? 1080 : 1920,\n      model: 'flux'\n    },\n    fallback: true\n  }\n};"
+      },
+      "id": "create-fallback-image",
+      "name": "ایجاد تصویر پیش‌فرض",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 400]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-scenes",
+      "name": "ادغام صحنه‌ها",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [2220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// آماده‌سازی داده‌های نهایی برای تولید ویدیو\nconst scriptData = $('process-script').item.json.script;\nconst settings = $('process-script').item.json.settings;\nconst allScenes = $input.all().map(item => item.json);\n\n// مرتب‌سازی صحنه‌ها بر اساس sceneIndex\nconst sortedScenes = allScenes.sort((a, b) => a.sceneIndex - b.sceneIndex);\n\n// تبدیل به فرمت مورد نیاز API\nconst scenes = sortedScenes.map(scene => ({\n  scene_number: scene.scene_number,\n  speaker_text: scene.speaker_text,\n  visual_description: scene.visual_description\n}));\n\nconst generatedImages = sortedScenes.map(scene => ({\n  sceneIndex: scene.sceneIndex,\n  imageUrl: scene.imageUrl\n}));\n\nreturn {\n  json: {\n    title: scriptData.title,\n    scenes: scenes,\n    voice: settings.voice,\n    orientation: settings.orientation,\n    subtitleSettings: settings.subtitleSettings,\n    generatedImages: generatedImages,\n    scriptData: scriptData,\n    totalScenes: scenes.length\n  }\n};"
+      },
+      "id": "prepare-video-data",
+      "name": "آماده‌سازی داده‌های ویدیو",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2440, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://82.115.18.108:3004/api/video/generate-custom-video",
+        "authentication": "none",
+        "requestMethod": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "name": "scenes",
+              "value": "={{ $json.scenes }}"
+            },
+            {
+              "name": "voice",
+              "value": "={{ $json.voice }}"
+            },
+            {
+              "name": "orientation",
+              "value": "={{ $json.orientation }}"
+            },
+            {
+              "name": "subtitleSettings",
+              "value": "={{ $json.subtitleSettings }}"
+            },
+            {
+              "name": "generatedImages",
+              "value": "={{ $json.generatedImages }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 600000
+        }
+      },
+      "id": "generate-video",
+      "name": "تولید ویدیو نهایی",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2660, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "video-success",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-video",
+      "name": "بررسی موفقیت ویدیو",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2880, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// آماده‌سازی پاسخ نهایی\nconst videoData = $json.data;\nconst originalIdea = $('webhook-trigger').item.json.userIdea;\n\nreturn {\n  json: {\n    success: true,\n    message: 'ویدیو با موفقیت تولید شد',\n    data: {\n      video_url: `http://82.115.18.108:3004${videoData.video_url}`,\n      download_url: `http://82.115.18.108:3004${videoData.video_url}`,\n      duration: videoData.duration,\n      resolution: videoData.resolution,\n      scenes_count: videoData.scenes_count,\n      title: videoData.title,\n      voice: videoData.voice,\n      status: videoData.status,\n      created_at: new Date().toISOString()\n    },\n    original_idea: originalIdea,\n    generation_info: {\n      total_scenes: videoData.scenes_count,\n      voice_used: videoData.voice,\n      orientation: $('prepare-video-data').item.json.orientation,\n      processing_time: 'Completed successfully'\n    }\n  }\n};"
+      },
+      "id": "format-success-response",
+      "name": "فرمت پاسخ موفقیت",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3100, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// پاسخ خطا\nconst originalIdea = $('webhook-trigger').item.json.userIdea;\nconst errorDetails = $json.error || $json.details || 'خطای نامشخص در تولید ویدیو';\n\nreturn {\n  json: {\n    success: false,\n    message: 'خطا در تولید ویدیو',\n    error: errorDetails,\n    original_idea: originalIdea,\n    timestamp: new Date().toISOString(),\n    suggestion: 'لطفاً ایده خود را دوباره امتحان کنید یا با پشتیبانی تماس بگیرید'\n  }\n};"
+      },
+      "id": "format-error-response",
+      "name": "فرمت پاسخ خطا",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3100, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "send-response",
+      "name": "ارسال پاسخ نهایی",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [3320, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": false,\n  \"message\": \"ایده کاربر الزامی است\",\n  \"error\": \"userIdea parameter is required\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}"
+      },
+      "id": "send-validation-error",
+      "name": "ارسال خطای اعتبارسنجی",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [680, 500]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": false,\n  \"message\": \"خطا در تولید اسکریپت\",\n  \"error\": \"Failed to generate script with Gemini AI\",\n  \"original_idea\": \"{{ $('webhook-trigger').item.json.userIdea }}\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}"
+      },
+      "id": "send-script-error",
+      "name": "ارسال خطای اسکریپت",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1120, 500]
+    }
+  ],
+  "connections": {
+    "دریافت ایده کاربر": {
+      "main": [
+        [
+          {
+            "node": "بررسی ایده کاربر",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "بررسی ایده کاربر": {
+      "main": [
+        [
+          {
+            "node": "تولید اسکریپت با جمینی",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ارسال خطای اعتبارسنجی",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تولید اسکریپت با جمینی": {
+      "main": [
+        [
+          {
+            "node": "بررسی موفقیت اسکریپت",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "بررسی موفقیت اسکریپت": {
+      "main": [
+        [
+          {
+            "node": "پردازش اسکریپت",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ارسال خطای اسکریپت",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "پردازش اسکریپت": {
+      "main": [
+        [
+          {
+            "node": "تقسیم صحنه‌ها",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تقسیم صحنه‌ها": {
+      "main": [
+        [
+          {
+            "node": "تولید تصویر",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تولید تصویر": {
+      "main": [
+        [
+          {
+            "node": "بررسی موفقیت تصویر",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "بررسی موفقیت تصویر": {
+      "main": [
+        [
+          {
+            "node": "ترکیب صحنه و تصویر",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ایجاد تصویر پیش‌فرض",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ترکیب صحنه و تصویر": {
+      "main": [
+        [
+          {
+            "node": "ادغام صحنه‌ها",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ایجاد تصویر پیش‌فرض": {
+      "main": [
+        [
+          {
+            "node": "ادغام صحنه‌ها",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ادغام صحنه‌ها": {
+      "main": [
+        [
+          {
+            "node": "آماده‌سازی داده‌های ویدیو",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "آماده‌سازی داده‌های ویدیو": {
+      "main": [
+        [
+          {
+            "node": "تولید ویدیو نهایی",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "تولید ویدیو نهایی": {
+      "main": [
+        [
+          {
+            "node": "بررسی موفقیت ویدیو",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "بررسی موفقیت ویدیو": {
+      "main": [
+        [
+          {
+            "node": "فرمت پاسخ موفقیت",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "فرمت پاسخ خطا",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "فرمت پاسخ موفقیت": {
+      "main": [
+        [
+          {
+            "node": "ارسال پاسخ نهایی",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "فرمت پاسخ خطا": {
+      "main": [
+        [
+          {
+            "node": "ارسال پاسخ نهایی",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z",
+      "id": "video-generation",
+      "name": "Video Generation"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}
+

@@ -5,26 +5,173 @@ const router = express.Router();
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+// Helper function to generate script using Pollinations AI
+async function generateScriptWithPollinations(userIdea, sceneCount = 30) {
+  try {
+    console.log('🤖 Using Pollinations AI as fallback for script generation...');
+    
+    // Create comprehensive prompt for Pollinations AI
+    const pollinationsPrompt = `Create a comprehensive long-form YouTube video script based on: "${userIdea}"
+
+Requirements:
+- Create exactly ${sceneCount} scenes
+- Each scene should have detailed speaker text (minimum 30 words)
+- All content must be in English
+- Create engaging, educational content suitable for long-form viewing
+- Each scene should build upon the previous one for cohesive narrative
+
+Return ONLY valid JSON in this exact format:
+{
+  "title": "Video Title",
+  "description": "SEO-optimized description",
+  "tags": ["tag1", "tag2", "tag3"],
+  "estimated_duration": "${Math.ceil(sceneCount * 4)}-${Math.ceil(sceneCount * 6)} seconds",
+  "scenes": [
+    {
+      "scene_number": 1,
+      "duration": "0-6 seconds",
+      "speaker_text": "Detailed English narrator text with at least 30 words",
+      "visual_description": "What should be shown on screen",
+      "image_prompt": "Detailed English prompt for horizontal AI image generation (16:9 aspect ratio)"
+    }
+  ],
+  "content_type": "long-form educational content",
+  "engagement_strategy": "How content maintains engagement",
+  "educational_value": "High/Medium/Low with explanation"
+}`;
+
+    console.log('📝 Sending prompt to Pollinations AI...');
+    const encodedPrompt = encodeURIComponent(pollinationsPrompt);
+    const pollinationsUrl = `https://text.pollinations.ai/${encodedPrompt}`;
+
+    const response = await fetch(pollinationsUrl, {
+      method: 'GET',
+      headers: {
+        'Accept': 'text/plain, */*',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      },
+      timeout: 45000 // 45 seconds timeout for long responses
+    });
+
+    if (!response.ok) {
+      throw new Error(`Pollinations AI HTTP error! status: ${response.status}`);
+    }
+
+    const aiResponse = await response.text();
+    console.log('✅ Received response from Pollinations AI');
+    console.log('📄 Response length:', aiResponse.length);
+    
+    // Clean up the response
+    let cleanedResponse = aiResponse.trim();
+    
+    // Remove any HTML tags
+    cleanedResponse = cleanedResponse.replace(/<[^>]*>/g, '').trim();
+    
+    // Try to extract JSON from the response
+    const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        // Clean JSON string - remove control characters and fix common issues
+        let jsonString = jsonMatch[0];
+        
+        // Remove control characters except newlines and tabs
+        jsonString = jsonString.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+        
+        // Fix common JSON issues
+        jsonString = jsonString
+          .replace(/\n/g, '\\n')  // Escape newlines
+          .replace(/\r/g, '\\r')  // Escape carriage returns
+          .replace(/\t/g, '\\t')  // Escape tabs
+          .replace(/\\/g, '\\\\') // Escape backslashes
+          .replace(/\n/g, '\\n')  // Fix any remaining newlines
+          .replace(/\r/g, '\\r'); // Fix any remaining carriage returns
+        
+        // Try to fix unescaped quotes in strings
+        jsonString = jsonString.replace(/"([^"]*)"([^",}\]]*)"([^"]*)"/g, '"$1\\"$2\\"$3"');
+        
+        console.log('🧹 Cleaned JSON string length:', jsonString.length);
+        console.log('🧹 JSON preview:', jsonString.substring(0, 200) + '...');
+        
+        const scriptData = JSON.parse(jsonString);
+        console.log('✅ Successfully parsed JSON from Pollinations AI');
+        return scriptData;
+        
+      } catch (parseError) {
+        console.error('❌ Failed to parse JSON from Pollinations AI:', parseError);
+        console.log('📄 Problematic JSON:', jsonMatch[0].substring(14050, 14070)); // Show the problematic area
+        
+        // Try alternative parsing methods
+        try {
+          console.log('🔄 Trying alternative JSON parsing...');
+          
+          // Try to fix the JSON by replacing problematic characters
+          let fixedJson = jsonMatch[0];
+          
+          // Remove all control characters
+          fixedJson = fixedJson.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+          
+          // Fix common JSON issues
+          fixedJson = fixedJson
+            .replace(/([^\\])\\([^"\\\/bfnrt])/g, '$1\\\\$2') // Fix unescaped backslashes
+            .replace(/([^\\])\\([^"\\\/bfnrt])/g, '$1\\\\$2') // Double fix
+            .replace(/\n/g, '\\n')  // Escape newlines
+            .replace(/\r/g, '\\r')  // Escape carriage returns
+            .replace(/\t/g, '\\t'); // Escape tabs
+          
+          const scriptData = JSON.parse(fixedJson);
+          console.log('✅ Successfully parsed JSON with alternative method');
+          return scriptData;
+          
+        } catch (alternativeError) {
+          console.error('❌ Alternative parsing also failed:', alternativeError);
+          throw new Error('Failed to parse JSON response from Pollinations AI after multiple attempts');
+        }
+      }
+    } else {
+      throw new Error('No JSON found in Pollinations AI response');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error with Pollinations AI:', error);
+    throw error;
+  }
+}
+
 // Video script generation prompt
-const VIDEO_SCRIPT_PROMPT = `Create a viral Technology & AI video script that reveals cutting-edge developments, hidden features, or game-changing applications. Focus on practical benefits viewers can use immediately. Include surprising insights about how AI is transforming daily life, work productivity, or future possibilities. Target tech enthusiasts and early adopters who want to stay ahead of trends.
+const VIDEO_SCRIPT_PROMPT = `Create a viral, engaging YouTube video script that PRIORITIZES the user's specific idea and vision. The content should be:
+
+PRIORITY FOCUS:
+- Follow the user's exact idea and concept (fun, scary, entertaining, etc.)
+- Create content that matches the user's intended tone and style
+- Build upon the user's creative vision rather than making it educational
+- Honor the user's specific request for content type and mood
+
+ENGAGEMENT ELEMENTS:
+- Start with a powerful hook that immediately grabs attention
+- Include compelling call-to-action elements
+- Create shareable, viral-worthy content
+- Focus on entertainment value and viewer engagement
+- Make content that people want to watch and share
 
 IMPORTANT: All speaker_text must be in English only. Do not use any other language.
 
 Please provide the response in the following JSON format:
 {
-  "title": "Video Title",
-  "description": "Brief description of the video",
+  "title": "Viral Video Title Based on User's Idea",
+  "description": "Engaging description with strong hook",
   "scenes": [
     {
       "scene_number": 1,
       "duration": "0-5 seconds",
-      "speaker_text": "What the narrator says",
+      "speaker_text": "Powerful English hook that immediately grabs attention based on user's idea",
       "visual_description": "What should be shown on screen",
-      "image_prompt": "Detailed description for image generation"
+      "image_prompt": "Detailed description for image generation that matches user's creative vision"
     }
   ],
   "total_duration": "60 seconds",
-  "target_audience": "tech enthusiasts and early adopters"
+  "target_audience": "engaging content for viral potential",
+  "hook_strategy": "How the opening hooks viewers based on user's idea",
+  "viral_potential": "High/Medium/Low with explanation"
 }`;
 
 // Image prompt generation prompt
@@ -119,23 +266,34 @@ router.post('/generate-script', async (req, res) => {
       console.error('❌ Failed to parse JSON from Gemini response:', parseError);
       console.log('📄 Raw text that failed to parse:', text);
       
-      // If JSON parsing fails, create a structured response
-      scriptData = {
-        title: "AI Technology Revolution",
-        description: "Exploring cutting-edge AI developments",
-        scenes: [
-          {
-            scene_number: 1,
-            duration: "0-5 seconds",
-            speaker_text: "Welcome to the future of AI technology",
-            visual_description: "Futuristic AI interface with glowing elements",
-            image_prompt: "Futuristic AI interface with glowing elements"
-          }
-        ],
-        total_duration: "60 seconds",
-        target_audience: "tech enthusiasts and early adopters"
-      };
-      console.log('⚠️ Using fallback script data');
+      // Try to extract JSON from the response
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          // Clean JSON string - remove control characters and fix common issues
+          let jsonString = jsonMatch[0];
+          
+          // Remove control characters except newlines and tabs
+          jsonString = jsonString.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+          
+          // Fix common JSON issues
+          jsonString = jsonString
+            .replace(/\n/g, '\\n')  // Escape newlines
+            .replace(/\r/g, '\\r')  // Escape carriage returns
+            .replace(/\t/g, '\\t')  // Escape tabs
+            .replace(/\\/g, '\\\\') // Escape backslashes
+            .replace(/\n/g, '\\n')  // Fix any remaining newlines
+            .replace(/\r/g, '\\r'); // Fix any remaining carriage returns
+          
+          scriptData = JSON.parse(jsonString);
+          console.log('✅ Successfully parsed JSON after cleaning');
+        } catch (cleanError) {
+          console.error('❌ Failed to parse cleaned JSON:', cleanError);
+          throw new Error('Failed to parse JSON response from Gemini');
+        }
+      } else {
+        throw new Error('No JSON found in Gemini response');
+      }
     }
     
     res.json({
@@ -146,65 +304,42 @@ router.post('/generate-script', async (req, res) => {
   } catch (error) {
     console.error('❌ Error generating script with Gemini:', error);
     
-    // Check if it's a quota error
-    if (error.message.includes('quota') || error.message.includes('429')) {
-      console.log('⚠️ Gemini quota exceeded, using fallback script');
-      console.log('💡 To fix this: Get a new API key from https://aistudio.google.com/');
+    console.log('⚠️ Gemini API failed, trying Pollinations AI as fallback...');
+    
+    try {
+      // Use Pollinations AI as fallback
+      const scriptData = await generateScriptWithPollinations("AI Technology Revolution", 8); // Default to 8 scenes for regular script
       
-      // Use fallback script when quota is exceeded
-      const fallbackScript = {
-        title: "AI Technology Revolution",
-        description: "Exploring cutting-edge AI developments",
-        scenes: [
-          {
-            scene_number: 1,
-            duration: "0-5 seconds",
-            speaker_text: "Welcome to the future of AI technology",
-            visual_description: "Futuristic AI interface with glowing elements",
-            image_prompt: "Futuristic AI interface with glowing elements"
-          },
-          {
-            scene_number: 2,
-            duration: "5-10 seconds",
-            speaker_text: "AI is transforming every industry",
-            visual_description: "Modern workspace with AI tools and interfaces",
-            image_prompt: "Modern workspace with AI tools and interfaces"
-          },
-          {
-            scene_number: 3,
-            duration: "10-15 seconds",
-            speaker_text: "From healthcare to transportation",
-            visual_description: "AI applications in various industries",
-            image_prompt: "AI applications in various industries"
-          },
-          {
-            scene_number: 4,
-            duration: "15-20 seconds",
-            speaker_text: "The future is here today",
-            visual_description: "Visionary representation of AI future",
-            image_prompt: "Visionary representation of AI future"
-          },
-          {
-            scene_number: 5,
-            duration: "20-25 seconds",
-            speaker_text: "Are you ready for the AI revolution?",
-            visual_description: "Call to action with AI technology",
-            image_prompt: "Call to action with AI technology"
-          }
-        ],
-        total_duration: "25 seconds",
-        target_audience: "tech enthusiasts and early adopters"
-      };
+      // Validate the script data
+      if (!scriptData.title || !scriptData.scenes || !Array.isArray(scriptData.scenes)) {
+        throw new Error('Invalid script data structure from Pollinations AI');
+      }
+      
+      console.log('✅ Successfully generated script using Pollinations AI fallback');
+      console.log('📊 Generated script:', {
+        title: scriptData.title,
+        scenesCount: scriptData.scenes ? scriptData.scenes.length : 0,
+        estimatedDuration: scriptData.estimated_duration
+      });
       
       res.json({
         success: true,
-        data: fallbackScript
+        data: scriptData,
+        fallback: 'pollinations',
+        source: 'Pollinations AI (Gemini unavailable)'
       });
-    } else {
+      
+    } catch (pollinationsError) {
+      console.error('❌ Pollinations AI fallback also failed:', pollinationsError);
+      
+      // Return error if both fail
       res.status(500).json({
         success: false,
-        error: 'Failed to generate video script',
-        details: error.message
+        error: 'Failed to generate script with both Gemini and Pollinations AI',
+        details: {
+          gemini: error.message,
+          pollinations: pollinationsError.message
+        }
       });
     }
   }
@@ -586,13 +721,25 @@ router.post('/generate-content', async (req, res) => {
       model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
     }
     
-    const CONTENT_GENERATION_PROMPT = `Create a complete YouTube video content based on:
-- User's Original Idea: "${userIdea}"
-- Selected Niche: "${selectedNiche.title}" - ${selectedNiche.description}
+    const CONTENT_GENERATION_PROMPT = `Create a complete YouTube video content that PRIORITIZES the user's specific idea and vision:
+
+PRIORITY FOCUS:
+- User's Original Idea: "${userIdea}" (THIS IS THE MAIN FOCUS - follow this exactly)
+- Selected Niche: "${selectedNiche.title}" - ${selectedNiche.description} (use as secondary reference only)
 - Target Audience: ${selectedNiche.target_audience}
 - Content Style: ${selectedNiche.content_style}
 
-Create engaging YouTube content that combines the user's idea with the selected niche. The content should be viral-worthy and optimized for the target audience.
+Create viral, engaging YouTube content that PRIORITIZES the user's idea above all else. The content should:
+- Follow the user's exact concept (fun, scary, entertaining, etc.)
+- Match the user's intended tone and style
+- Build upon the user's creative vision rather than being educational
+- Honor the user's specific request for content type and mood
+
+ENGAGEMENT ELEMENTS:
+- Start with a powerful hook that immediately grabs attention
+- Include compelling call-to-action elements
+- Create shareable, viral-worthy content
+- Focus on entertainment value and viewer engagement
 
 CRITICAL REQUIREMENTS:
 1. All speaker_text (narrator voice) must be in ENGLISH only
@@ -604,29 +751,32 @@ CRITICAL REQUIREMENTS:
 
 Provide the response in the following JSON format:
 {
-  "title": "Engaging YouTube Video Title",
-  "description": "SEO-optimized video description",
-  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+  "title": "Viral YouTube Video Title Based on User's Idea",
+  "description": "SEO-optimized video description with strong hook",
+  "tags": ["viral", "entertainment", "engaging", "user-idea", "hook"],
   "estimated_duration": "60-90 seconds",
   "scenes": [
     {
       "scene_number": 1,
       "duration": "0-6 seconds",
-      "speaker_text": "English narrator text that hooks the viewer",
+      "speaker_text": "Powerful English narrator text that hooks the viewer based on user's specific idea",
       "visual_description": "What should be shown on screen",
-      "image_prompt": "Extremely detailed English prompt for image generation that matches the speaker text perfectly"
+      "image_prompt": "Extremely detailed English prompt for image generation that matches the speaker text perfectly and user's creative vision"
     }
   ],
   "target_audience": "${selectedNiche.target_audience}",
-  "monetization_potential": "High/Medium/Low with explanation"
+  "hook_strategy": "How the opening hooks viewers based on user's idea",
+  "call_to_action": "Compelling CTA elements included",
+  "viral_potential": "High/Medium/Low with explanation of shareability"
 }
 
 Make sure:
-- The content flows naturally from scene to scene
+- The content PRIORITIZES the user's exact idea and creative vision
 - Each image prompt creates visuals that perfectly match what the narrator is saying
-- The video tells a complete story related to the user's idea
+- The video tells a complete story related to the user's idea (not educational content)
 - All text is in English for international audience appeal
-- Content is engaging from the first second to maximize retention`;
+- Content is engaging from the first second to maximize retention
+- Focus on entertainment and engagement rather than education`;
     
     console.log('📝 Sending content generation request to Gemini...');
     const result = await model.generateContent(CONTENT_GENERATION_PROMPT);
@@ -1069,30 +1219,102 @@ Make sure:
   } catch (error) {
     console.error('❌ Error generating long form script with Gemini:', error);
     
-    // Return fallback data if Gemini fails
-    const fallbackScript = {
-      title: "Long Form AI Technology Deep Dive",
-      description: "A comprehensive exploration of artificial intelligence technologies and their impact on our world",
-      tags: ["longform", "AI", "technology", "comprehensive", "education"],
-      estimated_duration: `${Math.ceil(sceneCount * 4)}-${Math.ceil(sceneCount * 6)} seconds`,
-      scenes: Array.from({ length: Math.min(sceneCount, 30) }, (_, i) => ({
-        scene_number: i + 1,
-        duration: `${i * 6}-${(i + 1) * 6} seconds`,
-        speaker_text: `This is scene ${i + 1} of our comprehensive exploration of artificial intelligence. We will dive deep into the fascinating world of AI technology, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand how AI is transforming industries and creating new opportunities for innovation and growth.`,
-        visual_description: `Scene ${i + 1} showing AI technology concepts and applications`,
-        image_prompt: `Professional horizontal composition showing AI technology concepts, modern digital interface, clean design, 16:9 aspect ratio, high quality, detailed visualization`
-      })),
-      content_type: "long-form educational content",
-      engagement_strategy: "Comprehensive coverage with detailed explanations",
-      educational_value: "High - provides in-depth understanding of AI concepts"
-    };
-    
-    res.json({
-      success: true,
-      data: fallbackScript,
-      fallback: true,
-      error: error.message
-    });
+    // Check if it's a quota error or API key error
+    if (error.message.includes('quota') || error.message.includes('429') || 
+        error.message.includes('403') || error.message.includes('Forbidden')) {
+      
+      console.log('⚠️ Gemini API unavailable, trying Pollinations AI as fallback...');
+      
+      try {
+        // Use Pollinations AI as fallback
+        const scriptData = await generateScriptWithPollinations(userIdea.trim(), sceneCount);
+        
+        // Validate the script data
+        if (!scriptData.title || !scriptData.scenes || !Array.isArray(scriptData.scenes)) {
+          throw new Error('Invalid script data structure from Pollinations AI');
+        }
+        
+        // Ensure we have the minimum number of scenes
+        if (scriptData.scenes.length < sceneCount) {
+          console.log(`⚠️ Pollinations AI generated ${scriptData.scenes.length} scenes, but requested ${sceneCount}. Using generated scenes.`);
+        }
+        
+        console.log('✅ Successfully generated script using Pollinations AI fallback');
+        console.log('📊 Generated script:', {
+          title: scriptData.title,
+          scenesCount: scriptData.scenes ? scriptData.scenes.length : 0,
+          estimatedDuration: scriptData.estimated_duration
+        });
+        
+        res.json({
+          success: true,
+          data: scriptData,
+          fallback: 'pollinations',
+          source: 'Pollinations AI (Gemini unavailable)'
+        });
+        
+      } catch (pollinationsError) {
+        console.error('❌ Pollinations AI fallback also failed:', pollinationsError);
+        
+        // Final fallback to static script
+        const fallbackScript = {
+          title: `Long Form Deep Dive: ${userIdea.trim()}`,
+          description: `A comprehensive exploration of ${userIdea.trim()} and its impact on our world`,
+          tags: ["longform", "education", "comprehensive", "detailed", "tutorial"],
+          estimated_duration: `${Math.ceil(sceneCount * 4)}-${Math.ceil(sceneCount * 6)} seconds`,
+          scenes: Array.from({ length: Math.min(sceneCount, 30) }, (_, i) => ({
+            scene_number: i + 1,
+            duration: `${i * 6}-${(i + 1) * 6} seconds`,
+            speaker_text: `This is scene ${i + 1} of our comprehensive exploration of ${userIdea.trim()}. We will dive deep into the fascinating world of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand how this concept is transforming industries and creating new opportunities for innovation and growth.`,
+            visual_description: `Scene ${i + 1} showing ${userIdea.trim()} concepts and applications`,
+            image_prompt: `Professional horizontal composition showing ${userIdea.trim()} concepts, modern digital interface, clean design, 16:9 aspect ratio, high quality, detailed visualization`
+          })),
+          content_type: "long-form educational content",
+          engagement_strategy: "Comprehensive coverage with detailed explanations",
+          educational_value: "High - provides in-depth understanding of the topic"
+        };
+        
+        res.json({
+          success: true,
+          data: fallbackScript,
+          fallback: 'static',
+          source: 'Static fallback (Both AI services unavailable)',
+          error: `Gemini: ${error.message}, Pollinations: ${pollinationsError.message}`
+        });
+      }
+      
+    } else {
+      // For other errors, try Pollinations AI as fallback
+      console.log('⚠️ Gemini error, trying Pollinations AI as fallback...');
+      
+      try {
+        const scriptData = await generateScriptWithPollinations(userIdea.trim(), sceneCount);
+        
+        if (!scriptData.title || !scriptData.scenes || !Array.isArray(scriptData.scenes)) {
+          throw new Error('Invalid script data structure from Pollinations AI');
+        }
+        
+        res.json({
+          success: true,
+          data: scriptData,
+          fallback: 'pollinations',
+          source: 'Pollinations AI (Gemini error)'
+        });
+        
+      } catch (pollinationsError) {
+        console.error('❌ Pollinations AI fallback also failed:', pollinationsError);
+        
+        // Return error if both fail
+        res.status(500).json({
+          success: false,
+          error: 'Failed to generate script with both Gemini and Pollinations AI',
+          details: {
+            gemini: error.message,
+            pollinations: pollinationsError.message
+          }
+        });
+      }
+    }
   }
 });
 

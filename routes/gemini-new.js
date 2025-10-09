@@ -6,25 +6,40 @@ const router = express.Router();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Video script generation prompt
-const VIDEO_SCRIPT_PROMPT = `Create a viral Technology & AI video script that reveals cutting-edge developments, hidden features, or game-changing applications. Focus on practical benefits viewers can use immediately. Include surprising insights about how AI is transforming daily life, work productivity, or future possibilities. Target tech enthusiasts and early adopters who want to stay ahead of trends.
+const VIDEO_SCRIPT_PROMPT = `Create a viral, engaging YouTube video script that PRIORITIZES the user's specific idea and vision. The content should be:
+
+PRIORITY FOCUS:
+- Follow the user's exact idea and concept (fun, scary, entertaining, etc.)
+- Create content that matches the user's intended tone and style
+- Build upon the user's creative vision rather than making it educational
+- Honor the user's specific request for content type and mood
+
+ENGAGEMENT ELEMENTS:
+- Start with a powerful hook that immediately grabs attention
+- Include compelling call-to-action elements
+- Create shareable, viral-worthy content
+- Focus on entertainment value and viewer engagement
+- Make content that people want to watch and share
 
 IMPORTANT: All speaker_text must be in English only. Do not use any other language.
 
 Please provide the response in the following JSON format:
 {
-  "title": "Video Title",
-  "description": "Brief description of the video",
+  "title": "Viral Video Title Based on User's Idea",
+  "description": "Engaging description with strong hook",
   "scenes": [
     {
       "scene_number": 1,
       "duration": "0-5 seconds",
-      "speaker_text": "What the narrator says",
+      "speaker_text": "Powerful English hook that immediately grabs attention based on user's idea",
       "visual_description": "What should be shown on screen",
-      "image_prompt": "Detailed description for image generation"
+      "image_prompt": "Detailed description for image generation that matches user's creative vision"
     }
   ],
   "total_duration": "60 seconds",
-  "target_audience": "tech enthusiasts and early adopters"
+  "target_audience": "engaging content for viral potential",
+  "hook_strategy": "How the opening hooks viewers based on user's idea",
+  "viral_potential": "High/Medium/Low with explanation"
 }`;
 
 // Image prompt generation prompt
@@ -608,13 +623,25 @@ router.post('/generate-content', async (req, res) => {
       }
     }
     
-    const CONTENT_GENERATION_PROMPT = `Create a complete YouTube video content based on:
-- User's Original Idea: "${userIdea}"
-- Selected Niche: "${selectedNiche.title}" - ${selectedNiche.description}
+    const CONTENT_GENERATION_PROMPT = `Create a complete YouTube video content that PRIORITIZES the user's specific idea and vision:
+
+PRIORITY FOCUS:
+- User's Original Idea: "${userIdea}" (THIS IS THE MAIN FOCUS - follow this exactly)
+- Selected Niche: "${selectedNiche.title}" - ${selectedNiche.description} (use as secondary reference only)
 - Target Audience: ${selectedNiche.target_audience}
 - Content Style: ${selectedNiche.content_style}
 
-Create engaging YouTube content that combines the user's idea with the selected niche. The content should be viral-worthy and optimized for the target audience.
+Create viral, engaging YouTube content that PRIORITIZES the user's idea above all else. The content should:
+- Follow the user's exact concept (fun, scary, entertaining, etc.)
+- Match the user's intended tone and style
+- Build upon the user's creative vision rather than being educational
+- Honor the user's specific request for content type and mood
+
+ENGAGEMENT ELEMENTS:
+- Start with a powerful hook that immediately grabs attention
+- Include compelling call-to-action elements
+- Create shareable, viral-worthy content
+- Focus on entertainment value and viewer engagement
 
 CRITICAL REQUIREMENTS:
 1. All speaker_text (narrator voice) must be in ENGLISH only
@@ -626,29 +653,32 @@ CRITICAL REQUIREMENTS:
 
 Provide the response in the following JSON format:
 {
-  "title": "Engaging YouTube Video Title",
-  "description": "SEO-optimized video description",
-  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+  "title": "Viral YouTube Video Title Based on User's Idea",
+  "description": "SEO-optimized video description with strong hook",
+  "tags": ["viral", "entertainment", "engaging", "user-idea", "hook"],
   "estimated_duration": "60-90 seconds",
   "scenes": [
     {
       "scene_number": 1,
       "duration": "0-6 seconds",
-      "speaker_text": "English narrator text that hooks the viewer",
+      "speaker_text": "Powerful English narrator text that hooks the viewer based on user's specific idea",
       "visual_description": "What should be shown on screen",
-      "image_prompt": "Extremely detailed English prompt for image generation that matches the speaker text perfectly"
+      "image_prompt": "Extremely detailed English prompt for image generation that matches the speaker text perfectly and user's creative vision"
     }
   ],
   "target_audience": "${selectedNiche.target_audience}",
-  "monetization_potential": "High/Medium/Low with explanation"
+  "hook_strategy": "How the opening hooks viewers based on user's idea",
+  "call_to_action": "Compelling CTA elements included",
+  "viral_potential": "High/Medium/Low with explanation of shareability"
 }
 
 Make sure:
-- The content flows naturally from scene to scene
+- The content PRIORITIZES the user's exact idea and creative vision
 - Each image prompt creates visuals that perfectly match what the narrator is saying
-- The video tells a complete story related to the user's idea
+- The video tells a complete story related to the user's idea (not educational content)
 - All text is in English for international audience appeal
-- Content is engaging from the first second to maximize retention`;
+- Content is engaging from the first second to maximize retention
+- Focus on entertainment and engagement rather than education`;
     
     console.log('📝 Sending content generation request to Gemini...');
     const result = await model.generateContent(CONTENT_GENERATION_PROMPT);

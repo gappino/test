@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3b82f6">
+    <title>مدیریت Workflow ها - ارک پلاس</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .workflow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .workflow-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .workflow-header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .workflow-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .workflow-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn-create-workflow {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+
+        .btn-create-workflow:hover {
+            transform: translateY(-2px);
+        }
+
+        .workflow-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .workflow-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .workflow-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .workflow-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .workflow-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .workflow-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .workflow-status.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .workflow-status.paused {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .workflow-info {
+            margin-bottom: 20px;
+        }
+
+        .workflow-info-item {
+            display: flex;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .workflow-info-label {
+            font-weight: 500;
+            color: #666;
+            width: 120px;
+        }
+
+        .workflow-info-value {
+            color: #333;
+        }
+
+        .workflow-prompt {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #555;
+        }
+
+        .workflow-actions-card {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-run {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-toggle {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-edit {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .schedule-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .schedule-option {
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .schedule-option.selected {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-box i {
+            color: #2196f3;
+            font-size: 1.2rem;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #1976d2;
+            font-size: 0.9rem;
+        }
+
+        .scene-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+        }
+
+        .scene-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .btn-remove-scene {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .btn-remove-scene:hover {
+            background: #c82333;
+        }
+
+        .schedule-option input[type="radio"] {
+            margin-right: 8px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #999;
+        }
+
+        .empty-state p {
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .workflow-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .workflow-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .workflow-card-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .workflow-actions-card {
+                justify-content: center;
+            }
+
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="workflow-container">
+        <!-- Header -->
+        <div class="workflow-header">
+            <div>
+                <h1><i class="fas fa-cogs"></i> اتوماسیون محتوا</h1>
+                <p>تنظیم و مدیریت تولید خودکار ویدیوها</p>
+            </div>
+            <div>
+                <a href="/" class="btn btn-secondary">
+                    <i class="fas fa-arrow-right"></i>
+                    بازگشت به صفحه اصلی
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="workflow-stats" id="workflowStats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalWorkflows">-</div>
+                <div class="stat-label">کل Workflow ها</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="activeWorkflows">-</div>
+                <div class="stat-label">فعال</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalVideos">-</div>
+                <div class="stat-label">ویدیوهای تولید شده</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalRuns">-</div>
+                <div class="stat-label">تعداد اجراها</div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="workflow-actions">
+            <button class="btn-create-workflow" onclick="openCreateModal()">
+                <i class="fas fa-plus"></i>
+                ایجاد Workflow جدید
+            </button>
+            <button class="btn-create-workflow" onclick="openCustomWorkflowModal()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <i class="fas fa-cogs"></i>
+                ایجاد Workflow سفارشی
+            </button>
+            <button class="btn-create-workflow" onclick="openLongFormWorkflowModal()" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <i class="fas fa-film"></i>
+                ایجاد ویدیو بلند زمان‌بندی شده
+            </button>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>در حال بارگذاری...</p>
+        </div>
+
+        <!-- Workflow List -->
+        <div class="workflow-list" id="workflowList">
+            <!-- Workflows will be loaded here -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state hidden" id="emptyState">
+            <i class="fas fa-cogs"></i>
+            <h3>هنوز Workflow ای ایجاد نکرده‌اید</h3>
+            <p>برای شروع، یک Workflow جدید ایجاد کنید</p>
+            <button class="btn-create-workflow" onclick="openCreateModal()">
+                <i class="fas fa-plus"></i>
+                ایجاد اولین Workflow
+            </button>
+        </div>
+    </div>
+
+    <!-- Create/Edit Workflow Modal -->
+    <div id="workflowModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">ایجاد Workflow جدید</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            
+            <form id="workflowForm">
+                <div class="form-group">
+                    <label for="workflowName">نام Workflow:</label>
+                    <input type="text" id="workflowName" class="form-control" placeholder="مثال: تولید ویدیوهای روزانه" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="workflowPrompt">پرامپت:</label>
+                    <textarea id="workflowPrompt" class="form-control" rows="4" placeholder="مثال: آموزش برنامه‌نویسی، بررسی گوشی‌های جدید، نکات سلامتی..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="workflowVoice">انتخاب صدا:</label>
+                    <select id="workflowVoice" class="form-control">
+                        <optgroup label="🎤 صداهای فارسی">
+                            <option value="fa_IR-amir-medium">امیر - صدای مرد فارسی</option>
+                            <option value="fa_IR-ganji-medium">گنجی - صدای مرد فارسی</option>
+                            <option value="fa_IR-ganji_adabi-medium">گنجی ادبی - صدای مرد فارسی</option>
+                            <option value="fa_IR-gyro-medium">جیرو - صدای مرد فارسی</option>
+                            <option value="fa_IR-reza_ibrahim-medium">رضا ابراهیم - صدای مرد فارسی</option>
+                        </optgroup>
+                        <optgroup label="🌍 صداهای انگلیسی">
+                            <option value="en_US-lessac-medium">Lessac Medium - صدای زن</option>
+                            <option value="en_US-lessac-high">Lessac High - صدای زن</option>
+                            <option value="en_US-kristin-medium">Kristin Medium - صدای زن</option>
+                            <option value="en_US-ryan-high">Ryan High - صدای مرد</option>
+                            <option value="en_US-norman-medium">Norman Medium - صدای مرد</option>
+                            <option value="en_US-kusal-medium">Kusal Medium - صدای مرد</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p>این workflow همیشه ویدیوهای کوتاه با 2 صحنه تولید می‌کند</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>زمان‌بندی:</label>
+                    <div class="schedule-options">
+                        <div class="schedule-option" onclick="selectScheduleType('daily')">
+                            <input type="radio" name="scheduleType" value="daily" id="scheduleDaily" checked>
+                            <label for="scheduleDaily">روزانه</label>
+                        </div>
+                        <div class="schedule-option" onclick="selectScheduleType('weekly')">
+                            <input type="radio" name="scheduleType" value="weekly" id="scheduleWeekly">
+                            <label for="scheduleWeekly">هفتگی</label>
+                        </div>
+                        <div class="schedule-option" onclick="selectScheduleType('hourly')">
+                            <input type="radio" name="scheduleType" value="hourly" id="scheduleHourly">
+                            <label for="scheduleHourly">ساعتی</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Schedule -->
+                <div class="form-group" id="dailySchedule">
+                    <label for="dailyTime">ساعت اجرا:</label>
+                    <input type="time" id="dailyTime" class="form-control" value="09:00">
+                </div>
+
+                <!-- Weekly Schedule -->
+                <div class="form-group hidden" id="weeklySchedule">
+                    <label>روزهای هفته:</label>
+                    <div class="schedule-options">
+                        <div class="schedule-option">
+                            <input type="checkbox" name="weeklyDays" value="saturday" id="daySaturday">
+                            <label for="daySaturday">شنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="weeklyDays" value="sunday" id="daySunday">
+                            <label for="daySunday">یکشنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="weeklyDays" value="monday" id="dayMonday">
+                            <label for="dayMonday">دوشنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="weeklyDays" value="tuesday" id="dayTuesday">
+                            <label for="dayTuesday">سه‌شنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="weeklyDays" value="wednesday" id="dayWednesday">
+                            <label for="dayWednesday">چهارشنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="weeklyDays" value="thursday" id="dayThursday">
+                            <label for="dayThursday">پنج‌شنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="weeklyDays" value="friday" id="dayFriday">
+                            <label for="dayFriday">جمعه</label>
+                        </div>
+                    </div>
+                    <label for="weeklyTime">ساعت اجرا:</label>
+                    <input type="time" id="weeklyTime" class="form-control" value="09:00">
+                </div>
+
+                <!-- Hourly Schedule -->
+                <div class="form-group hidden" id="hourlySchedule">
+                    <label for="hourlyInterval">فاصله زمانی (ساعت):</label>
+                    <input type="number" id="hourlyInterval" class="form-control" value="5" min="5" max="24">
+                    <small class="text-muted">حداقل فاصله زمانی 5 ساعت است</small>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">
+                        <i class="fas fa-save"></i>
+                        ذخیره Workflow
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Workflow Modal -->
+    <div id="customWorkflowModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ایجاد Workflow سفارشی</h2>
+                <span class="close" onclick="closeCustomModal()">&times;</span>
+            </div>
+            
+            <form id="customWorkflowForm">
+                <div class="form-group">
+                    <label for="customWorkflowName">نام Workflow:</label>
+                    <input type="text" id="customWorkflowName" class="form-control" placeholder="مثال: ویدیو آموزشی برنامه‌نویسی" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="customWorkflowVoice">انتخاب صدا:</label>
+                    <select id="customWorkflowVoice" class="form-control">
+                        <optgroup label="🎤 صداهای فارسی">
+                            <option value="fa_IR-amir-medium">امیر - صدای مرد فارسی</option>
+                            <option value="fa_IR-ganji-medium">گنجی - صدای مرد فارسی</option>
+                            <option value="fa_IR-ganji_adabi-medium">گنجی ادبی - صدای مرد فارسی</option>
+                            <option value="fa_IR-gyro-medium">جیرو - صدای مرد فارسی</option>
+                            <option value="fa_IR-reza_ibrahim-medium">رضا ابراهیم - صدای مرد فارسی</option>
+                        </optgroup>
+                        <optgroup label="🌍 صداهای انگلیسی">
+                            <option value="en_US-lessac-medium">Lessac Medium - صدای زن</option>
+                            <option value="en_US-lessac-high">Lessac High - صدای زن</option>
+                            <option value="en_US-kristin-medium">Kristin Medium - صدای زن</option>
+                            <option value="en_US-ryan-high">Ryan High - صدای مرد</option>
+                            <option value="en_US-norman-medium">Norman Medium - صدای مرد</option>
+                            <option value="en_US-kusal-medium">Kusal Medium - صدای مرد</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>جهت ویدیو:</label>
+                    <div class="schedule-options">
+                        <div class="schedule-option">
+                            <input type="radio" name="customOrientation" value="vertical" id="customOrientationVertical" checked>
+                            <label for="customOrientationVertical">عمودی (موبایل)</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="radio" name="customOrientation" value="horizontal" id="customOrientationHorizontal">
+                            <label for="customOrientationHorizontal">افقی (دسکتاپ)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>زمان‌بندی:</label>
+                    <div class="schedule-options">
+                        <div class="schedule-option" onclick="selectCustomScheduleType('daily')">
+                            <input type="radio" name="customScheduleType" value="daily" id="customScheduleDaily" checked>
+                            <label for="customScheduleDaily">روزانه</label>
+                        </div>
+                        <div class="schedule-option" onclick="selectCustomScheduleType('weekly')">
+                            <input type="radio" name="customScheduleType" value="weekly" id="customScheduleWeekly">
+                            <label for="customScheduleWeekly">هفتگی</label>
+                        </div>
+                        <div class="schedule-option" onclick="selectCustomScheduleType('hourly')">
+                            <input type="radio" name="customScheduleType" value="hourly" id="customScheduleHourly">
+                            <label for="customScheduleHourly">ساعتی</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Schedule -->
+                <div class="form-group" id="customDailySchedule">
+                    <label for="customDailyTime">ساعت اجرا:</label>
+                    <input type="time" id="customDailyTime" class="form-control" value="09:00">
+                </div>
+
+                <!-- Weekly Schedule -->
+                <div class="form-group hidden" id="customWeeklySchedule">
+                    <label>روزهای هفته:</label>
+                    <div class="schedule-options">
+                        <div class="schedule-option">
+                            <input type="checkbox" name="customWeeklyDays" value="saturday" id="customDaySaturday">
+                            <label for="customDaySaturday">شنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="customWeeklyDays" value="sunday" id="customDaySunday">
+                            <label for="customDaySunday">یکشنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="customWeeklyDays" value="monday" id="customDayMonday">
+                            <label for="customDayMonday">دوشنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="customWeeklyDays" value="tuesday" id="customDayTuesday">
+                            <label for="customDayTuesday">سه‌شنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="customWeeklyDays" value="wednesday" id="customDayWednesday">
+                            <label for="customDayWednesday">چهارشنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="customWeeklyDays" value="thursday" id="customDayThursday">
+                            <label for="customDayThursday">پنج‌شنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="customWeeklyDays" value="friday" id="customDayFriday">
+                            <label for="customDayFriday">جمعه</label>
+                        </div>
+                    </div>
+                    <label for="customWeeklyTime">ساعت اجرا:</label>
+                    <input type="time" id="customWeeklyTime" class="form-control" value="09:00">
+                </div>
+
+                <!-- Hourly Schedule -->
+                <div class="form-group hidden" id="customHourlySchedule">
+                    <label for="customHourlyInterval">فاصله زمانی (ساعت):</label>
+                    <input type="number" id="customHourlyInterval" class="form-control" value="5" min="5" max="24">
+                    <small class="text-muted">حداقل فاصله زمانی 5 ساعت است</small>
+                </div>
+
+                <div class="form-group">
+                    <label>صحنه‌های ویدیو:</label>
+                    <div id="customScenesContainer">
+                        <div class="scene-item">
+                            <div class="scene-header">
+                                <span>صحنه 1</span>
+                                <button type="button" class="btn-remove-scene" onclick="removeScene(this)">حذف</button>
+                            </div>
+                            <div class="form-group">
+                                <label>متن گوینده:</label>
+                                <textarea class="form-control scene-text" rows="2" placeholder="متن صحنه اول..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>توضیح تصویری:</label>
+                                <textarea class="form-control scene-visual" rows="2" placeholder="توضیح تصویری صحنه اول..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="addScene()">
+                        <i class="fas fa-plus"></i>
+                        اضافه کردن صحنه
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">
+                        <i class="fas fa-save"></i>
+                        ذخیره Workflow سفارشی
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Long Form Video Workflow Modal -->
+    <div id="longFormWorkflowModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ایجاد ویدیو بلند زمان‌بندی شده</h2>
+                <span class="close" onclick="closeLongFormModal()">&times;</span>
+            </div>
+            
+            <form id="longFormWorkflowForm">
+                <div class="form-group">
+                    <label for="longFormWorkflowName">نام Workflow:</label>
+                    <input type="text" id="longFormWorkflowName" class="form-control" placeholder="مثال: ویدیو آموزشی برنامه‌نویسی" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="longFormWorkflowIdea">ایده ویدیو:</label>
+                    <textarea id="longFormWorkflowIdea" class="form-control" rows="4" placeholder="مثال: آموزش کامل برنامه‌نویسی، بررسی جامع گوشی‌های جدید، راهنمای کامل سلامتی و تناسب اندام..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="longFormWorkflowVoice">انتخاب صدا:</label>
+                    <select id="longFormWorkflowVoice" class="form-control">
+                        <optgroup label="🎤 صداهای فارسی">
+                            <option value="fa_IR-amir-medium">امیر - صدای مرد فارسی</option>
+                            <option value="fa_IR-ganji-medium">گنجی - صدای مرد فارسی</option>
+                            <option value="fa_IR-ganji_adabi-medium">گنجی ادبی - صدای مرد فارسی</option>
+                            <option value="fa_IR-gyro-medium">جیرو - صدای مرد فارسی</option>
+                            <option value="fa_IR-reza_ibrahim-medium">رضا ابراهیم - صدای مرد فارسی</option>
+                        </optgroup>
+                        <optgroup label="🌍 صداهای انگلیسی">
+                            <option value="en_US-lessac-medium">Lessac Medium - صدای زن</option>
+                            <option value="en_US-lessac-high">Lessac High - صدای زن</option>
+                            <option value="en_US-kristin-medium">Kristin Medium - صدای زن</option>
+                            <option value="en_US-ryan-high">Ryan High - صدای مرد</option>
+                            <option value="en_US-norman-medium">Norman Medium - صدای مرد</option>
+                            <option value="en_US-kusal-medium">Kusal Medium - صدای مرد</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="longFormVideoLength">طول ویدیو مورد نظر:</label>
+                    <select id="longFormVideoLength" class="form-control">
+                        <option value="5">5 صحنه (تست سریع)</option>
+                        <option value="10" selected>10 صحنه (ویدیو کوتاه)</option>
+                        <option value="15">15 صحنه (ویدیو متوسط)</option>
+                        <option value="20">20 صحنه (ویدیو بلند)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="longFormBackgroundMusic">انتخاب موزیک بک‌گراند:</label>
+                    <select id="longFormBackgroundMusic" class="form-control">
+                        <option value="">بدون موزیک بک‌گراند</option>
+                        <!-- موزیک‌ها به صورت داینامیک بارگذاری می‌شوند -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>زمان‌بندی:</label>
+                    <div class="schedule-options">
+                        <div class="schedule-option" onclick="selectLongFormScheduleType('daily')">
+                            <input type="radio" name="longFormScheduleType" value="daily" id="longFormScheduleDaily" checked>
+                            <label for="longFormScheduleDaily">روزانه</label>
+                        </div>
+                        <div class="schedule-option" onclick="selectLongFormScheduleType('weekly')">
+                            <input type="radio" name="longFormScheduleType" value="weekly" id="longFormScheduleWeekly">
+                            <label for="longFormScheduleWeekly">هفتگی</label>
+                        </div>
+                        <div class="schedule-option" onclick="selectLongFormScheduleType('hourly')">
+                            <input type="radio" name="longFormScheduleType" value="hourly" id="longFormScheduleHourly">
+                            <label for="longFormScheduleHourly">ساعتی</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Schedule -->
+                <div class="form-group" id="longFormDailySchedule">
+                    <label for="longFormDailyTime">ساعت اجرا:</label>
+                    <input type="time" id="longFormDailyTime" class="form-control" value="09:00">
+                </div>
+
+                <!-- Weekly Schedule -->
+                <div class="form-group hidden" id="longFormWeeklySchedule">
+                    <label>روزهای هفته:</label>
+                    <div class="schedule-options">
+                        <div class="schedule-option">
+                            <input type="checkbox" name="longFormWeeklyDays" value="saturday" id="longFormDaySaturday">
+                            <label for="longFormDaySaturday">شنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="longFormWeeklyDays" value="sunday" id="longFormDaySunday">
+                            <label for="longFormDaySunday">یکشنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="longFormWeeklyDays" value="monday" id="longFormDayMonday">
+                            <label for="longFormDayMonday">دوشنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="longFormWeeklyDays" value="tuesday" id="longFormDayTuesday">
+                            <label for="longFormDayTuesday">سه‌شنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="longFormWeeklyDays" value="wednesday" id="longFormDayWednesday">
+                            <label for="longFormDayWednesday">چهارشنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="longFormWeeklyDays" value="thursday" id="longFormDayThursday">
+                            <label for="longFormDayThursday">پنج‌شنبه</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="checkbox" name="longFormWeeklyDays" value="friday" id="longFormDayFriday">
+                            <label for="longFormDayFriday">جمعه</label>
+                        </div>
+                    </div>
+                    <label for="longFormWeeklyTime">ساعت اجرا:</label>
+                    <input type="time" id="longFormWeeklyTime" class="form-control" value="09:00">
+                </div>
+
+                <!-- Hourly Schedule -->
+                <div class="form-group hidden" id="longFormHourlySchedule">
+                    <label for="longFormHourlyInterval">فاصله زمانی (ساعت):</label>
+                    <input type="number" id="longFormHourlyInterval" class="form-control" value="5" min="5" max="24">
+                    <small class="text-muted">حداقل فاصله زمانی 5 ساعت است</small>
+                </div>
+
+                <div class="form-group">
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p>این workflow ویدیوهای بلند با تصاویر افقی و زیرنویس تولید می‌کند</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">
+                        <i class="fas fa-save"></i>
+                        ذخیره Workflow ویدیو بلند
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let workflows = [];
+        let currentWorkflowId = null;
+
+        // Test function for debugging
+        window.testMusicLoading = function() {
+            console.log('Testing music loading...');
+            loadBackgroundMusic();
+        };
+
+        // Load workflows on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWorkflows();
+            loadStats();
+            loadBackgroundMusic();
+        });
+
+        // Load workflows
+        async function loadWorkflows() {
+            try {
+                showLoading(true);
+                const response = await fetch('/api/workflow/workflows');
+                const result = await response.json();
+                
+                if (result.success) {
+                    workflows = result.data;
+                    renderWorkflows();
+                } else {
+                    showError('خطا در بارگذاری workflow ها');
+                }
+            } catch (error) {
+                console.error('Error loading workflows:', error);
+                showError('خطا در بارگذاری workflow ها');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/workflow/workflows-stats');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const stats = result.data;
+                    document.getElementById('totalWorkflows').textContent = stats.total;
+                    document.getElementById('activeWorkflows').textContent = stats.active;
+                    document.getElementById('totalVideos').textContent = stats.totalVideos;
+                    document.getElementById('totalRuns').textContent = stats.totalRuns;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load background music
+        async function loadBackgroundMusic() {
+            try {
+                const response = await fetch('/api/music/list');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const musicSelect = document.getElementById('longFormBackgroundMusic');
+                    musicSelect.innerHTML = '<option value="">بدون موزیک بک‌گراند</option>';
+                    
+                    result.music.forEach(music => {
+                        const option = document.createElement('option');
+                        option.value = music.filename;
+                        option.textContent = music.name || music.filename;
+                        musicSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading background music:', error);
+            }
+        }
+
+        // Render workflows
+        function renderWorkflows() {
+            const container = document.getElementById('workflowList');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (workflows.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            container.innerHTML = workflows.map(workflow => `
+                <div class="workflow-card">
+                    <div class="workflow-card-header">
+                        <h3 class="workflow-title">${workflow.name}</h3>
+                        <span class="workflow-status ${workflow.status}">
+                            ${workflow.status === 'active' ? 'فعال' : 'غیرفعال'}
+                        </span>
+                    </div>
+                    
+                    <div class="workflow-prompt">
+                        "${workflow.prompt}"
+                    </div>
+                    
+                    <div class="workflow-info">
+                        <div class="workflow-info-item">
+                            <span class="workflow-info-label">صدا:</span>
+                            <span class="workflow-info-value">${getVoiceName(workflow.voice)}</span>
+                        </div>
+                        ${workflow.backgroundMusic ? `
+                        <div class="workflow-info-item">
+                            <span class="workflow-info-label">موزیک بک‌گراند:</span>
+                            <span class="workflow-info-value">${workflow.backgroundMusic}</span>
+                        </div>
+                        ` : ''}
+                        <div class="workflow-info-item">
+                            <span class="workflow-info-label">نوع ویدیو:</span>
+                            <span class="workflow-info-value">${getVideoTypeText(workflow.settings.videoType)}</span>
+                        </div>
+                        <div class="workflow-info-item">
+                            <span class="workflow-info-label">جهت:</span>
+                            <span class="workflow-info-value">${getOrientationText(workflow.settings.videoType, workflow.customSettings?.orientation, workflow.settings.orientation)}</span>
+                        </div>
+                        ${workflow.settings.videoType === 'custom' ? `
+                        <div class="workflow-info-item">
+                            <span class="workflow-info-label">تعداد صحنه‌ها:</span>
+                            <span class="workflow-info-value">${workflow.customScenes ? workflow.customScenes.length : 0}</span>
+                        </div>
+                        ` : workflow.settings.videoType === 'long-form' ? `
+                        <div class="workflow-info-item">
+                            <span class="workflow-info-label">تعداد صحنه‌ها:</span>
+                            <span class="workflow-info-value">${workflow.settings.scenes || 10}</span>
+                        </div>
+                        ` : ''}
+                        <div class="workflow-info-item">
+                            <span class="workflow-info-label">زمان‌بندی:</span>
+                            <span class="workflow-info-value">${getScheduleText(workflow.schedule)}</span>
+                        </div>
+                        <div class="workflow-info-item">
+                            <span class="workflow-info-label">اجرای بعدی:</span>
+                            <span class="workflow-info-value">${workflow.nextRun ? new Date(workflow.nextRun).toLocaleString('fa-IR') : 'تعریف نشده'}</span>
+                        </div>
+                        <div class="workflow-info-item">
+                            <span class="workflow-info-label">تعداد اجراها:</span>
+                            <span class="workflow-info-value">${workflow.totalRuns || 0}</span>
+                        </div>
+                        <div class="workflow-info-item">
+                            <span class="workflow-info-label">ویدیوهای تولید شده:</span>
+                            <span class="workflow-info-value">${workflow.videos ? workflow.videos.length : 0}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-actions-card">
+                        <button class="btn-action btn-run" onclick="runWorkflow('${workflow.id}')">
+                            <i class="fas fa-play"></i> اجرا
+                        </button>
+                        <button class="btn-action btn-toggle" onclick="toggleWorkflow('${workflow.id}')">
+                            <i class="fas fa-${workflow.status === 'active' ? 'pause' : 'play'}"></i>
+                            ${workflow.status === 'active' ? 'توقف' : 'فعال‌سازی'}
+                        </button>
+                        <button class="btn-action btn-edit" onclick="editWorkflow('${workflow.id}')">
+                            <i class="fas fa-edit"></i> ویرایش
+                        </button>
+                        <button class="btn-action btn-delete" onclick="deleteWorkflow('${workflow.id}')">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Get video type text
+        function getVideoTypeText(videoType) {
+            switch (videoType) {
+                case 'short':
+                    return 'کوتاه (2 صحنه)';
+                case 'long-form':
+                    return 'بلند (تصاویر افقی)';
+                case 'custom':
+                    return 'سفارشی';
+                default:
+                    return 'نامشخص';
+            }
+        }
+
+        // Get orientation text
+        function getOrientationText(videoType, customOrientation, settingsOrientation) {
+            switch (videoType) {
+                case 'short':
+                    return 'عمودی (موبایل)';
+                case 'long-form':
+                    return 'افقی (دسکتاپ)';
+                case 'custom':
+                    return customOrientation === 'horizontal' ? 'افقی' : 'عمودی';
+                default:
+                    return settingsOrientation === 'horizontal' ? 'افقی' : 'عمودی';
+            }
+        }
+
+        // Get voice name
+        function getVoiceName(voice) {
+            const voices = {
+                'fa_IR-amir-medium': 'امیر',
+                'fa_IR-ganji-medium': 'گنجی',
+                'fa_IR-ganji_adabi-medium': 'گنجی ادبی',
+                'fa_IR-gyro-medium': 'جیرو',
+                'fa_IR-reza_ibrahim-medium': 'رضا ابراهیم',
+                'en_US-lessac-medium': 'Lessac Medium',
+                'en_US-lessac-high': 'Lessac High',
+                'en_US-kristin-medium': 'Kristin Medium',
+                'en_US-ryan-high': 'Ryan High',
+                'en_US-norman-medium': 'Norman Medium',
+                'en_US-kusal-medium': 'Kusal Medium'
+            };
+            return voices[voice] || voice;
+        }
+
+        // Get schedule text
+        function getScheduleText(schedule) {
+            if (!schedule) return 'تعریف نشده';
+            
+            switch (schedule.type) {
+                case 'daily':
+                    return `روزانه در ساعت ${schedule.time}`;
+                case 'weekly':
+                    const days = schedule.days ? schedule.days.join('، ') : '';
+                    return `هفتگی در روزهای ${days} در ساعت ${schedule.time}`;
+                case 'hourly':
+                    return `هر ${schedule.interval || 1} ساعت`;
+                default:
+                    return 'تعریف نشده';
+            }
+        }
+
+        // Open create modal
+        function openCreateModal() {
+            currentWorkflowId = null;
+            document.getElementById('modalTitle').textContent = 'ایجاد Workflow جدید';
+            document.getElementById('workflowForm').reset();
+            document.getElementById('workflowModal').style.display = 'block';
+        }
+
+        // Edit workflow
+        function editWorkflow(id) {
+            const workflow = workflows.find(w => w.id === id);
+            if (!workflow) return;
+            
+            currentWorkflowId = id;
+            document.getElementById('modalTitle').textContent = 'ویرایش Workflow';
+            
+            // Fill form with workflow data
+            document.getElementById('workflowName').value = workflow.name;
+            document.getElementById('workflowPrompt').value = workflow.prompt;
+            document.getElementById('workflowVoice').value = workflow.voice;
+            
+            // Set schedule
+            const scheduleTypeElement = document.querySelector(`input[name="scheduleType"][value="${workflow.schedule.type}"]`);
+            if (scheduleTypeElement) {
+                scheduleTypeElement.checked = true;
+                selectScheduleType(workflow.schedule.type);
+                
+                if (workflow.schedule.type === 'daily') {
+                    document.getElementById('dailyTime').value = workflow.schedule.time || '09:00';
+                } else if (workflow.schedule.type === 'weekly') {
+                    document.getElementById('weeklyTime').value = workflow.schedule.time || '09:00';
+                    if (workflow.schedule.days) {
+                        workflow.schedule.days.forEach(day => {
+                            const checkbox = document.querySelector(`input[name="weeklyDays"][value="${day}"]`);
+                            if (checkbox) checkbox.checked = true;
+                        });
+                    }
+                } else if (workflow.schedule.type === 'hourly') {
+                    document.getElementById('hourlyInterval').value = workflow.schedule.interval || 1;
+                }
+            } else {
+                // Default to daily if schedule type not found
+                document.querySelector('input[name="scheduleType"][value="daily"]').checked = true;
+                selectScheduleType('daily');
+                document.getElementById('dailyTime').value = '09:00';
+            }
+            
+            document.getElementById('workflowModal').style.display = 'block';
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('workflowModal').style.display = 'none';
+        }
+
+        // Select schedule type
+        function selectScheduleType(type) {
+            // Hide all schedule options
+            document.getElementById('dailySchedule').classList.add('hidden');
+            document.getElementById('weeklySchedule').classList.add('hidden');
+            document.getElementById('hourlySchedule').classList.add('hidden');
+            
+            // Show selected option
+            if (type === 'daily') {
+                document.getElementById('dailySchedule').classList.remove('hidden');
+            } else if (type === 'weekly') {
+                document.getElementById('weeklySchedule').classList.remove('hidden');
+            } else if (type === 'hourly') {
+                document.getElementById('hourlySchedule').classList.remove('hidden');
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('workflowForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('workflowName').value,
+                prompt: document.getElementById('workflowPrompt').value,
+                voice: document.getElementById('workflowVoice').value,
+                settings: {
+                    videoType: 'short', // همیشه ویدیو کوتاه
+                    orientation: 'vertical' // همیشه عمودی
+                },
+                schedule: getScheduleData()
+            };
+            
+            try {
+                showLoading(true);
+                
+                let response;
+                if (currentWorkflowId) {
+                    // Update existing workflow
+                    response = await fetch(`/api/workflow/workflows/${currentWorkflowId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+                } else {
+                    // Create new workflow
+                    response = await fetch('/api/workflow/workflows', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess(result.message);
+                    closeModal();
+                    loadWorkflows();
+                    loadStats();
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                console.error('Error saving workflow:', error);
+                showError('خطا در ذخیره workflow');
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Get schedule data from form
+        function getScheduleData() {
+            const scheduleTypeElement = document.querySelector('input[name="scheduleType"]:checked');
+            if (!scheduleTypeElement) {
+                console.error('No schedule type selected');
+                return { type: 'daily', time: '09:00' }; // Default fallback
+            }
+            
+            const scheduleType = scheduleTypeElement.value;
+            
+            switch (scheduleType) {
+                case 'daily':
+                    return {
+                        type: 'daily',
+                        time: document.getElementById('dailyTime').value || '09:00'
+                    };
+                case 'weekly':
+                    const selectedDays = Array.from(document.querySelectorAll('input[name="weeklyDays"]:checked'))
+                        .map(cb => cb.value);
+                    return {
+                        type: 'weekly',
+                        time: document.getElementById('weeklyTime').value || '09:00',
+                        days: selectedDays.length > 0 ? selectedDays : ['monday']
+                    };
+                case 'hourly':
+                    return {
+                        type: 'hourly',
+                        interval: parseInt(document.getElementById('hourlyInterval').value) || 1
+                    };
+                default:
+                    return { type: 'daily', time: '09:00' }; // Default fallback
+            }
+        }
+
+        // Run workflow
+        async function runWorkflow(id) {
+            try {
+                showLoading(true);
+                const response = await fetch(`/api/workflow/workflows/${id}/run`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Workflow با موفقیت اجرا شد');
+                    loadWorkflows();
+                    loadStats();
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                console.error('Error running workflow:', error);
+                showError('خطا در اجرای workflow');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Toggle workflow status
+        async function toggleWorkflow(id) {
+            try {
+                showLoading(true);
+                const response = await fetch(`/api/workflow/workflows/${id}/toggle`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess(result.message);
+                    loadWorkflows();
+                    loadStats();
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                console.error('Error toggling workflow:', error);
+                showError('خطا در تغییر وضعیت workflow');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Delete workflow
+        async function deleteWorkflow(id) {
+            if (!confirm('آیا مطمئن هستید که می‌خواهید این workflow را حذف کنید؟')) {
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                const response = await fetch(`/api/workflow/workflows/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Workflow با موفقیت حذف شد');
+                    loadWorkflows();
+                    loadStats();
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                console.error('Error deleting workflow:', error);
+                showError('خطا در حذف workflow');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Show loading
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('show', show);
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            // You can implement a toast notification here
+            alert('✅ ' + message);
+        }
+
+        // Show error message
+        function showError(message) {
+            // You can implement a toast notification here
+            alert('❌ ' + message);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('workflowModal');
+            const customModal = document.getElementById('customWorkflowModal');
+            const longFormModal = document.getElementById('longFormWorkflowModal');
+            if (event.target === modal) {
+                closeModal();
+            } else if (event.target === customModal) {
+                closeCustomModal();
+            } else if (event.target === longFormModal) {
+                closeLongFormModal();
+            }
+        }
+
+        // Custom Workflow Functions
+        function openCustomWorkflowModal() {
+            document.getElementById('customWorkflowModal').style.display = 'block';
+            resetCustomForm();
+        }
+
+        function closeCustomModal() {
+            document.getElementById('customWorkflowModal').style.display = 'none';
+        }
+
+        function resetCustomForm() {
+            document.getElementById('customWorkflowForm').reset();
+            document.getElementById('customScenesContainer').innerHTML = `
+                <div class="scene-item">
+                    <div class="scene-header">
+                        <span>صحنه 1</span>
+                        <button type="button" class="btn-remove-scene" onclick="removeScene(this)">حذف</button>
+                    </div>
+                    <div class="form-group">
+                        <label>متن گوینده:</label>
+                        <textarea class="form-control scene-text" rows="2" placeholder="متن صحنه اول..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>توضیح تصویری:</label>
+                        <textarea class="form-control scene-visual" rows="2" placeholder="توضیح تصویری صحنه اول..."></textarea>
+                    </div>
+                </div>
+            `;
+        }
+
+        function addScene() {
+            const container = document.getElementById('customScenesContainer');
+            const sceneCount = container.children.length + 1;
+            const newScene = document.createElement('div');
+            newScene.className = 'scene-item';
+            newScene.innerHTML = `
+                <div class="scene-header">
+                    <span>صحنه ${sceneCount}</span>
+                    <button type="button" class="btn-remove-scene" onclick="removeScene(this)">حذف</button>
+                </div>
+                <div class="form-group">
+                    <label>متن گوینده:</label>
+                    <textarea class="form-control scene-text" rows="2" placeholder="متن صحنه ${sceneCount}..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>توضیح تصویری:</label>
+                    <textarea class="form-control scene-visual" rows="2" placeholder="توضیح تصویری صحنه ${sceneCount}..."></textarea>
+                </div>
+            `;
+            container.appendChild(newScene);
+        }
+
+        function removeScene(button) {
+            const container = document.getElementById('customScenesContainer');
+            if (container.children.length > 1) {
+                button.closest('.scene-item').remove();
+                // Update scene numbers
+                Array.from(container.children).forEach((scene, index) => {
+                    scene.querySelector('.scene-header span').textContent = `صحنه ${index + 1}`;
+                });
+            }
+        }
+
+        function selectCustomScheduleType(type) {
+            // Hide all schedule options
+            document.getElementById('customDailySchedule').classList.add('hidden');
+            document.getElementById('customWeeklySchedule').classList.add('hidden');
+            document.getElementById('customHourlySchedule').classList.add('hidden');
+            
+            // Show selected option
+            if (type === 'daily') {
+                document.getElementById('customDailySchedule').classList.remove('hidden');
+            } else if (type === 'weekly') {
+                document.getElementById('customWeeklySchedule').classList.remove('hidden');
+            } else if (type === 'hourly') {
+                document.getElementById('customHourlySchedule').classList.remove('hidden');
+            }
+        }
+
+        function getCustomScheduleData() {
+            const scheduleTypeElement = document.querySelector('input[name="customScheduleType"]:checked');
+            if (!scheduleTypeElement) {
+                console.error('No custom schedule type selected');
+                return { type: 'daily', time: '09:00' };
+            }
+            
+            const scheduleType = scheduleTypeElement.value;
+            
+            switch (scheduleType) {
+                case 'daily':
+                    return {
+                        type: 'daily',
+                        time: document.getElementById('customDailyTime').value || '09:00'
+                    };
+                case 'weekly':
+                    const selectedDays = Array.from(document.querySelectorAll('input[name="customWeeklyDays"]:checked'))
+                        .map(cb => cb.value);
+                    return {
+                        type: 'weekly',
+                        time: document.getElementById('customWeeklyTime').value || '09:00',
+                        days: selectedDays.length > 0 ? selectedDays : ['monday']
+                    };
+                case 'hourly':
+                    return {
+                        type: 'hourly',
+                        interval: parseInt(document.getElementById('customHourlyInterval').value) || 1
+                    };
+                default:
+                    return { type: 'daily', time: '09:00' };
+            }
+        }
+
+        // Handle custom workflow form submission
+        document.getElementById('customWorkflowForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Collect scenes data
+            const scenes = [];
+            const sceneItems = document.querySelectorAll('#customScenesContainer .scene-item');
+            
+            sceneItems.forEach((item, index) => {
+                const text = item.querySelector('.scene-text').value.trim();
+                const visual = item.querySelector('.scene-visual').value.trim();
+                
+                if (text && visual) {
+                    scenes.push({
+                        scene_number: index + 1,
+                        speaker_text: text,
+                        visual_description: visual
+                    });
+                }
+            });
+
+            if (scenes.length === 0) {
+                showError('حداقل یک صحنه با متن و توضیح تصویری الزامی است');
+                return;
+            }
+
+            const formData = {
+                name: document.getElementById('customWorkflowName').value,
+                scenes: scenes,
+                voice: document.getElementById('customWorkflowVoice').value,
+                orientation: document.querySelector('input[name="customOrientation"]:checked').value,
+                schedule: getCustomScheduleData(),
+                subtitleSettings: {}
+            };
+            
+            try {
+                showLoading(true);
+                
+                const response = await fetch('/api/workflow/workflows/custom', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess(result.message);
+                    closeCustomModal();
+                    loadWorkflows();
+                    loadStats();
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                console.error('Error saving custom workflow:', error);
+                showError('خطا در ذخیره workflow سفارشی');
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Long Form Workflow Functions
+        function openLongFormWorkflowModal() {
+            document.getElementById('longFormWorkflowModal').style.display = 'block';
+            resetLongFormForm();
+            // بارگذاری موزیک‌ها در صورت نیاز
+            loadBackgroundMusic();
+        }
+
+        function closeLongFormModal() {
+            document.getElementById('longFormWorkflowModal').style.display = 'none';
+        }
+
+        function resetLongFormForm() {
+            document.getElementById('longFormWorkflowForm').reset();
+            // Set default values
+            document.getElementById('longFormVideoLength').value = '10';
+            document.getElementById('longFormDailyTime').value = '09:00';
+            document.getElementById('longFormWeeklyTime').value = '09:00';
+            document.getElementById('longFormHourlyInterval').value = '5';
+            document.getElementById('longFormBackgroundMusic').value = '';
+            // Show daily schedule by default
+            selectLongFormScheduleType('daily');
+        }
+
+        function selectLongFormScheduleType(type) {
+            // Hide all schedule options
+            document.getElementById('longFormDailySchedule').classList.add('hidden');
+            document.getElementById('longFormWeeklySchedule').classList.add('hidden');
+            document.getElementById('longFormHourlySchedule').classList.add('hidden');
+            
+            // Show selected option
+            if (type === 'daily') {
+                document.getElementById('longFormDailySchedule').classList.remove('hidden');
+            } else if (type === 'weekly') {
+                document.getElementById('longFormWeeklySchedule').classList.remove('hidden');
+            } else if (type === 'hourly') {
+                document.getElementById('longFormHourlySchedule').classList.remove('hidden');
+            }
+        }
+
+        function getLongFormScheduleData() {
+            const scheduleTypeElement = document.querySelector('input[name="longFormScheduleType"]:checked');
+            if (!scheduleTypeElement) {
+                console.error('No long form schedule type selected');
+                return { type: 'daily', time: '09:00' };
+            }
+            
+            const scheduleType = scheduleTypeElement.value;
+            
+            switch (scheduleType) {
+                case 'daily':
+                    return {
+                        type: 'daily',
+                        time: document.getElementById('longFormDailyTime').value || '09:00'
+                    };
+                case 'weekly':
+                    const selectedDays = Array.from(document.querySelectorAll('input[name="longFormWeeklyDays"]:checked'))
+                        .map(cb => cb.value);
+                    return {
+                        type: 'weekly',
+                        time: document.getElementById('longFormWeeklyTime').value || '09:00',
+                        days: selectedDays.length > 0 ? selectedDays : ['monday']
+                    };
+                case 'hourly':
+                    const interval = parseInt(document.getElementById('longFormHourlyInterval').value) || 5;
+                    if (interval < 5) {
+                        showError('حداقل فاصله زمانی 5 ساعت است');
+                        return null;
+                    }
+                    return {
+                        type: 'hourly',
+                        interval: interval
+                    };
+                default:
+                    return { type: 'daily', time: '09:00' };
+            }
+        }
+
+        // Handle long form workflow form submission
+        document.getElementById('longFormWorkflowForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const scheduleData = getLongFormScheduleData();
+            if (!scheduleData) {
+                return; // Error already shown
+            }
+
+            const formData = {
+                name: document.getElementById('longFormWorkflowName').value,
+                prompt: document.getElementById('longFormWorkflowIdea').value,
+                voice: document.getElementById('longFormWorkflowVoice').value,
+                backgroundMusic: document.getElementById('longFormBackgroundMusic').value,
+                settings: {
+                    videoType: 'long-form',
+                    orientation: 'horizontal',
+                    scenes: parseInt(document.getElementById('longFormVideoLength').value)
+                },
+                schedule: scheduleData
+            };
+            
+            try {
+                showLoading(true);
+                
+                const response = await fetch('/api/workflow/workflows/long-form', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess(result.message);
+                    closeLongFormModal();
+                    loadWorkflows();
+                    loadStats();
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                console.error('Error saving long form workflow:', error);
+                showError('خطا در ذخیره workflow ویدیو بلند');
+            } finally {
+                showLoading(false);
+            }
+        });
+    </script>
+</body>
+</html>

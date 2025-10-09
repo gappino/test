@@ -1,0 +1,2015 @@
+[
+  {
+    "id": "long-form-video-1759857630082",
+    "title": "s - Comprehensive Deep Dive",
+    "status": "error",
+    "createdAt": "2025-10-07T17:20:30.082Z",
+    "updatedAt": "2025-10-07T17:26:33.059Z",
+    "progress": 0,
+    "currentStep": "خطا در تولید",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "error",
+        "timestamp": "2025-10-07T17:26:33.009Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "pending",
+        "timestamp": null
+      }
+    ],
+    "metadata": {
+      "errorMessage": "fetch failed"
+    }
+  },
+  {
+    "id": "short-video-1759847458584",
+    "title": "The Secret Truth About car That Nobody Talks About!",
+    "status": "error",
+    "createdAt": "2025-10-07T14:30:58.584Z",
+    "updatedAt": "2025-10-07T14:32:55.090Z",
+    "progress": 0,
+    "currentStep": "خطا در تولید",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "error",
+        "timestamp": "2025-10-07T14:32:55.071Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "pending",
+        "timestamp": null
+      }
+    ],
+    "metadata": {
+      "errorMessage": "Failed to compose video with subtitles"
+    }
+  },
+  {
+    "id": "short-video-1759846880648",
+    "title": "The Secret Truth About carrrr That Nobody Talks About!",
+    "status": "error",
+    "createdAt": "2025-10-07T14:21:20.648Z",
+    "updatedAt": "2025-10-07T14:23:19.573Z",
+    "progress": 0,
+    "currentStep": "خطا در تولید",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "error",
+        "timestamp": "2025-10-07T14:23:19.545Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "pending",
+        "timestamp": null
+      }
+    ],
+    "metadata": {
+      "errorMessage": "Failed to compose video with subtitles"
+    }
+  },
+  {
+    "id": "short-video-1759846546673",
+    "title": "The Secret Truth About on work youtube That Nobody Talks About!",
+    "status": "error",
+    "createdAt": "2025-10-07T14:15:46.673Z",
+    "updatedAt": "2025-10-07T14:17:44.589Z",
+    "progress": 0,
+    "currentStep": "خطا در تولید",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "error",
+        "timestamp": "2025-10-07T14:17:44.562Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "pending",
+        "timestamp": null
+      }
+    ],
+    "metadata": {
+      "errorMessage": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+    }
+  },
+  {
+    "id": "long-form-video-1759846381274",
+    "title": "s - Comprehensive Deep Dive",
+    "status": "error",
+    "createdAt": "2025-10-07T14:13:01.274Z",
+    "updatedAt": "2025-10-07T14:13:54.628Z",
+    "progress": 0,
+    "currentStep": "خطا در تولید",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید صدا",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "error",
+        "timestamp": "2025-10-07T14:13:54.622Z"
+      },
+      {
+        "name": "آماده",
+        "status": "pending",
+        "timestamp": null
+      }
+    ],
+    "metadata": {
+      "errorMessage": "Failed to compose video with subtitles"
+    }
+  },
+  {
+    "id": "short-video-1759846352771",
+    "title": "The Secret Truth About sssasd That Nobody Talks About!",
+    "status": "processing",
+    "createdAt": "2025-10-07T14:12:32.771Z",
+    "updatedAt": "2025-10-07T14:12:32.771Z",
+    "progress": 0,
+    "currentStep": "شروع فرآیند کامل",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-07T14:12:32.771Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "active",
+        "timestamp": "2025-10-07T14:12:32.771Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "pending",
+        "timestamp": null
+      }
+    ],
+    "metadata": {
+      "scenes": [
+        {
+          "scene_number": 1,
+          "duration": "0-8 seconds",
+          "speaker_text": "Did you know that sssasd has secrets that nobody talks about?",
+          "visual_description": "Mysterious and intriguing visual",
+          "image_prompt": "Mysterious and intriguing visual with dark background, glowing effects, question marks floating, cinematic lighting, high quality, photorealistic"
+        },
+        {
+          "scene_number": 2,
+          "duration": "8-16 seconds",
+          "speaker_text": "Today I want to share facts with you that will blow your mind.",
+          "visual_description": "Mind-blowing animation",
+          "image_prompt": "Dynamic animation showing earth shaking, dramatic effects, bright colors, explosion of information, mind-blowing visual effects"
+        },
+        {
+          "scene_number": 3,
+          "duration": "16-24 seconds",
+          "speaker_text": "Most people think sssasd is just what they see, but the reality is completely different.",
+          "visual_description": "Comparison of perceptions vs reality",
+          "image_prompt": "Split screen showing common perception vs reality, contrasting images, before and after comparison, dramatic lighting"
+        },
+        {
+          "scene_number": 4,
+          "duration": "24-32 seconds",
+          "speaker_text": "The first truth you need to know is that sssasd has a deeper impact than you can imagine.",
+          "visual_description": "Deep impact visualization",
+          "image_prompt": "Deep impact visualization, ripple effects, waves of influence spreading, powerful visual metaphors, high contrast"
+        },
+        {
+          "scene_number": 5,
+          "duration": "32-40 seconds",
+          "speaker_text": "But this is just the beginning. What's truly amazing is...",
+          "visual_description": "Building suspense and curiosity",
+          "image_prompt": "Suspenseful moment, dramatic pause, mysterious atmosphere, anticipation building, cinematic tension"
+        },
+        {
+          "scene_number": 6,
+          "duration": "40-48 seconds",
+          "speaker_text": "sssasd has capabilities that even experts are unaware of.",
+          "visual_description": "Discovering hidden capabilities",
+          "image_prompt": "Hidden capabilities revealed, experts surprised, discovery moment, enlightenment visualization, bright revelation"
+        },
+        {
+          "scene_number": 7,
+          "duration": "48-56 seconds",
+          "speaker_text": "Now that you know this truth, you can use it in a completely different way.",
+          "visual_description": "New and different applications",
+          "image_prompt": "New applications, innovative usage, transformation in action, practical implementation, success visualization"
+        },
+        {
+          "scene_number": 8,
+          "duration": "56-64 seconds",
+          "speaker_text": "If this video was helpful to you, make sure to like it and subscribe for more amazing content!",
+          "visual_description": "Call to action",
+          "image_prompt": "Call to action, like and subscribe buttons, engaging end screen, colorful animations, positive energy"
+        }
+      ],
+      "voice": "en_US-kusal-medium",
+      "orientation": "vertical",
+      "duration": null,
+      "fileSize": null,
+      "videoUrl": null,
+      "errorMessage": null,
+      "subtitleSettings": {
+        "color": "#ffffff",
+        "size": 24,
+        "outline": 2
+      }
+    }
+  },
+  {
+    "id": "long-form-video-1759846156054",
+    "title": "sssss - Comprehensive Deep Dive",
+    "status": "processing",
+    "createdAt": "2025-10-07T14:09:16.054Z",
+    "updatedAt": "2025-10-07T14:09:16.054Z",
+    "progress": 0,
+    "currentStep": "تولید تصاویر",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-07T14:09:16.054Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "active",
+        "timestamp": "2025-10-07T14:09:16.054Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "pending",
+        "timestamp": null
+      }
+    ],
+    "metadata": {
+      "scenes": [
+        {
+          "scene_number": 1,
+          "duration": "0-6 seconds",
+          "speaker_text": "This is scene 1 of our comprehensive exploration of sssss. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of sssss in our modern world.",
+          "visual_description": "Scene 1 showing sssss concepts and applications",
+          "image_prompt": "Professional horizontal composition showing sssss concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        },
+        {
+          "scene_number": 2,
+          "duration": "6-12 seconds",
+          "speaker_text": "This is scene 2 of our comprehensive exploration of sssss. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of sssss in our modern world.",
+          "visual_description": "Scene 2 showing sssss concepts and applications",
+          "image_prompt": "Professional horizontal composition showing sssss concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        },
+        {
+          "scene_number": 3,
+          "duration": "12-18 seconds",
+          "speaker_text": "This is scene 3 of our comprehensive exploration of sssss. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of sssss in our modern world.",
+          "visual_description": "Scene 3 showing sssss concepts and applications",
+          "image_prompt": "Professional horizontal composition showing sssss concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        }
+      ],
+      "voice": "en_US-lessac-medium",
+      "orientation": "horizontal",
+      "duration": null,
+      "fileSize": null,
+      "videoUrl": null,
+      "errorMessage": null,
+      "subtitleSettings": {
+        "color": "#ffffff",
+        "size": 24,
+        "outline": 2
+      }
+    }
+  },
+  {
+    "id": "short-video-1759846093327",
+    "title": "The Secret Truth About s That Nobody Talks About!",
+    "status": "processing",
+    "createdAt": "2025-10-07T14:08:13.327Z",
+    "updatedAt": "2025-10-07T14:08:13.328Z",
+    "progress": 0,
+    "currentStep": "شروع فرآیند کامل",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-07T14:08:13.328Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "active",
+        "timestamp": "2025-10-07T14:08:13.328Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "pending",
+        "timestamp": null
+      }
+    ],
+    "metadata": {
+      "scenes": [
+        {
+          "scene_number": 1,
+          "duration": "0-8 seconds",
+          "speaker_text": "Did you know that s has secrets that nobody talks about?",
+          "visual_description": "Mysterious and intriguing visual",
+          "image_prompt": "Mysterious and intriguing visual with dark background, glowing effects, question marks floating, cinematic lighting, high quality, photorealistic"
+        },
+        {
+          "scene_number": 2,
+          "duration": "8-16 seconds",
+          "speaker_text": "Today I want to share facts with you that will blow your mind.",
+          "visual_description": "Mind-blowing animation",
+          "image_prompt": "Dynamic animation showing earth shaking, dramatic effects, bright colors, explosion of information, mind-blowing visual effects"
+        },
+        {
+          "scene_number": 3,
+          "duration": "16-24 seconds",
+          "speaker_text": "Most people think s is just what they see, but the reality is completely different.",
+          "visual_description": "Comparison of perceptions vs reality",
+          "image_prompt": "Split screen showing common perception vs reality, contrasting images, before and after comparison, dramatic lighting"
+        },
+        {
+          "scene_number": 4,
+          "duration": "24-32 seconds",
+          "speaker_text": "The first truth you need to know is that s has a deeper impact than you can imagine.",
+          "visual_description": "Deep impact visualization",
+          "image_prompt": "Deep impact visualization, ripple effects, waves of influence spreading, powerful visual metaphors, high contrast"
+        },
+        {
+          "scene_number": 5,
+          "duration": "32-40 seconds",
+          "speaker_text": "But this is just the beginning. What's truly amazing is...",
+          "visual_description": "Building suspense and curiosity",
+          "image_prompt": "Suspenseful moment, dramatic pause, mysterious atmosphere, anticipation building, cinematic tension"
+        },
+        {
+          "scene_number": 6,
+          "duration": "40-48 seconds",
+          "speaker_text": "s has capabilities that even experts are unaware of.",
+          "visual_description": "Discovering hidden capabilities",
+          "image_prompt": "Hidden capabilities revealed, experts surprised, discovery moment, enlightenment visualization, bright revelation"
+        },
+        {
+          "scene_number": 7,
+          "duration": "48-56 seconds",
+          "speaker_text": "Now that you know this truth, you can use it in a completely different way.",
+          "visual_description": "New and different applications",
+          "image_prompt": "New applications, innovative usage, transformation in action, practical implementation, success visualization"
+        },
+        {
+          "scene_number": 8,
+          "duration": "56-64 seconds",
+          "speaker_text": "If this video was helpful to you, make sure to like it and subscribe for more amazing content!",
+          "visual_description": "Call to action",
+          "image_prompt": "Call to action, like and subscribe buttons, engaging end screen, colorful animations, positive energy"
+        }
+      ],
+      "voice": "en_US-lessac-medium",
+      "orientation": "vertical",
+      "duration": null,
+      "fileSize": null,
+      "videoUrl": null,
+      "errorMessage": null,
+      "subtitleSettings": {
+        "color": "#ffffff",
+        "size": 24,
+        "outline": 2
+      }
+    }
+  },
+  {
+    "id": "short-video-1759845016333",
+    "title": "The Secret Truth About cat That Nobody Talks About!",
+    "status": "error",
+    "createdAt": "2025-10-07T13:50:16.333Z",
+    "updatedAt": "2025-10-07T13:52:16.455Z",
+    "progress": 0,
+    "currentStep": "خطا در تولید",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "error",
+        "timestamp": "2025-10-07T13:52:16.428Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "pending",
+        "timestamp": null
+      }
+    ],
+    "metadata": {
+      "errorMessage": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+    }
+  },
+  {
+    "id": "long-form-video-1759842948874",
+    "title": "bmw with buggati - Comprehensive Deep Dive",
+    "status": "completed",
+    "createdAt": "2025-10-07T13:15:48.874Z",
+    "updatedAt": "2025-10-07T13:28:10.724Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-07T13:28:10.723Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-07T13:28:10.723Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/video-1759843497118.mp4",
+      "duration": 409.36000000000007,
+      "fileSize": null
+    }
+  },
+  {
+    "id": "long-form-video-1759842707560",
+    "title": "bmw seri 7 and benz - Comprehensive Deep Dive",
+    "status": "completed",
+    "createdAt": "2025-10-07T13:11:47.560Z",
+    "updatedAt": "2025-10-07T13:13:09.416Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-07T13:13:09.414Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-07T13:13:09.414Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/video-1759842769733.mp4",
+      "duration": 61.040000000000006,
+      "fileSize": null
+    }
+  },
+  {
+    "id": "long-form-video-1759842428225",
+    "title": "bmw series 7 - Comprehensive Deep Dive",
+    "status": "processing",
+    "createdAt": "2025-10-07T13:07:08.225Z",
+    "updatedAt": "2025-10-07T13:07:41.070Z",
+    "progress": 30,
+    "currentStep": "تولید تصاویر تکمیل شد",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-07T13:07:41.069Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "pending",
+        "timestamp": null
+      }
+    ],
+    "metadata": {
+      "scenes": [
+        {
+          "scene_number": 1,
+          "duration": "0-6 seconds",
+          "speaker_text": "This is scene 1 of our comprehensive exploration of bmw series 7. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of bmw series 7 in our modern world.",
+          "visual_description": "Scene 1 showing bmw series 7 concepts and applications",
+          "image_prompt": "Professional horizontal composition showing bmw series 7 concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        },
+        {
+          "scene_number": 2,
+          "duration": "6-12 seconds",
+          "speaker_text": "This is scene 2 of our comprehensive exploration of bmw series 7. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of bmw series 7 in our modern world.",
+          "visual_description": "Scene 2 showing bmw series 7 concepts and applications",
+          "image_prompt": "Professional horizontal composition showing bmw series 7 concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        },
+        {
+          "scene_number": 3,
+          "duration": "12-18 seconds",
+          "speaker_text": "This is scene 3 of our comprehensive exploration of bmw series 7. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of bmw series 7 in our modern world.",
+          "visual_description": "Scene 3 showing bmw series 7 concepts and applications",
+          "image_prompt": "Professional horizontal composition showing bmw series 7 concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        }
+      ],
+      "voice": "en_US-lessac-medium",
+      "orientation": "horizontal",
+      "duration": null,
+      "fileSize": null,
+      "videoUrl": null,
+      "errorMessage": null,
+      "subtitleSettings": {
+        "color": "#ffffff",
+        "size": 24,
+        "outline": 2
+      }
+    }
+  },
+  {
+    "id": "long-form-video-1759842127993",
+    "title": "bmw m5 - Comprehensive Deep Dive",
+    "status": "processing",
+    "createdAt": "2025-10-07T13:02:07.993Z",
+    "updatedAt": "2025-10-07T13:02:42.261Z",
+    "progress": 30,
+    "currentStep": "تولید تصاویر تکمیل شد",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-07T13:02:42.259Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "pending",
+        "timestamp": null
+      }
+    ],
+    "metadata": {
+      "scenes": [
+        {
+          "scene_number": 1,
+          "duration": "0-6 seconds",
+          "speaker_text": "This is scene 1 of our comprehensive exploration of bmw m5. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of bmw m5 in our modern world.",
+          "visual_description": "Scene 1 showing bmw m5 concepts and applications",
+          "image_prompt": "Professional horizontal composition showing bmw m5 concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        },
+        {
+          "scene_number": 2,
+          "duration": "6-12 seconds",
+          "speaker_text": "This is scene 2 of our comprehensive exploration of bmw m5. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of bmw m5 in our modern world.",
+          "visual_description": "Scene 2 showing bmw m5 concepts and applications",
+          "image_prompt": "Professional horizontal composition showing bmw m5 concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        },
+        {
+          "scene_number": 3,
+          "duration": "12-18 seconds",
+          "speaker_text": "This is scene 3 of our comprehensive exploration of bmw m5. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of bmw m5 in our modern world.",
+          "visual_description": "Scene 3 showing bmw m5 concepts and applications",
+          "image_prompt": "Professional horizontal composition showing bmw m5 concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        }
+      ],
+      "voice": "en_US-lessac-medium",
+      "orientation": "horizontal",
+      "duration": null,
+      "fileSize": null,
+      "videoUrl": null,
+      "errorMessage": null,
+      "subtitleSettings": {
+        "color": "#ffffff",
+        "size": 24,
+        "outline": 2
+      }
+    }
+  },
+  {
+    "id": "long-form-video-1759841890699",
+    "title": "bmw - Comprehensive Deep Dive",
+    "status": "processing",
+    "createdAt": "2025-10-07T12:58:10.699Z",
+    "updatedAt": "2025-10-07T12:58:27.705Z",
+    "progress": 20,
+    "currentStep": "تولید تصاویر (2/3)",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:58:10.699Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "active",
+        "timestamp": "2025-10-07T12:58:10.699Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "pending",
+        "timestamp": null
+      }
+    ],
+    "metadata": {
+      "scenes": [
+        {
+          "scene_number": 1,
+          "duration": "0-6 seconds",
+          "speaker_text": "This is scene 1 of our comprehensive exploration of bmw. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of bmw in our modern world.",
+          "visual_description": "Scene 1 showing bmw concepts and applications",
+          "image_prompt": "Professional horizontal composition showing bmw concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        },
+        {
+          "scene_number": 2,
+          "duration": "6-12 seconds",
+          "speaker_text": "This is scene 2 of our comprehensive exploration of bmw. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of bmw in our modern world.",
+          "visual_description": "Scene 2 showing bmw concepts and applications",
+          "image_prompt": "Professional horizontal composition showing bmw concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        },
+        {
+          "scene_number": 3,
+          "duration": "12-18 seconds",
+          "speaker_text": "This is scene 3 of our comprehensive exploration of bmw. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of bmw in our modern world.",
+          "visual_description": "Scene 3 showing bmw concepts and applications",
+          "image_prompt": "Professional horizontal composition showing bmw concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        }
+      ],
+      "voice": "en_US-kusal-medium",
+      "orientation": "horizontal",
+      "duration": null,
+      "fileSize": null,
+      "videoUrl": null,
+      "errorMessage": null,
+      "subtitleSettings": {
+        "color": "#ffffff",
+        "size": 24,
+        "outline": 2
+      }
+    }
+  },
+  {
+    "id": "long-form-video-1759840991509",
+    "title": "cat - Comprehensive Deep Dive",
+    "status": "completed",
+    "createdAt": "2025-10-07T12:43:11.509Z",
+    "updatedAt": "2025-10-07T12:44:14.524Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:44:14.519Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:44:14.519Z"
+      }
+    ],
+    "metadata": {
+      "scenes": [
+        {
+          "scene_number": 1,
+          "duration": "0-6 seconds",
+          "speaker_text": "This is scene 1 of our comprehensive exploration of cat. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of cat in our modern world.",
+          "visual_description": "Scene 1 showing cat concepts and applications",
+          "image_prompt": "Professional horizontal composition showing cat concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        },
+        {
+          "scene_number": 2,
+          "duration": "6-12 seconds",
+          "speaker_text": "This is scene 2 of our comprehensive exploration of cat. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of cat in our modern world.",
+          "visual_description": "Scene 2 showing cat concepts and applications",
+          "image_prompt": "Professional horizontal composition showing cat concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        },
+        {
+          "scene_number": 3,
+          "duration": "12-18 seconds",
+          "speaker_text": "This is scene 3 of our comprehensive exploration of cat. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of cat in our modern world.",
+          "visual_description": "Scene 3 showing cat concepts and applications",
+          "image_prompt": "Professional horizontal composition showing cat concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        }
+      ],
+      "voice": "en_US-lessac-high",
+      "orientation": "horizontal",
+      "duration": 51.980000000000004,
+      "fileSize": null,
+      "videoUrl": "/api/remotion/download/video-1759841043572.mp4",
+      "errorMessage": null,
+      "subtitleSettings": {
+        "color": "#ffffff",
+        "size": 24,
+        "outline": 2
+      }
+    }
+  },
+  {
+    "id": "long-form-video-1759840904510",
+    "title": "benz cls 500 with bmw m6 - Comprehensive Deep Dive",
+    "status": "processing",
+    "createdAt": "2025-10-07T12:41:44.510Z",
+    "updatedAt": "2025-10-07T12:41:54.430Z",
+    "progress": 50,
+    "currentStep": "ترکیب ویدیو",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:41:54.426Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "active",
+        "timestamp": "2025-10-07T12:41:54.426Z"
+      },
+      {
+        "name": "آماده",
+        "status": "pending",
+        "timestamp": null
+      }
+    ],
+    "metadata": {
+      "scenes": [
+        {
+          "scene_number": 1,
+          "duration": "0-6 seconds",
+          "speaker_text": "This is scene 1 of our comprehensive exploration of benz cls 500 with bmw m6. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of benz cls 500 with bmw m6 in our modern world.",
+          "visual_description": "Scene 1 showing benz cls 500 with bmw m6 concepts and applications",
+          "image_prompt": "Professional horizontal composition showing benz cls 500 with bmw m6 concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        },
+        {
+          "scene_number": 2,
+          "duration": "6-12 seconds",
+          "speaker_text": "This is scene 2 of our comprehensive exploration of benz cls 500 with bmw m6. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of benz cls 500 with bmw m6 in our modern world.",
+          "visual_description": "Scene 2 showing benz cls 500 with bmw m6 concepts and applications",
+          "image_prompt": "Professional horizontal composition showing benz cls 500 with bmw m6 concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        },
+        {
+          "scene_number": 3,
+          "duration": "12-18 seconds",
+          "speaker_text": "This is scene 3 of our comprehensive exploration of benz cls 500 with bmw m6. We will dive deep into the fascinating aspects of this topic, examining its various applications, benefits, and potential future developments. This detailed analysis will help you understand the importance and impact of benz cls 500 with bmw m6 in our modern world.",
+          "visual_description": "Scene 3 showing benz cls 500 with bmw m6 concepts and applications",
+          "image_prompt": "Professional horizontal composition showing benz cls 500 with bmw m6 concepts, modern interface, clean design, 16:9 aspect ratio, high quality, detailed visualization"
+        }
+      ],
+      "voice": "en_US-lessac-medium",
+      "orientation": "horizontal",
+      "duration": null,
+      "fileSize": null,
+      "videoUrl": null,
+      "errorMessage": null,
+      "subtitleSettings": {
+        "color": "#ffffff",
+        "size": 24,
+        "outline": 2
+      }
+    }
+  },
+  {
+    "id": "video-1759840293440",
+    "title": "ویدیو موجود - video-1759840293440",
+    "status": "completed",
+    "createdAt": "2025-10-07T12:31:35.151Z",
+    "updatedAt": "2025-10-07T12:31:35.158Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:31:35.151Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:31:35.151Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:31:35.151Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:31:35.151Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:31:35.158Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:31:35.158Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/video-1759840293440.mp4",
+      "fileSize": 306831,
+      "duration": null,
+      "scenes": [],
+      "voice": "نامشخص",
+      "orientation": "vertical"
+    }
+  },
+  {
+    "id": "custom_video_1759840282092",
+    "title": "ویدیوی سفارشی",
+    "status": "completed",
+    "createdAt": "2025-10-07T12:31:22.092Z",
+    "updatedAt": "2025-10-07T12:31:35.194Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:31:35.194Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:31:22.104Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:31:35.194Z"
+      }
+    ],
+    "metadata": {
+      "scenes": [
+        {
+          "scene_number": 1,
+          "speaker_text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟",
+          "visual_description": "futuristic AI city with advanced technology and glowing elements, cinematic lighting, 4k quality"
+        }
+      ],
+      "voice": "en_US-ryan-high",
+      "orientation": "horizontal",
+      "duration": 3.27,
+      "fileSize": null,
+      "videoUrl": "/api/remotion/download/video-1759840293440.mp4",
+      "errorMessage": null,
+      "subtitleSettings": {
+        "color": "#ffffff",
+        "size": 24,
+        "outline": 2
+      }
+    }
+  },
+  {
+    "id": "custom_video_1759840280233",
+    "title": "ویدیوی سفارشی",
+    "status": "processing",
+    "createdAt": "2025-10-07T12:31:20.246Z",
+    "updatedAt": "2025-10-07T12:31:22.085Z",
+    "progress": 40,
+    "currentStep": "تولید تصاویر",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:31:20.255Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید صدا",
+        "status": "active",
+        "timestamp": "2025-10-07T12:31:22.085Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "pending",
+        "timestamp": null
+      }
+    ],
+    "metadata": {
+      "scenes": [
+        {
+          "scene_number": 1,
+          "speaker_text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟",
+          "visual_description": "futuristic AI city with advanced technology and glowing elements, cinematic lighting, 4k quality"
+        }
+      ],
+      "voice": "en_US-ryan-high",
+      "orientation": "horizontal",
+      "duration": null,
+      "fileSize": null,
+      "videoUrl": null,
+      "errorMessage": null,
+      "subtitleSettings": {
+        "color": "#ffffff",
+        "size": 24,
+        "outline": 2
+      }
+    }
+  },
+  {
+    "id": "video-1759839363334",
+    "title": "ویدیو موجود - video-1759839363334",
+    "status": "completed",
+    "createdAt": "2025-10-07T12:16:04.353Z",
+    "updatedAt": "2025-10-07T12:16:04.369Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:16:04.353Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:16:04.353Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:16:04.353Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:16:04.353Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:16:04.369Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:16:04.369Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/video-1759839363334.mp4",
+      "fileSize": 337232,
+      "duration": null,
+      "scenes": [],
+      "voice": "نامشخص",
+      "orientation": "vertical"
+    }
+  },
+  {
+    "id": "custom_video_1759839325682",
+    "title": "ویدیوی سفارشی",
+    "status": "completed",
+    "createdAt": "2025-10-07T12:15:25.682Z",
+    "updatedAt": "2025-10-07T12:16:04.376Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:16:04.376Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:15:25.697Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:16:04.376Z"
+      }
+    ],
+    "metadata": {
+      "scenes": [
+        {
+          "scene_number": 1,
+          "speaker_text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟",
+          "visual_description": "futuristic AI city with advanced technology and glowing elements, cinematic lighting, 4k quality"
+        }
+      ],
+      "voice": "fa_IR-amir-medium",
+      "orientation": "vertical",
+      "duration": 3.8,
+      "fileSize": null,
+      "videoUrl": "/api/remotion/download/video-1759839363334.mp4",
+      "errorMessage": null,
+      "subtitleSettings": {
+        "color": "#ab1c1c",
+        "size": 12,
+        "outline": 2
+      }
+    }
+  },
+  {
+    "id": "custom_video_1759839319300",
+    "title": "ویدیوی سفارشی",
+    "status": "completed",
+    "createdAt": "2025-10-07T12:15:19.302Z",
+    "updatedAt": "2025-10-07T12:16:04.401Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:16:04.401Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:15:19.309Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:15:25.674Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:16:04.401Z"
+      }
+    ],
+    "metadata": {
+      "scenes": [
+        {
+          "scene_number": 1,
+          "speaker_text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟",
+          "visual_description": "futuristic AI city with advanced technology and glowing elements, cinematic lighting, 4k quality"
+        }
+      ],
+      "voice": "fa_IR-amir-medium",
+      "orientation": "vertical",
+      "duration": 3.8,
+      "fileSize": null,
+      "videoUrl": "/api/remotion/download/video-1759839363334.mp4",
+      "errorMessage": null,
+      "subtitleSettings": {
+        "color": "#ab1c1c",
+        "size": 12,
+        "outline": 2
+      }
+    }
+  },
+  {
+    "id": "long-form-video-1759839253619",
+    "title": "ویدیو موجود - long-form-video-1759839253619",
+    "status": "completed",
+    "createdAt": "2025-10-07T12:14:27.987Z",
+    "updatedAt": "2025-10-07T12:14:28.060Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:14:27.987Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:14:27.987Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:14:27.987Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:14:27.987Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:14:28.060Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:14:28.060Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/long-form-video-1759839253619.mp4",
+      "fileSize": 3774240,
+      "duration": null,
+      "scenes": [],
+      "voice": "نامشخص",
+      "orientation": "vertical"
+    }
+  },
+  {
+    "id": "long-form-video-1759838811094",
+    "title": "ویدیو موجود - long-form-video-1759838811094",
+    "status": "completed",
+    "createdAt": "2025-10-07T12:07:08.853Z",
+    "updatedAt": "2025-10-07T12:07:08.927Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:07:08.853Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:07:08.853Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:07:08.853Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:07:08.853Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:07:08.927Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-07T12:07:08.927Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/long-form-video-1759838811094.mp4",
+      "fileSize": 2987354,
+      "duration": null,
+      "scenes": [],
+      "voice": "نامشخص",
+      "orientation": "vertical"
+    }
+  },
+  {
+    "id": "long-form-video-1759838378048",
+    "title": "ویدیو موجود - long-form-video-1759838378048",
+    "status": "completed",
+    "createdAt": "2025-10-07T11:59:50.194Z",
+    "updatedAt": "2025-10-07T11:59:50.247Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-07T11:59:50.194Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-07T11:59:50.194Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-07T11:59:50.194Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-07T11:59:50.194Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-07T11:59:50.247Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-07T11:59:50.247Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/long-form-video-1759838378048.mp4",
+      "fileSize": 3179455,
+      "duration": null,
+      "scenes": [],
+      "voice": "نامشخص",
+      "orientation": "vertical"
+    }
+  },
+  {
+    "id": "video-1759717065812",
+    "title": "ویدیو موجود - video-1759717065812",
+    "status": "completed",
+    "createdAt": "2025-10-06T02:18:04.431Z",
+    "updatedAt": "2025-10-06T02:18:04.458Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-06T02:18:04.431Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-06T02:18:04.431Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-06T02:18:04.431Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-06T02:18:04.431Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-06T02:18:04.458Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-06T02:18:04.458Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/video-1759717065812.mp4",
+      "fileSize": 505064,
+      "duration": null,
+      "scenes": [],
+      "voice": "نامشخص",
+      "orientation": "vertical"
+    }
+  },
+  {
+    "id": "video-1759715800506",
+    "title": "ویدیو موجود - video-1759715800506",
+    "status": "completed",
+    "createdAt": "2025-10-06T01:58:29.244Z",
+    "updatedAt": "2025-10-06T01:58:29.409Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:58:29.244Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:58:29.244Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:58:29.244Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:58:29.244Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:58:29.409Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:58:29.409Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/video-1759715800506.mp4",
+      "fileSize": 2580982,
+      "duration": null,
+      "scenes": [],
+      "voice": "نامشخص",
+      "orientation": "vertical"
+    }
+  },
+  {
+    "id": "video-1759715539284",
+    "title": "ویدیو موجود - video-1759715539284",
+    "status": "completed",
+    "createdAt": "2025-10-06T01:54:08.028Z",
+    "updatedAt": "2025-10-06T01:54:08.185Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:54:08.028Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:54:08.028Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:54:08.028Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:54:08.028Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:54:08.185Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:54:08.185Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/video-1759715539284.mp4",
+      "fileSize": 2463727,
+      "duration": null,
+      "scenes": [],
+      "voice": "نامشخص",
+      "orientation": "vertical"
+    }
+  },
+  {
+    "id": "video-1759714910221",
+    "title": "ویدیو موجود - video-1759714910221",
+    "status": "completed",
+    "createdAt": "2025-10-06T01:42:01.631Z",
+    "updatedAt": "2025-10-06T01:42:01.633Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:42:01.631Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:42:01.631Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:42:01.631Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:42:01.631Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:42:01.633Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:42:01.633Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/video-1759714910221.mp4",
+      "fileSize": 153188,
+      "duration": null,
+      "scenes": [],
+      "voice": "نامشخص",
+      "orientation": "vertical"
+    }
+  },
+  {
+    "id": "video-1759714903623",
+    "title": "ویدیو موجود - video-1759714903623",
+    "status": "completed",
+    "createdAt": "2025-10-06T01:41:47.132Z",
+    "updatedAt": "2025-10-06T01:41:47.149Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:41:47.132Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:41:47.132Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:41:47.132Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:41:47.132Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:41:47.149Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-06T01:41:47.149Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/video-1759714903623.mp4",
+      "fileSize": 173672,
+      "duration": null,
+      "scenes": [],
+      "voice": "نامشخص",
+      "orientation": "vertical"
+    }
+  },
+  {
+    "id": "video-1759537015809",
+    "title": "ویدیو موجود - video-1759537015809",
+    "status": "completed",
+    "createdAt": "2025-10-04T00:17:24.340Z",
+    "updatedAt": "2025-10-04T00:17:24.451Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:17:24.340Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:17:24.340Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:17:24.340Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:17:24.340Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:17:24.451Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:17:24.451Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/video-1759537015809.mp4",
+      "fileSize": 4530560,
+      "duration": null,
+      "scenes": [],
+      "voice": "نامشخص",
+      "orientation": "vertical"
+    }
+  },
+  {
+    "id": "video-1759536564157",
+    "title": "ویدیو موجود - video-1759536564157",
+    "status": "completed",
+    "createdAt": "2025-10-04T00:09:41.236Z",
+    "updatedAt": "2025-10-04T00:09:41.414Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:09:41.236Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:09:41.236Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:09:41.236Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:09:41.236Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:09:41.414Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:09:41.414Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/video-1759536564157.mp4",
+      "fileSize": 3220411,
+      "duration": null,
+      "scenes": [],
+      "voice": "نامشخص",
+      "orientation": "vertical"
+    }
+  },
+  {
+    "id": "video-1759536125578",
+    "title": "ویدیو موجود - video-1759536125578",
+    "status": "completed",
+    "createdAt": "2025-10-04T00:02:17.019Z",
+    "updatedAt": "2025-10-04T00:02:17.220Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:02:17.019Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:02:17.019Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:02:17.019Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:02:17.019Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:02:17.220Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-04T00:02:17.220Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/video-1759536125578.mp4",
+      "fileSize": 3022508,
+      "duration": null,
+      "scenes": [],
+      "voice": "نامشخص",
+      "orientation": "vertical"
+    }
+  },
+  {
+    "id": "video-1759535759524",
+    "title": "ویدیو موجود - video-1759535759524",
+    "status": "completed",
+    "createdAt": "2025-10-03T23:56:10.838Z",
+    "updatedAt": "2025-10-03T23:56:11.004Z",
+    "progress": 100,
+    "currentStep": "آماده",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": "2025-10-03T23:56:10.838Z"
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": "2025-10-03T23:56:10.838Z"
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-03T23:56:10.838Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "completed",
+        "timestamp": "2025-10-03T23:56:10.838Z"
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "completed",
+        "timestamp": "2025-10-03T23:56:11.004Z"
+      },
+      {
+        "name": "آماده",
+        "status": "completed",
+        "timestamp": "2025-10-03T23:56:11.004Z"
+      }
+    ],
+    "metadata": {
+      "videoUrl": "/api/remotion/download/video-1759535759524.mp4",
+      "fileSize": 2429784,
+      "duration": null,
+      "scenes": [],
+      "voice": "نامشخص",
+      "orientation": "vertical"
+    }
+  },
+  {
+    "id": "short-video-1759877958087",
+    "title": "iPhone 17 Introduction: A Comprehensive Long-Form Look",
+    "status": "processing",
+    "progress": 30,
+    "currentStep": "تولید تصاویر تکمیل شد",
+    "createdAt": "2025-10-07T22:59:18.094Z",
+    "updatedAt": "2025-10-07T23:01:05.996Z",
+    "steps": [
+      {
+        "name": "در صف انتظار",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید اسکریپت",
+        "status": "completed",
+        "timestamp": null
+      },
+      {
+        "name": "تولید تصاویر",
+        "status": "completed",
+        "timestamp": "2025-10-07T23:01:05.994Z"
+      },
+      {
+        "name": "تولید صدا",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "ترکیب ویدیو",
+        "status": "pending",
+        "timestamp": null
+      },
+      {
+        "name": "آماده",
+        "status": "pending",
+        "timestamp": null
+      }
+    ]
+  }
+]

@@ -70,6 +70,16 @@ app.get('/image-history', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'image-history.html'));
 });
 
+// Workflow management page
+app.get('/workflow-management', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'workflow-management.html'));
+});
+
+// Music player page
+app.get('/music-player', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'music-player.html'));
+});
+
 // Socket.io connection handling
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
@@ -90,6 +100,10 @@ const kokoroRoutes = require('./routes/kokoro');
 const videoHistoryRoutes = require('./routes/video-history');
 // Audio history routes removed
 const imageHistoryRoutes = require('./routes/image-history');
+const workflowRoutes = require('./routes/workflow');
+const videoTrackingRoutes = require('./routes/video-tracking');
+const musicRoutes = require('./routes/music');
+const chatRoutes = require('./routes/chat');
 
 // Use real Gemini API for actual AI content generation
 app.use('/api/gemini', geminiRoutes);
@@ -101,6 +115,10 @@ app.use('/api/kokoro', kokoroRoutes);
 app.use('/api/video-history', videoHistoryRoutes);
 // Audio history API removed
 app.use('/api/image-history', imageHistoryRoutes);
+app.use('/api/workflow', workflowRoutes);
+app.use('/api/video-tracking', videoTrackingRoutes);
+app.use('/api/music', musicRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Pass io instance to routes
 app.use((req, res, next) => {

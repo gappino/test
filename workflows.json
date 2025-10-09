@@ -1,0 +1,27 @@
+[
+  {
+    "id": "workflow_1759868592739_0qe17opcb",
+    "name": "ساخت ویدیو لانگ 5 ساعتی",
+    "prompt": "benz comionity and content for benz",
+    "voice": "en_US-kusal-medium",
+    "backgroundMusic": "cinematic-motivational-136831.mp3",
+    "schedule": {
+      "type": "hourly",
+      "interval": 5
+    },
+    "settings": {
+      "videoType": "long-form",
+      "orientation": "horizontal",
+      "scenes": 5
+    },
+    "customScenes": null,
+    "customSettings": null,
+    "status": "active",
+    "createdAt": "2025-10-07T20:23:12.739Z",
+    "updatedAt": "2025-10-07T20:23:12.739Z",
+    "lastRun": null,
+    "nextRun": "2025-10-08T01:23:12.739Z",
+    "totalRuns": 0,
+    "videos": []
+  }
+]

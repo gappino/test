@@ -15,7 +15,17 @@
         <header class="header">
             <div class="header-content">
                 <h1><i class="fas fa-robot"></i> ارک پلاس</h1>
-                <p>پلتفرم هوشمند تولید محتوا با استفاده از Gemini و Flax</p>
+                <p>پلتفرم هوشمند تولید محتوا</p>
+                <div class="header-actions">
+                    <a href="/video-history.html" class="btn btn-primary">
+                        <i class="fas fa-history"></i>
+                        تاریخچه ویدیوها
+                    </a>
+                    <a href="/workflow-management" class="btn btn-primary">
+                        <i class="fas fa-cogs"></i>
+                        مدیریت Workflow ها
+                    </a>
+                </div>
             </div>
         </header>
 
@@ -58,6 +68,14 @@
                                     <option value="en_US-norman-medium">Norman Medium - صدای مرد</option>
                                     <option value="en_US-kusal-medium">Kusal Medium - صدای مرد</option>
                                 </optgroup>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="backgroundMusic">انتخاب موزیک بک‌گراند:</label>
+                            <select id="backgroundMusic" class="form-control">
+                                <option value="">بدون موزیک بک‌گراند</option>
+                                <!-- موزیک‌ها به صورت داینامیک بارگذاری می‌شوند -->
                             </select>
                         </div>
                         
@@ -232,11 +250,50 @@
                     </div>
                 </div>
             </section>
+
+            <!-- AI Chat Section -->
+            <section id="chatSection" class="chat-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-comments"></i> چت با هوش مصنوعی</h2>
+                        <p>با هوش مصنوعی پیشرفته گفتگو کنید و پاسخ‌های هوشمند دریافت کنید</p>
+                    </div>
+                    <div class="card-body">
+                        <div id="chatContainer" class="chat-container">
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="message bot-message">
+                                    <div class="message-avatar">
+                                        <i class="fas fa-robot"></i>
+                                    </div>
+                                    <div class="message-content">
+                                        <p>سلام! من هوش مصنوعی شما هستم. چطور می‌تونم کمکتون کنم؟</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chat-input-container">
+                                <div class="chat-input-wrapper">
+                                    <input 
+                                        type="text" 
+                                        id="chatInput" 
+                                        class="chat-input" 
+                                        placeholder="پیام خود را بنویسید..."
+                                        maxlength="500"
+                                    >
+                                    <button id="sendMessageBtn" class="chat-send-btn">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                                <div class="chat-status" id="chatStatus"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
 
         <!-- Footer -->
         <footer class="footer">
-            <p>&copy; 2024 ارک پلاس. تمامی حقوق محفوظ است.</p>
+            <p>&copy; 2024 ارک پلاس. تمامی حقوق محفوظ است. | <a href="https://eexo.ir/%d9%82%d9%88%d8%a7%d9%86%db%8c%d9%86-%d8%a7%d8%b1%da%a9/" target="_blank" style="color: #3b82f6; text-decoration: none;">قوانین و مقررات</a></p>
         </footer>
     </div>
 

@@ -63,6 +63,64 @@ let generatedImages = [];
 let selectedNiche = null;
 let currentUserIdea = '';
 
+// Load background music options
+async function loadBackgroundMusic() {
+    try {
+        console.log('🎵 Loading background music options...');
+        const response = await fetch('/api/music/list');
+        const data = await response.json();
+        
+        console.log('🎵 API response:', data);
+        
+        const backgroundMusicSelect = document.getElementById('backgroundMusic');
+        console.log('🎵 backgroundMusicSelect element:', backgroundMusicSelect);
+        
+        if (data.success && backgroundMusicSelect) {
+            // Clear existing options except the first one
+            backgroundMusicSelect.innerHTML = '<option value="">بدون موزیک بک‌گراند</option>';
+            
+            // Group music by category
+            const categories = {};
+            data.music.forEach(music => {
+                if (!categories[music.type]) {
+                    categories[music.type] = [];
+                }
+                categories[music.type].push(music);
+            });
+            
+            // Add music options grouped by category
+            Object.entries(categories).forEach(([category, musicList]) => {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = `🎵 ${category}`;
+                
+                musicList.forEach(music => {
+                    const option = document.createElement('option');
+                    option.value = music.filename;
+                    option.textContent = music.name;
+                    optgroup.appendChild(option);
+                });
+                
+                backgroundMusicSelect.appendChild(optgroup);
+            });
+            
+            console.log('✅ Background music options loaded:', data.music.length);
+        } else {
+            console.error('❌ Failed to load background music:', data);
+            console.error('❌ backgroundMusicSelect element:', backgroundMusicSelect);
+        }
+    } catch (error) {
+        console.error('❌ Error loading background music:', error);
+    }
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', () => {
+    // Wait a bit for the DOM to be fully loaded
+    setTimeout(() => {
+        loadBackgroundMusic();
+    }, 100);
+});
+
 // Event Listeners
 if (generateBtn) generateBtn.addEventListener('click', generateScript);
 generateImagesBtn.addEventListener('click', generateImages);
@@ -558,9 +616,19 @@ async function generateCompleteVideo() {
         
         // Step 1: Prepare audio settings
         addVideoStatusItem(0, 'processing', 'آماده‌سازی تنظیمات صدا...', '');
+        
+        const backgroundMusicElement = document.getElementById('backgroundMusic');
+        console.log('🎵 Background music element:', backgroundMusicElement);
+        console.log('🎵 Background music element value:', backgroundMusicElement ? backgroundMusicElement.value : 'null');
+        console.log('🎵 Background music element selectedIndex:', backgroundMusicElement ? backgroundMusicElement.selectedIndex : 'null');
+        console.log('🎵 Background music element options:', backgroundMusicElement ? backgroundMusicElement.options : 'null');
+        
         const audioSettings = {
-            voice: voiceSelect.value
+            voice: voiceSelect.value,
+            backgroundMusic: backgroundMusicElement ? backgroundMusicElement.value : ''
         };
+        console.log('🎵 Audio settings:', audioSettings);
+        console.log('🎵 Background music selected:', audioSettings.backgroundMusic);
         updateVideoStatusItem(0, 'completed', 'تنظیمات صدا آماده شد', '');
         updateVideoProgress(1, 4);
         
@@ -623,6 +691,11 @@ async function generateCompleteVideo() {
             audioSettings: audioSettings,
             audioResults: audioResults // Add audio results to the request
         };
+        
+        console.log('🎵 Complete video data:', completeVideoData);
+        console.log('🎵 Background music in completeVideoData:', completeVideoData.audioSettings.backgroundMusic);
+        console.log('🎵 audioSettings type:', typeof completeVideoData.audioSettings);
+        console.log('🎵 audioSettings keys:', Object.keys(completeVideoData.audioSettings));
         
         const videoResponse = await fetch('/api/video/generate-complete-video', {
             method: 'POST',
@@ -1110,6 +1183,280 @@ function closePageWarningNotification() {
     }
 }
 
+
+// Chat Elements
+const chatInput = document.getElementById('chatInput');
+const sendMessageBtn = document.getElementById('sendMessageBtn');
+const chatMessages = document.getElementById('chatMessages');
+const chatStatus = document.getElementById('chatStatus');
+
+// Chat functionality
+if (chatInput && sendMessageBtn && chatMessages) {
+    // Send message on button click
+    sendMessageBtn.addEventListener('click', sendChatMessage);
+    
+    // Send message on Enter key press
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendChatMessage();
+        }
+    });
+    
+    // Auto-resize input
+    chatInput.addEventListener('input', () => {
+        chatInput.style.height = 'auto';
+        chatInput.style.height = chatInput.scrollHeight + 'px';
+    });
+}
+
+// Send chat message function
+async function sendChatMessage() {
+    const message = chatInput.value.trim();
+    
+    if (!message) {
+        return;
+    }
+    
+    try {
+        // Disable input and show loading
+        chatInput.disabled = true;
+        sendMessageBtn.disabled = true;
+        sendMessageBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        chatStatus.textContent = 'در حال ارسال پیام...';
+        chatStatus.className = 'chat-status loading';
+        
+        // Add user message to chat
+        addMessageToChat(message, 'user');
+        
+        // Clear input
+        chatInput.value = '';
+        chatInput.style.height = 'auto';
+        
+        // Scroll to bottom
+        scrollChatToBottom();
+        
+        // Send message to API
+        const response = await fetch('/api/chat/send-message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Add typing indicator before AI response
+            const typingIndicator = addTypingIndicator();
+            
+            // Simulate typing delay for better UX
+            setTimeout(() => {
+                // Remove typing indicator
+                removeTypingIndicator(typingIndicator);
+                
+                // Add AI response to chat
+                addMessageToChat(result.data.aiResponse, 'bot');
+                
+                // Show success status
+                chatStatus.textContent = 'پیام ارسال شد';
+                chatStatus.className = 'chat-status success';
+                
+                // Scroll to bottom
+                scrollChatToBottom();
+            }, 1000 + Math.random() * 2000); // Random delay between 1-3 seconds
+        } else {
+            throw new Error(result.error || 'خطا در ارسال پیام');
+        }
+        
+    } catch (error) {
+        console.error('Error sending chat message:', error);
+        
+        // Add error message to chat
+        addMessageToChat('متاسفانه خطایی رخ داد. لطفاً دوباره تلاش کنید.', 'bot', true);
+        
+        // Show error status
+        chatStatus.textContent = 'خطا در ارسال پیام';
+        chatStatus.className = 'chat-status error';
+        
+        // Scroll to bottom
+        scrollChatToBottom();
+        
+    } finally {
+        // Re-enable input
+        chatInput.disabled = false;
+        sendMessageBtn.disabled = false;
+        sendMessageBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+        chatInput.focus();
+        
+        // Clear status after 3 seconds
+        setTimeout(() => {
+            chatStatus.textContent = '';
+            chatStatus.className = 'chat-status';
+        }, 3000);
+    }
+}
+
+// Add message to chat container
+function addMessageToChat(message, sender, isError = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message ${isError ? 'error-message' : ''}`;
+    
+    const avatarIcon = sender === 'user' ? 'fas fa-user' : 'fas fa-robot';
+    const avatarClass = sender === 'user' ? 'user-avatar' : 'bot-avatar';
+    
+    // Format the message for better display
+    const formattedMessage = formatMessageText(message, sender);
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar ${avatarClass}">
+            <i class="${avatarIcon}"></i>
+        </div>
+        <div class="message-content">
+            <div class="message-text">${formattedMessage}</div>
+            <div class="message-footer">
+                <span class="message-time">${new Date().toLocaleTimeString('fa-IR')}</span>
+                ${sender === 'bot' ? '<button class="copy-message-btn" onclick="copyMessage(this)" title="کپی پیام"><i class="fas fa-copy"></i></button>' : ''}
+            </div>
+        </div>
+    `;
+    
+    chatMessages.appendChild(messageDiv);
+}
+
+// Scroll chat to bottom
+function scrollChatToBottom() {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Format message text for better display
+function formatMessageText(text, sender) {
+    if (!text) return '';
+    
+    // For user messages, keep simple formatting
+    if (sender === 'user') {
+        return escapeHtml(text);
+    }
+    
+    // For bot messages, apply enhanced formatting
+    let formatted = escapeHtml(text);
+    
+    // Add line breaks for better readability
+    formatted = formatted.replace(/\n/g, '<br>');
+    
+    // Split long paragraphs into smaller chunks for better readability
+    formatted = formatted.replace(/(.{80,}?)(\s|$)/g, '$1$2<br>');
+    
+    // Remove excessive line breaks
+    formatted = formatted.replace(/(<br>\s*){3,}/g, '<br><br>');
+    
+    // Add paragraph structure for very long texts
+    if (formatted.length > 500) {
+        const sentences = formatted.split(/[.!؟]/);
+        let paragraphs = [];
+        let currentParagraph = '';
+        
+        sentences.forEach((sentence, index) => {
+            if (sentence.trim()) {
+                currentParagraph += sentence.trim();
+                
+                if (currentParagraph.length > 200 || index === sentences.length - 1) {
+                    paragraphs.push(`<p class="message-paragraph">${currentParagraph.trim()}</p>`);
+                    currentParagraph = '';
+                } else {
+                    currentParagraph += '. ';
+                }
+            }
+        });
+        
+        formatted = paragraphs.join('');
+    }
+    
+    return formatted;
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Copy message to clipboard
+function copyMessage(button) {
+    const messageContent = button.closest('.message-content');
+    const messageText = messageContent.querySelector('.message-text');
+    
+    // Get the text content without HTML tags
+    const textToCopy = messageText.textContent || messageText.innerText;
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        // Show success feedback
+        const originalIcon = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i>';
+        button.style.color = '#10b981';
+        
+        setTimeout(() => {
+            button.innerHTML = originalIcon;
+            button.style.color = '';
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy text: ', err);
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = textToCopy;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        // Show success feedback
+        const originalIcon = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i>';
+        button.style.color = '#10b981';
+        
+        setTimeout(() => {
+            button.innerHTML = originalIcon;
+            button.style.color = '';
+        }, 2000);
+    });
+}
+
+// Add typing indicator
+function addTypingIndicator() {
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message bot-message typing-indicator';
+    typingDiv.innerHTML = `
+        <div class="message-avatar bot-avatar">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="message-content">
+            <div class="message-text">
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <span class="typing-text">در حال تایپ...</span>
+            </div>
+        </div>
+    `;
+    
+    chatMessages.appendChild(typingDiv);
+    scrollChatToBottom();
+    
+    return typingDiv;
+}
+
+// Remove typing indicator
+function removeTypingIndicator(typingIndicator) {
+    if (typingIndicator && typingIndicator.parentNode) {
+        typingIndicator.parentNode.removeChild(typingIndicator);
+    }
+}
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
