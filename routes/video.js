@@ -5,8 +5,28 @@ const fs = require('fs');
 const fsPromises = require('fs').promises;
 const fsExtra = require('fs-extra');
 const resourceManager = require('../resource-manager');
+const { execSync } = require('child_process');
 
 const TRACKING_FILE = path.join(__dirname, '../video-tracking.json');
+
+// Function to detect available Python command
+function getPythonCommand() {
+  try {
+    execSync('python3 --version', { stdio: 'ignore' });
+    return 'python3';
+  } catch (e) {
+    try {
+      execSync('python --version', { stdio: 'ignore' });
+      return 'python';
+    } catch (e2) {
+      console.error('❌ Neither python3 nor python found in PATH');
+      return 'python3'; // Default fallback
+    }
+  }
+}
+
+const PYTHON_CMD = getPythonCommand();
+console.log(`🐍 Using Python command: ${PYTHON_CMD}`);
 
 // Helper function to load tracking data
 async function loadTrackingData() {
@@ -96,9 +116,9 @@ async function generatePiperTTS(text, voice) {
       
       // Run Python script with proper arguments
       const args = [piperScript, text, voice, outputDir, uniqueId];
-      console.log(`🐍 Command: python ${args.join(' ')}`);
+      console.log(`🐍 Command: ${PYTHON_CMD} ${args.join(' ')}`);
       
-      const pythonProcess = spawn('python', args, {
+      const pythonProcess = spawn(PYTHON_CMD, args, {
         cwd: path.join(__dirname, '..'),
         stdio: ['pipe', 'pipe', 'pipe'],
         shell: false // Don't use shell to avoid argument parsing issues

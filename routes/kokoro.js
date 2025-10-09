@@ -1,8 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+
+// Function to detect available Python command
+function getPythonCommand() {
+  try {
+    execSync('python3 --version', { stdio: 'ignore' });
+    return 'python3';
+  } catch (e) {
+    try {
+      execSync('python --version', { stdio: 'ignore' });
+      return 'python';
+    } catch (e2) {
+      console.error('❌ Neither python3 nor python found in PATH');
+      return 'python3'; // Default fallback
+    }
+  }
+}
+
+const PYTHON_CMD = getPythonCommand();
+console.log(`🐍 Kokoro using Python command: ${PYTHON_CMD}`);
 
 // Create fallback audio file
 function createFallbackAudio(text, voice, outputDir) {
@@ -84,9 +103,9 @@ router.post('/text-to-speech', async (req, res) => {
     
     // On Windows with shell: true, we need to pass arguments as a single string
     const args = `"${piperScript}" "${text}" "${voice}" "${outputDir}" "${uniqueSuffix}"`;
-    console.log(`🐍 Command: python ${args}`);
+    console.log(`🐍 Command: ${PYTHON_CMD} ${args}`);
     
-    const pythonProcess = spawn('python', [args], {
+    const pythonProcess = spawn(PYTHON_CMD, [args], {
       cwd: path.join(__dirname, '..'),
       stdio: ['pipe', 'pipe', 'pipe'],
       shell: true // Use shell on Windows
