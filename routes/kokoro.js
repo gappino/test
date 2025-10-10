@@ -3,6 +3,7 @@ const router = express.Router();
 const { spawn, execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const ttsQueueManager = require('../tts-queue-manager');
 
 // Function to detect available Python command
 function getPythonCommand() {
@@ -67,84 +68,44 @@ function createFallbackAudio(text, voice, outputDir) {
   }
 }
 
-// Kokoro TTS endpoint
-router.post('/text-to-speech', async (req, res) => {
-  try {
-    const { text, voice = 'af_heart' } = req.body;
-    
-    if (!text || text.trim() === '') {
-      return res.status(400).json({
-        success: false,
-        error: 'متن مورد نیاز است'
-      });
-    }
-
-    console.log(`Generating TTS for text: ${text.substring(0, 50)}...`);
-    
-    // Generate unique filename
-    const timestamp = Date.now();
-    const outputDir = path.join(__dirname, '..', 'uploads', 'audio');
-    
-    // Ensure output directory exists
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
-    }
-    
-    // Run Piper TTS script (using piper_tts.py instead of missing kokoro_fixed.py)
+// Helper function to run Piper TTS (extracted for queue management)
+async function runPiperTTS(text, voice, outputDir) {
+  return new Promise((resolve, reject) => {
     const piperScript = path.join(__dirname, '..', 'piper_tts.py');
+    const uniqueSuffix = Date.now();
     
-    console.log(`🐍 Running Python script: ${piperScript}`);
+    console.log(`🐍 Running Piper TTS script: ${piperScript}`);
     console.log(`📝 Text: ${text}`);
     console.log(`🎤 Voice: ${voice}`);
     console.log(`📁 Output dir: ${outputDir}`);
     
-    // Generate unique suffix for output file
-    const uniqueSuffix = Date.now();
-    
-    // On Windows with shell: true, we need to pass arguments as a single string
     const args = `"${piperScript}" "${text}" "${voice}" "${outputDir}" "${uniqueSuffix}"`;
-    console.log(`🐍 Command: ${PYTHON_CMD} ${args}`);
     
     const pythonProcess = spawn(PYTHON_CMD, [args], {
       cwd: path.join(__dirname, '..'),
       stdio: ['pipe', 'pipe', 'pipe'],
-      shell: true // Use shell on Windows
+      shell: true
     });
 
     let output = '';
     let errorOutput = '';
 
     pythonProcess.stdout.on('data', (data) => {
-      const dataStr = data.toString();
-      output += dataStr;
-      console.log('📄 Python stdout:', dataStr);
+      output += data.toString();
     });
 
     pythonProcess.stderr.on('data', (data) => {
       const stderrData = data.toString();
-      console.log('📄 Python stderr:', stderrData);
-      // Only log warnings, don't treat them as errors
-      if (stderrData.includes('WARNING:')) {
-        console.log('Python warning:', stderrData);
-      } else {
+      if (!stderrData.includes('WARNING:')) {
         errorOutput += stderrData;
       }
     });
 
     pythonProcess.on('close', (code) => {
       try {
-        console.log(`🐍 Python process exited with code: ${code}`);
-        console.log(`📄 Python output:`, output);
-        console.log(`❌ Python errors:`, errorOutput);
-        
-        // If Python fails or no output, create a fallback audio file
         if (code !== 0 || !output.trim() || !output.includes('{')) {
-          console.log('⚠️ Python process failed or no JSON output, creating fallback audio...');
-          console.log('📄 Raw output:', JSON.stringify(output));
-          
           const fallbackAudioUrl = createFallbackAudio(text, voice, outputDir);
-          
-          return res.json({
+          return resolve({
             success: true,
             data: {
               audio_url: fallbackAudioUrl,
@@ -153,13 +114,12 @@ router.post('/text-to-speech', async (req, res) => {
               voice: voice,
               sample_rate: 24000,
               words: text.split(' ').length,
-              file_size: 240000, // Approximate size
+              file_size: 240000,
               engine: 'Fallback Audio Generator'
             }
           });
         }
 
-        // Extract JSON from output (find the last line that starts with {)
         const lines = output.split('\n');
         let jsonLine = '';
         for (let i = lines.length - 1; i >= 0; i--) {
@@ -170,14 +130,9 @@ router.post('/text-to-speech', async (req, res) => {
           }
         }
 
-        console.log(`🔍 Extracted JSON line:`, jsonLine);
-
         if (!jsonLine) {
-          console.log('⚠️ No JSON found, creating fallback audio...');
-          
           const fallbackAudioUrl = createFallbackAudio(text, voice, outputDir);
-          
-          return res.json({
+          return resolve({
             success: true,
             data: {
               audio_url: fallbackAudioUrl,
@@ -192,17 +147,12 @@ router.post('/text-to-speech', async (req, res) => {
           });
         }
 
-        // Parse the JSON output from Python script
         let result;
         try {
           result = JSON.parse(jsonLine);
         } catch (parseError) {
-          console.error('JSON parse error:', parseError);
-          console.log('⚠️ JSON parse failed, creating fallback audio...');
-          
           const fallbackAudioUrl = createFallbackAudio(text, voice, outputDir);
-          
-          return res.json({
+          return resolve({
             success: true,
             data: {
               audio_url: fallbackAudioUrl,
@@ -217,14 +167,9 @@ router.post('/text-to-speech', async (req, res) => {
           });
         }
         
-        console.log(`✅ Parsed result:`, result);
-        
         if (!result.success) {
-          console.log('⚠️ Python result indicates failure, creating fallback audio...');
-          
           const fallbackAudioUrl = createFallbackAudio(text, voice, outputDir);
-          
-          return res.json({
+          return resolve({
             success: true,
             data: {
               audio_url: fallbackAudioUrl,
@@ -239,16 +184,11 @@ router.post('/text-to-speech', async (req, res) => {
           });
         }
 
-        // Convert file path to URL
         const audioFilePath = result.audio_file || result.audio_url;
         const audioFileName = path.basename(audioFilePath);
         const audioUrl = `/uploads/audio/${audioFileName}`;
-        
-        console.log(`🎵 Generated audio file: ${audioFilePath}`);
-        console.log(`🔗 Audio URL: ${audioUrl}`);
-        console.log(`📁 File exists: ${fs.existsSync(audioFilePath)}`);
 
-        res.json({
+        resolve({
           success: true,
           data: {
             audio_url: audioUrl,
@@ -262,13 +202,9 @@ router.post('/text-to-speech', async (req, res) => {
           }
         });
 
-      } catch (parseError) {
-        console.error('Error parsing Python output:', parseError);
-        console.log('⚠️ General error, creating fallback audio...');
-        
+      } catch (error) {
         const fallbackAudioUrl = createFallbackAudio(text, voice, outputDir);
-        
-        res.json({
+        resolve({
           success: true,
           data: {
             audio_url: fallbackAudioUrl,
@@ -285,13 +221,39 @@ router.post('/text-to-speech', async (req, res) => {
     });
 
     pythonProcess.on('error', (error) => {
-      console.error('Python process spawn error:', error);
-      res.status(500).json({
-        success: false,
-        error: 'خطا در اجرای کوکورو',
-        details: error.message
-      });
+      reject(error);
     });
+  });
+}
+
+// Kokoro TTS endpoint - now with queue management
+router.post('/text-to-speech', async (req, res) => {
+  try {
+    const { text, voice = 'af_heart' } = req.body;
+    
+    if (!text || text.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'متن مورد نیاز است'
+      });
+    }
+
+    console.log(`🎵 [Kokoro] Generating TTS for text: ${text.substring(0, 50)}...`);
+    
+    const outputDir = path.join(__dirname, '..', 'uploads', 'audio');
+    
+    // Ensure output directory exists
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+    
+    // Use TTS Queue Manager for controlled processing
+    const result = await ttsQueueManager.addTTSTask(
+      () => runPiperTTS(text, voice, outputDir),
+      `kokoro-tts-${Date.now()}`
+    );
+    
+    res.json(result);
 
   } catch (error) {
     console.error('Kokoro TTS error:', error);

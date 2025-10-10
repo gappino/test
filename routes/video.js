@@ -5,6 +5,7 @@ const fs = require('fs');
 const fsPromises = require('fs').promises;
 const fsExtra = require('fs-extra');
 const resourceManager = require('../resource-manager');
+const ttsQueueManager = require('../tts-queue-manager');
 const { execSync } = require('child_process');
 
 const TRACKING_FILE = path.join(__dirname, '../video-tracking.json');
@@ -480,10 +481,13 @@ router.post('/generate-complete-video', async (req, res) => {
       });
     }
 
-    // Step 1: Always generate audio for each scene (with fallback)
-    console.log('🔄 Generating audio for all scenes...');
+    // Step 1: Always generate audio for each scene (with fallback) - using TTS Queue
+    console.log('🔄 Generating audio for all scenes with TTS Queue...');
     
-    const audioPromises = script.scenes.map(async (scene, index) => {
+    const finalAudioResults = [];
+    for (let index = 0; index < script.scenes.length; index++) {
+      const scene = script.scenes[index];
+      
       try {
         // Ensure text is in the correct language for the selected voice
         let textForTTS;
@@ -499,8 +503,11 @@ router.post('/generate-complete-video', async (req, res) => {
         
         console.log(`🎵 Generating TTS for scene ${index}: "${textForTTS}"`);
         
-        // Use direct Piper TTS call instead of API
-        const piperResult = await generatePiperTTS(textForTTS, audioSettings.voice || 'en_US-lessac-medium');
+        // Use TTS Queue Manager for controlled processing
+        const piperResult = await ttsQueueManager.addTTSTask(
+          () => generatePiperTTS(textForTTS, audioSettings.voice || 'en_US-lessac-medium'),
+          `complete-video-scene-${index}`
+        );
         
         console.log(`🎵 Piper Result for scene ${index}:`, piperResult);
         
@@ -516,14 +523,14 @@ router.post('/generate-complete-video', async (req, res) => {
           throw new Error('No audio URL in Piper result');
         }
         
-        return {
+        finalAudioResults.push({
           sceneIndex: index,
           audioUrl: audioUrl,
           duration: piperResult.data.duration || 5,
           text: piperResult.data.text,
           voice: piperResult.data.voice,
           engine: piperResult.data.engine || 'Piper TTS'
-        };
+        });
       } catch (error) {
         console.error(`Error generating TTS for scene ${index}:`, error);
         
@@ -537,26 +544,25 @@ router.post('/generate-complete-video', async (req, res) => {
           }
           const fallbackAudioUrl = await createSilentAudio(fallbackText, index);
           console.log(`🔄 Created fallback audio for scene ${index}: ${fallbackAudioUrl}`);
-          return {
+          finalAudioResults.push({
             sceneIndex: index,
             audioUrl: fallbackAudioUrl,
             duration: 5,
             text: fallbackText,
             voice: audioSettings.voice || 'af_heart',
             engine: 'Fallback (Silent)'
-          };
+          });
         } catch (fallbackError) {
           console.error(`Fallback audio creation failed for scene ${index}:`, fallbackError);
-          return {
+          finalAudioResults.push({
             sceneIndex: index,
             audioUrl: null,
             duration: 5 // Default duration
-          };
+          });
         }
       }
-    });
+    }
 
-    const finalAudioResults = await Promise.all(audioPromises);
     console.log(`✅ Generated ${finalAudioResults.length} audio files`);
     
     // Step 2: Generate subtitles using Whisper
@@ -733,9 +739,12 @@ router.post('/generate-custom-video', async (req, res) => {
       console.log('✅ Using pre-generated images from frontend');
     }
 
-    // Step 2: Generate audio for each scene
-    console.log('🎤 Generating audio...');
-    const audioPromises = scenes.map(async (scene, index) => {
+    // Step 2: Generate audio for each scene - using TTS Queue
+    console.log('🎤 Generating audio with TTS Queue...');
+    const finalAudioResults = [];
+    for (let index = 0; index < scenes.length; index++) {
+      const scene = scenes[index];
+      
       try {
         // Translate Persian text to English for Piper TTS
         let textForTTS;
@@ -751,8 +760,11 @@ router.post('/generate-custom-video', async (req, res) => {
         
         console.log(`🎵 Generating TTS for scene ${index + 1}: "${textForTTS}"`);
         
-        // Use direct Piper TTS call
-        const piperResult = await generatePiperTTS(textForTTS, voice);
+        // Use TTS Queue Manager for controlled processing
+        const piperResult = await ttsQueueManager.addTTSTask(
+          () => generatePiperTTS(textForTTS, voice),
+          `custom-video-scene-${index}`
+        );
         
         if (!piperResult.success || !piperResult.data) {
           console.error(`❌ Piper TTS failed for scene ${index + 1}:`, piperResult);
@@ -764,14 +776,14 @@ router.post('/generate-custom-video', async (req, res) => {
           throw new Error('No audio URL in Piper result');
         }
         
-        return {
+        finalAudioResults.push({
           sceneIndex: index,
           audioUrl: audioUrl,
           duration: piperResult.data.duration || 5,
           text: piperResult.data.text,
           voice: piperResult.data.voice,
           engine: piperResult.data.engine || 'Piper TTS'
-        };
+        });
       } catch (error) {
         console.error(`Error generating TTS for scene ${index + 1}:`, error);
         
@@ -784,26 +796,25 @@ router.post('/generate-custom-video', async (req, res) => {
             fallbackText = await translateToEnglish(scene.speaker_text);
           }
           const fallbackAudioUrl = await createSilentAudio(fallbackText, index);
-          return {
+          finalAudioResults.push({
             sceneIndex: index,
             audioUrl: fallbackAudioUrl,
             duration: 5,
             text: fallbackText,
             voice: voice,
             engine: 'Fallback (Silent)'
-          };
+          });
         } catch (fallbackError) {
           console.error(`Fallback audio creation failed for scene ${index + 1}:`, fallbackError);
-          return {
+          finalAudioResults.push({
             sceneIndex: index,
             audioUrl: null,
             duration: 5
-          };
+          });
         }
       }
-    });
+    }
 
-    const finalAudioResults = await Promise.all(audioPromises);
     console.log(`✅ Generated ${finalAudioResults.length} audio files`);
     
     // Step 3: Generate subtitles using Whisper
@@ -1030,10 +1041,13 @@ async function generateLongFormVideoContent(script, images, audioSettings, audio
     console.log('🎬 Starting long form video generation with resource limits...');
     console.log(`📊 Background Music: ${audioSettings.backgroundMusic || 'none'}`);
     
-    // Step 1: Always generate audio for each scene (with fallback)
-    console.log('🔄 Generating audio for all long form scenes...');
+    // Step 1: Always generate audio for each scene (with fallback) - using TTS Queue
+    console.log('🔄 Generating audio for all long form scenes with TTS Queue...');
     
-    const audioPromises = script.scenes.map(async (scene, index) => {
+    const finalAudioResults = [];
+    for (let index = 0; index < script.scenes.length; index++) {
+      const scene = script.scenes[index];
+      
       try {
         // Ensure text is in the correct language for the selected voice
         let textForTTS;
@@ -1049,8 +1063,11 @@ async function generateLongFormVideoContent(script, images, audioSettings, audio
         
         console.log(`🎵 Generating TTS for long form scene ${index}: "${textForTTS}"`);
         
-        // Use direct Piper TTS call instead of API
-        const piperResult = await generatePiperTTS(textForTTS, audioSettings.voice || 'en_US-lessac-medium');
+        // Use TTS Queue Manager for controlled processing
+        const piperResult = await ttsQueueManager.addTTSTask(
+          () => generatePiperTTS(textForTTS, audioSettings.voice || 'en_US-lessac-medium'),
+          `longform-video-scene-${index}`
+        );
         
         console.log(`🎵 Piper Result for long form scene ${index}:`, piperResult);
         
@@ -1066,14 +1083,14 @@ async function generateLongFormVideoContent(script, images, audioSettings, audio
           throw new Error('No audio URL in Piper result');
         }
         
-        return {
+        finalAudioResults.push({
           sceneIndex: index,
           audioUrl: audioUrl,
           duration: piperResult.data.duration || 5,
           text: piperResult.data.text,
           voice: piperResult.data.voice,
           engine: piperResult.data.engine || 'Piper TTS'
-        };
+        });
       } catch (error) {
         console.error(`Error generating TTS for long form scene ${index}:`, error);
         
@@ -1087,26 +1104,25 @@ async function generateLongFormVideoContent(script, images, audioSettings, audio
           }
           const fallbackAudioUrl = await createSilentAudio(fallbackText, index);
           console.log(`🔄 Created fallback audio for long form scene ${index}: ${fallbackAudioUrl}`);
-          return {
+          finalAudioResults.push({
             sceneIndex: index,
             audioUrl: fallbackAudioUrl,
             duration: 5,
             text: fallbackText,
             voice: audioSettings.voice || 'af_heart',
             engine: 'Fallback (Silent)'
-          };
+          });
         } catch (fallbackError) {
           console.error(`Fallback audio creation failed for long form scene ${index}:`, fallbackError);
-          return {
+          finalAudioResults.push({
             sceneIndex: index,
             audioUrl: null,
             duration: 5 // Default duration
-          };
+          });
         }
       }
-    });
+    }
 
-    const finalAudioResults = await Promise.all(audioPromises);
     console.log(`✅ Generated ${finalAudioResults.length} audio files for long form video`);
     
     // Step 2: Generate subtitles using Whisper
