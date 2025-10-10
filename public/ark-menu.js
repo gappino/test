@@ -181,6 +181,13 @@ class ArkPlusMenu {
                     </div>
 
                     <div class="ark-menu-grid">
+                        <!-- چت با هوش مصنوعی -->
+                        <a href="/ai-chat.html" class="ark-menu-item chat-item">
+                            <span class="ark-menu-icon">💬</span>
+                            <h3 class="ark-menu-item-title">چت با هوش مصنوعی</h3>
+                            <p class="ark-menu-item-desc">گفتگو با هوش مصنوعی پیشرفته</p>
+                        </a>
+
                         <!-- تبدیل متن به صدا -->
                         <a href="/test-tts.html" class="ark-menu-item tts-item">
                             <span class="ark-menu-icon">🎤</span>
@@ -228,6 +235,13 @@ class ArkPlusMenu {
                             <span class="ark-menu-icon">📹</span>
                             <h3 class="ark-menu-item-title">تاریخچه ویدیوها</h3>
                             <p class="ark-menu-item-desc">مشاهده و مدیریت ویدیوهای تولید شده</p>
+                        </a>
+
+                        <!-- صف ویدیوها -->
+                        <a href="/video-queue" class="ark-menu-item video-item">
+                            <span class="ark-menu-icon">⏳</span>
+                            <h3 class="ark-menu-item-title">صف ویدیوها</h3>
+                            <p class="ark-menu-item-desc">مشاهده و مدیریت صف ساخت ویدیوها</p>
                         </a>
 
                         <!-- موزیک بک‌گراند -->

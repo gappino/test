@@ -80,6 +80,11 @@ app.get('/music-player', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'music-player.html'));
 });
 
+// Video queue page
+app.get('/video-queue', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'video-queue.html'));
+});
+
 // Socket.io connection handling
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
@@ -104,6 +109,7 @@ const workflowRoutes = require('./routes/workflow');
 const videoTrackingRoutes = require('./routes/video-tracking');
 const musicRoutes = require('./routes/music');
 const chatRoutes = require('./routes/chat');
+const videoQueueRoutes = require('./routes/video-queue');
 
 // Use real Gemini API for actual AI content generation
 app.use('/api/gemini', geminiRoutes);
@@ -119,6 +125,7 @@ app.use('/api/workflow', workflowRoutes);
 app.use('/api/video-tracking', videoTrackingRoutes);
 app.use('/api/music', musicRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/video-queue', videoQueueRoutes);
 
 // Pass io instance to routes
 app.use((req, res, next) => {

@@ -824,6 +824,16 @@
 }
 
 /* 🎯 Ark Plus JavaScript Styles */
+.ark-menu-item.chat-item {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(124, 58, 237, 0.1));
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.ark-menu-item.chat-item:hover {
+    border-color: #8b5cf6;
+    box-shadow: 0 20px 40px rgba(139, 92, 246, 0.3);
+}
+
 .ark-menu-item.history-item {
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.1));
     border-color: rgba(16, 185, 129, 0.3);
