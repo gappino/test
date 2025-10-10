@@ -6,6 +6,8 @@ const fsPromises = require('fs').promises;
 const fsExtra = require('fs-extra');
 const resourceManager = require('../resource-manager');
 const ttsQueueManager = require('../tts-queue-manager');
+const whisperQueueManager = require('../whisper-queue-manager');
+const videoQueueManager = require('../video-queue-manager');
 const { execSync } = require('child_process');
 
 const TRACKING_FILE = path.join(__dirname, '../video-tracking.json');
@@ -468,11 +470,6 @@ router.post('/generate-complete-video', async (req, res) => {
     console.log('🎵 Received request body:', req.body);
     console.log('🎵 Audio settings received:', audioSettings);
     console.log('🎵 Background music received:', audioSettings.backgroundMusic);
-    console.log('🎵 audioSettings type:', typeof audioSettings);
-    console.log('🎵 audioSettings keys:', Object.keys(audioSettings));
-    console.log('🎵 req.body.audioSettings:', req.body.audioSettings);
-    console.log('🎵 req.body.audioSettings type:', typeof req.body.audioSettings);
-    console.log('🎵 req.body.audioSettings keys:', req.body.audioSettings ? Object.keys(req.body.audioSettings) : 'null');
     
     if (!script || !images || !Array.isArray(images)) {
       return res.status(400).json({
@@ -480,6 +477,59 @@ router.post('/generate-complete-video', async (req, res) => {
         error: 'Script and images are required'
       });
     }
+
+    // ایجاد شناسه ویدیو
+    const videoId = `short-video-${Date.now()}`;
+    
+    console.log('🎬 Adding short video to queue...');
+    console.log(`📊 Video ID: ${videoId}`);
+    console.log(`📊 Scenes: ${script.scenes.length}`);
+    console.log(`📊 Voice: ${audioSettings.voice || 'en_US-lessac-medium'}`);
+
+    // اضافه کردن به صف
+    videoQueueManager.addVideoTask(
+      async () => {
+        return await generateCompleteVideoContent(script, images, audioSettings, audioResults, req);
+      },
+      {
+        videoId: videoId,
+        type: 'short',
+        title: script.title || 'ویدیوی کوتاه',
+        metadata: {
+          scenes: script.scenes.length,
+          voice: audioSettings.voice || 'en_US-lessac-medium',
+          backgroundMusic: audioSettings.backgroundMusic || 'none'
+        }
+      }
+    ).catch(error => {
+      console.error(`❌ Video ${videoId} failed in queue:`, error);
+    });
+
+    // برگرداندن فوری videoId
+    res.json({
+      success: true,
+      videoId: videoId,
+      status: 'queued',
+      message: 'ویدیو به صف اضافه شد',
+      queuePosition: videoQueueManager.getQueueStatus().queue.length
+    });
+
+  } catch (error) {
+    console.error('Error queueing video:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to queue video',
+      details: error.message
+    });
+  }
+});
+
+// تابع تولید محتوای ویدیو کامل
+async function generateCompleteVideoContent(script, images, audioSettings, audioResults, req) {
+  try {
+    console.log('🎵 Starting complete video content generation...');
+    console.log('🎵 audioSettings type:', typeof audioSettings);
+    console.log('🎵 audioSettings keys:', Object.keys(audioSettings));
 
     // Step 1: Always generate audio for each scene (with fallback) - using TTS Queue
     console.log('🔄 Generating audio for all scenes with TTS Queue...');
@@ -565,38 +615,53 @@ router.post('/generate-complete-video', async (req, res) => {
 
     console.log(`✅ Generated ${finalAudioResults.length} audio files`);
     
-    // Step 2: Generate subtitles using Whisper
+    // Step 2: Generate subtitles using Whisper with Queue Manager
     // Detect language from voice
     const isPersianVoice = audioSettings.voice && audioSettings.voice.startsWith('fa_IR');
     const subtitleLanguage = isPersianVoice ? 'fa' : 'en';
     console.log(`📝 Subtitle language: ${subtitleLanguage} (voice: ${audioSettings.voice})`);
     
-    const subtitlePromises = finalAudioResults.map(async (audioData, index) => {
-      if (!audioData.audioUrl) return null;
+    // Use Whisper Queue Manager for controlled processing (1 at a time)
+    const subtitleResults = [];
+    for (let index = 0; index < finalAudioResults.length; index++) {
+      const audioData = finalAudioResults[index];
+      
+      if (!audioData.audioUrl) {
+        subtitleResults.push(null);
+        continue;
+      }
       
       // Get original scene text (not translated)
       const originalSceneText = script.scenes[index] ? script.scenes[index].speaker_text : '';
       
       try {
-        console.log(`🎤 Generating subtitles for scene ${index}...`);
-        const subtitleResponse = await fetch(`${req.protocol}://${req.get('host')}/api/whisper/transcribe-with-timestamps`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            audioUrl: audioData.audioUrl,
-            language: subtitleLanguage  // ✅ Use correct language
-          })
-        });
+        console.log(`🎤 Generating subtitles for scene ${index} with Whisper Queue...`);
         
-        const subtitleResult = await subtitleResponse.json();
+        // Add to Whisper Queue
+        const subtitleResult = await whisperQueueManager.addWhisperTask(
+          async () => {
+            const subtitleResponse = await fetch(`${req.protocol}://${req.get('host')}/api/whisper/transcribe-with-timestamps`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                audioUrl: audioData.audioUrl,
+                language: subtitleLanguage  // ✅ Use correct language
+              })
+            });
+            
+            return await subtitleResponse.json();
+          },
+          `complete-video-scene-${index}`
+        );
+        
         console.log(`🎤 Subtitle result for scene ${index}:`, subtitleResult);
         
         if (subtitleResult.success && subtitleResult.data && subtitleResult.data.segments) {
-          return {
+          subtitleResults.push({
             sceneIndex: index,
             segments: subtitleResult.data.segments,
             text: subtitleResult.data.text || originalSceneText
-          };
+          });
         } else {
           // Create fallback subtitle with original text
           console.log(`⚠️ Creating fallback subtitle for scene ${index}`);
@@ -606,11 +671,11 @@ router.post('/generate-complete-video', async (req, res) => {
             text: originalSceneText || audioData.text || 'No text available'
           }];
           
-          return {
+          subtitleResults.push({
             sceneIndex: index,
             segments: fallbackSegments,
             text: audioData.text || ''
-          };
+          });
         }
       } catch (error) {
         console.error(`Error generating subtitles for scene ${index}:`, error);
@@ -623,15 +688,13 @@ router.post('/generate-complete-video', async (req, res) => {
           text: originalSceneText || audioData.text || 'No text available'
         }];
         
-        return {
+        subtitleResults.push({
           sceneIndex: index,
           segments: fallbackSegments,
           text: originalSceneText || audioData.text || ''
-        };
+        });
       }
-    });
-
-    const subtitleResults = await Promise.all(subtitlePromises);
+    }
     
     // Step 3: Prepare scenes with images, audio, and subtitles
     const videoScenes = script.scenes.map((scene, index) => {
@@ -679,7 +742,7 @@ router.post('/generate-complete-video', async (req, res) => {
       throw new Error(composeResult.error || 'Failed to compose video');
     }
 
-    res.json({
+    return {
       success: true,
       data: {
         video_url: composeResult.data.video_url,
@@ -691,17 +754,13 @@ router.post('/generate-complete-video', async (req, res) => {
         audio_results: finalAudioResults,
         subtitle_results: subtitleResults
       }
-    });
+    };
 
   } catch (error) {
     console.error('Error generating complete video:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to generate complete video',
-      details: error.message
-    });
+    throw error;
   }
-});
+}
 
 // Custom video generation with user input
 router.post('/generate-custom-video', async (req, res) => {
@@ -715,6 +774,58 @@ router.post('/generate-custom-video', async (req, res) => {
       });
     }
 
+    // ایجاد شناسه ویدیو
+    const videoId = `custom-video-${Date.now()}`;
+    
+    console.log('🎬 Adding custom video to queue...');
+    console.log(`📊 Video ID: ${videoId}`);
+    console.log(`📊 Title: ${title}`);
+    console.log(`📊 Scenes: ${scenes.length}`);
+    console.log(`📊 Voice: ${voice}`);
+    console.log(`📊 Orientation: ${orientation}`);
+
+    // اضافه کردن به صف
+    videoQueueManager.addVideoTask(
+      async () => {
+        return await generateCustomVideoContent(title, scenes, voice, orientation, subtitleSettings, generatedImages, backgroundMusic, req);
+      },
+      {
+        videoId: videoId,
+        type: 'custom',
+        title: title || 'ویدیوی سفارشی',
+        metadata: {
+          scenes: scenes.length,
+          voice: voice,
+          orientation: orientation,
+          backgroundMusic: backgroundMusic || 'none'
+        }
+      }
+    ).catch(error => {
+      console.error(`❌ Video ${videoId} failed in queue:`, error);
+    });
+
+    // برگرداندن فوری videoId
+    res.json({
+      success: true,
+      videoId: videoId,
+      status: 'queued',
+      message: 'ویدیو به صف اضافه شد',
+      queuePosition: videoQueueManager.getQueueStatus().queue.length
+    });
+
+  } catch (error) {
+    console.error('Error queueing custom video:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to queue custom video',
+      details: error.message
+    });
+  }
+});
+
+// تابع تولید محتوای ویدیوی سفارشی
+async function generateCustomVideoContent(title, scenes, voice, orientation, subtitleSettings, generatedImages, backgroundMusic, req) {
+  try {
     console.log(`🎬 Starting custom video generation: "${title}"`);
     console.log(`   Scenes: ${scenes.length}`);
     console.log(`   Voice: ${voice}`);
@@ -817,7 +928,7 @@ router.post('/generate-custom-video', async (req, res) => {
 
     console.log(`✅ Generated ${finalAudioResults.length} audio files`);
     
-    // Step 3: Generate subtitles using Whisper
+    // Step 3: Generate subtitles using Whisper with Queue Manager
     console.log('📝 Generating subtitles...');
     
     // Detect language from voice
@@ -825,30 +936,45 @@ router.post('/generate-custom-video', async (req, res) => {
     const subtitleLanguage = isPersianVoice ? 'fa' : 'en';
     console.log(`📝 Subtitle language: ${subtitleLanguage} (voice: ${voice})`);
     
-    const subtitlePromises = finalAudioResults.map(async (audioData, index) => {
-      if (!audioData.audioUrl) return null;
+    // Use Whisper Queue Manager for controlled processing (1 at a time)
+    const subtitleResults = [];
+    for (let index = 0; index < finalAudioResults.length; index++) {
+      const audioData = finalAudioResults[index];
+      
+      if (!audioData.audioUrl) {
+        subtitleResults.push(null);
+        continue;
+      }
       
       // Get original scene text (not translated)
       const originalSceneText = scenes[index] ? scenes[index].speaker_text : '';
       
       try {
-        const subtitleResponse = await fetch(`${req.protocol}://${req.get('host')}/api/whisper/transcribe-with-timestamps`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            audioUrl: audioData.audioUrl,
-            language: subtitleLanguage  // ✅ Use correct language
-          })
-        });
+        console.log(`🎤 Generating subtitles for scene ${index + 1} with Whisper Queue...`);
         
-        const subtitleResult = await subtitleResponse.json();
+        // Add to Whisper Queue
+        const subtitleResult = await whisperQueueManager.addWhisperTask(
+          async () => {
+            const subtitleResponse = await fetch(`${req.protocol}://${req.get('host')}/api/whisper/transcribe-with-timestamps`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                audioUrl: audioData.audioUrl,
+                language: subtitleLanguage  // ✅ Use correct language
+              })
+            });
+            
+            return await subtitleResponse.json();
+          },
+          `custom-video-scene-${index}`
+        );
         
         if (subtitleResult.success && subtitleResult.data && subtitleResult.data.segments) {
-          return {
+          subtitleResults.push({
             sceneIndex: index,
             segments: subtitleResult.data.segments,
             text: subtitleResult.data.text || originalSceneText
-          };
+          });
         } else {
           // Create fallback subtitle with original text
           console.log(`⚠️ Whisper failed for scene ${index + 1}, using original text`);
@@ -858,11 +984,11 @@ router.post('/generate-custom-video', async (req, res) => {
             text: originalSceneText || audioData.text || 'No text available'
           }];
           
-          return {
+          subtitleResults.push({
             sceneIndex: index,
             segments: fallbackSegments,
             text: originalSceneText || audioData.text || ''
-          };
+          });
         }
       } catch (error) {
         console.error(`Error generating subtitles for scene ${index + 1}:`, error);
@@ -874,15 +1000,13 @@ router.post('/generate-custom-video', async (req, res) => {
           text: originalSceneText || audioData.text || 'No text available'
         }];
         
-        return {
+        subtitleResults.push({
           sceneIndex: index,
           segments: fallbackSegments,
           text: originalSceneText || audioData.text || ''
-        };
+        });
       }
-    });
-
-    const subtitleResults = await Promise.all(subtitlePromises);
+    }
     
     // Step 4: Prepare scenes with images, audio, and subtitles
     const videoScenes = scenes.map((scene, index) => {
@@ -926,7 +1050,7 @@ router.post('/generate-custom-video', async (req, res) => {
       throw new Error(composeResult.error || 'Failed to compose video');
     }
 
-    res.json({
+    return {
       success: true,
       data: {
         video_url: composeResult.data.video_url,
@@ -940,17 +1064,13 @@ router.post('/generate-custom-video', async (req, res) => {
         audio_results: finalAudioResults,
         subtitle_results: subtitleResults
       }
-    });
+    };
 
   } catch (error) {
     console.error('Error generating custom video:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to generate custom video',
-      details: error.message
-    });
+    throw error;
   }
-});
+}
 
 // Get video generation status
 router.get('/status/:videoId', async (req, res) => {
@@ -1008,7 +1128,7 @@ router.post('/generate-long-form-video', async (req, res) => {
       });
     }
 
-    console.log('🎬 Queuing long form video generation...');
+    console.log('🎬 Adding long form video to queue...');
     console.log(`📊 Script: ${script.title}`);
     console.log(`📊 Scenes: ${script.scenes.length}`);
     console.log(`📊 Images: ${images.length}`);
@@ -1016,14 +1136,36 @@ router.post('/generate-long-form-video', async (req, res) => {
     console.log(`📊 Video ID: ${videoId}`);
     console.log(`📊 Background Music: ${audioSettings.backgroundMusic || 'none'}`);
 
-    // اضافه کردن به صف با محدودیت منابع
+    // اضافه کردن به صف
     const taskId = videoId || `long-form-video-${Date.now()}`;
     
-    const result = await resourceManager.addTask(async () => {
-      return await generateLongFormVideoContent(script, images, audioSettings, audioResults, videoType, req, videoId);
-    }, taskId);
+    videoQueueManager.addVideoTask(
+      async () => {
+        return await generateLongFormVideoContent(script, images, audioSettings, audioResults, videoType, req, videoId);
+      },
+      {
+        videoId: taskId,
+        type: 'long',
+        title: script.title || 'ویدیوی بلند',
+        metadata: {
+          scenes: script.scenes.length,
+          voice: audioSettings.voice || 'en_US-lessac-medium',
+          videoType: videoType,
+          backgroundMusic: audioSettings.backgroundMusic || 'none'
+        }
+      }
+    ).catch(error => {
+      console.error(`❌ Long form video ${taskId} failed in queue:`, error);
+    });
 
-    res.json(result);
+    // برگرداندن فوری videoId
+    res.json({
+      success: true,
+      videoId: taskId,
+      status: 'queued',
+      message: 'ویدیو به صف اضافه شد',
+      queuePosition: videoQueueManager.getQueueStatus().queue.length
+    });
 
   } catch (error) {
     console.error('Error in long form video generation:', error);
@@ -1125,38 +1267,53 @@ async function generateLongFormVideoContent(script, images, audioSettings, audio
 
     console.log(`✅ Generated ${finalAudioResults.length} audio files for long form video`);
     
-    // Step 2: Generate subtitles using Whisper
+    // Step 2: Generate subtitles using Whisper with Queue Manager
     // Detect language from voice
     const isPersianVoice = audioSettings.voice && audioSettings.voice.startsWith('fa_IR');
     const subtitleLanguage = isPersianVoice ? 'fa' : 'en';
     console.log(`📝 Subtitle language for long form: ${subtitleLanguage} (voice: ${audioSettings.voice})`);
     
-    const subtitlePromises = finalAudioResults.map(async (audioData, index) => {
-      if (!audioData.audioUrl) return null;
+    // Use Whisper Queue Manager for controlled processing (1 at a time)
+    const subtitleResults = [];
+    for (let index = 0; index < finalAudioResults.length; index++) {
+      const audioData = finalAudioResults[index];
+      
+      if (!audioData.audioUrl) {
+        subtitleResults.push(null);
+        continue;
+      }
       
       // Get original scene text (not translated)
       const originalSceneText = script.scenes[index] ? script.scenes[index].speaker_text : '';
       
       try {
-        console.log(`🎤 Generating subtitles for long form scene ${index}...`);
-        const subtitleResponse = await fetch(`${req.protocol}://${req.get('host')}/api/whisper/transcribe-with-timestamps`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            audioUrl: audioData.audioUrl,
-            language: subtitleLanguage  // ✅ Use correct language
-          })
-        });
+        console.log(`🎤 Generating subtitles for long form scene ${index} with Whisper Queue...`);
         
-        const subtitleResult = await subtitleResponse.json();
+        // Add to Whisper Queue
+        const subtitleResult = await whisperQueueManager.addWhisperTask(
+          async () => {
+            const subtitleResponse = await fetch(`${req.protocol}://${req.get('host')}/api/whisper/transcribe-with-timestamps`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                audioUrl: audioData.audioUrl,
+                language: subtitleLanguage  // ✅ Use correct language
+              })
+            });
+            
+            return await subtitleResponse.json();
+          },
+          `longform-video-scene-${index}`
+        );
+        
         console.log(`🎤 Subtitle result for long form scene ${index}:`, subtitleResult);
         
         if (subtitleResult.success && subtitleResult.data && subtitleResult.data.segments) {
-          return {
+          subtitleResults.push({
             sceneIndex: index,
             segments: subtitleResult.data.segments,
             text: subtitleResult.data.text || originalSceneText
-          };
+          });
         } else {
           // Create fallback subtitle with original text
           console.log(`⚠️ Creating fallback subtitle for long form scene ${index}`);
@@ -1166,11 +1323,11 @@ async function generateLongFormVideoContent(script, images, audioSettings, audio
             text: originalSceneText || audioData.text || 'No text available'
           }];
           
-          return {
+          subtitleResults.push({
             sceneIndex: index,
             segments: fallbackSegments,
             text: originalSceneText || audioData.text || ''
-          };
+          });
         }
       } catch (error) {
         console.error(`Error generating subtitles for long form scene ${index}:`, error);
@@ -1183,15 +1340,13 @@ async function generateLongFormVideoContent(script, images, audioSettings, audio
           text: originalSceneText || audioData.text || 'No text available'
         }];
         
-        return {
+        subtitleResults.push({
           sceneIndex: index,
           segments: fallbackSegments,
           text: originalSceneText || audioData.text || ''
-        };
+        });
       }
-    });
-
-    const subtitleResults = await Promise.all(subtitlePromises);
+    }
     
     // Step 3: Prepare scenes with images, audio, and subtitles
     const videoScenes = script.scenes.map((scene, index) => {
