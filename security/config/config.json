@@ -1,0 +1,39 @@
+{
+  "project_path": "/opt/videomakerfree_v2",
+  "encrypted_files": [
+    "routes/*.js",
+    "server.js",
+    "security/*.sh"
+  ],
+  "alert_mode": "destruct",
+  "grace_period": 0,
+  "fingerprint_check": true,
+  "timestamp_check": true,
+  "enable_process_monitor": true,
+  "enable_file_monitor": true,
+  "enable_password_monitor": true,
+  "enable_snapshot_detector": true,
+  "monitor_password_users": "all",
+  "notification_url": "",
+  "whitelist_processes": [
+    "node",
+    "npm",
+    "guardian-main",
+    "guardian-backup",
+    "guardian-process",
+    "guardian-files",
+    "systemd"
+  ],
+  "sensitive_files": [
+    "server.js",
+    "routes/",
+    "security/",
+    ".env",
+    "package.json"
+  ],
+  "max_access_per_minute": 10,
+  "snapshot_check_interval": 300,
+  "password_check_interval": 600,
+  "integrity_check_interval": 900
+}
+

@@ -1,0 +1,39 @@
+[Unit]
+Description=Project Guardian - Main Security Monitor
+Documentation=https://github.com/gappino/test
+After=network.target
+Wants=guardian-backup.service guardian-process.service guardian-files.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/local/bin/project-guardian.sh monitor
+Restart=always
+RestartSec=5
+StartLimitInterval=0
+
+# Security hardening
+NoNewPrivileges=false
+PrivateTmp=true
+
+# Restart on failure
+RestartForceExitStatus=1
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=guardian-main
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# Make it harder to kill
+ProtectSystem=false
+ProtectHome=false
+
+[Install]
+WantedBy=multi-user.target
+RequiredBy=project-app.service
+

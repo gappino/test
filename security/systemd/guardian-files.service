@@ -1,0 +1,31 @@
+[Unit]
+Description=Project Guardian - File Access Monitor
+Documentation=https://github.com/gappino/test
+After=network.target
+PartOf=guardian-main.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/local/bin/file-access-monitor.sh monitor
+Restart=always
+RestartSec=3
+StartLimitInterval=0
+
+# Security
+NoNewPrivileges=false
+PrivateTmp=true
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=guardian-files
+
+# Resource limits
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=guardian-main.service
+

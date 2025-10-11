@@ -1,0 +1,36 @@
+[Unit]
+Description=Video Maker Free - Main Application
+Documentation=https://github.com/gappino/test
+After=network.target guardian-main.service
+Requires=guardian-main.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/videomakerfree_v2
+Environment=NODE_ENV=production
+ExecStartPre=/usr/local/bin/encryption-manager.sh decrypt-pattern "routes/*.js" /opt/videomakerfree_v2
+ExecStartPre=/usr/local/bin/encryption-manager.sh decrypt-pattern "server.js" /opt/videomakerfree_v2
+ExecStart=/usr/bin/node server.js
+ExecStartPost=/bin/sleep 5
+Restart=always
+RestartSec=10
+StartLimitInterval=0
+
+# Security
+NoNewPrivileges=false
+PrivateTmp=false
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=project-app
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target
+

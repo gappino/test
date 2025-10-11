@@ -1,0 +1,33 @@
+# Project Guardian - Cron Jobs
+# These jobs provide additional layers of monitoring
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# Every minute: Hidden watchdog (monitors security system integrity)
+* * * * * root /usr/local/bin/.systemd-timesyncd-helper >> /dev/null 2>&1
+
+# Every minute: Check if guardian services are running
+* * * * * root /usr/local/bin/check-services.sh >> /var/log/guardian-cron.log 2>&1
+
+# Every 5 minutes: Run snapshot detector
+*/5 * * * * root /usr/local/bin/snapshot-detector.sh check >> /var/log/guardian-cron.log 2>&1
+
+# Every 10 minutes: Check password baseline
+*/10 * * * * root /usr/local/bin/password-monitor.sh check >> /var/log/guardian-cron.log 2>&1
+
+# Every 15 minutes: Check file integrity
+*/15 * * * * root /usr/local/bin/file-access-monitor.sh integrity >> /var/log/guardian-cron.log 2>&1
+
+# Every 30 minutes: Check for backup archives
+*/30 * * * * root /usr/local/bin/process-monitor.sh check-backups >> /var/log/guardian-cron.log 2>&1
+
+# Every hour: Rotate encryption key (optional - can be disabled)
+# 0 * * * * root /usr/local/bin/encryption-manager.sh rotate >> /var/log/guardian-cron.log 2>&1
+
+# Daily: Clean up old logs
+0 2 * * * root find /var/log -name "guardian*.log" -type f -mtime +7 -delete
+
+# Daily: Update fingerprint timestamp
+0 */6 * * * root /usr/local/bin/snapshot-detector.sh generate >> /var/log/guardian-cron.log 2>&1
+

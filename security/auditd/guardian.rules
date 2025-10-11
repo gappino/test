@@ -1,0 +1,59 @@
+## Project Guardian - Audit Rules
+## These rules monitor sensitive system operations
+
+# Monitor systemctl commands targeting guardian services
+-a always,exit -F arch=b64 -S execve -F path=/usr/bin/systemctl -k systemctl_guardian
+-a always,exit -F arch=b32 -S execve -F path=/usr/bin/systemctl -k systemctl_guardian
+
+# Monitor changes to guardian files
+-w /etc/systemd/system/guardian-main.service -p wa -k guardian_services
+-w /etc/systemd/system/guardian-backup.service -p wa -k guardian_services
+-w /etc/systemd/system/guardian-process.service -p wa -k guardian_services
+-w /etc/systemd/system/guardian-files.service -p wa -k guardian_services
+-w /etc/systemd/system/project-app.service -p wa -k guardian_services
+
+# Monitor guardian scripts
+-w /usr/local/bin/project-guardian.sh -p wa -k guardian_scripts
+-w /usr/local/bin/process-monitor.sh -p wa -k guardian_scripts
+-w /usr/local/bin/file-access-monitor.sh -p wa -k guardian_scripts
+-w /usr/local/bin/password-monitor.sh -p wa -k guardian_scripts
+-w /usr/local/bin/snapshot-detector.sh -p wa -k guardian_scripts
+-w /usr/local/bin/self-destruct.sh -p wa -k guardian_scripts
+-w /usr/local/bin/encryption-manager.sh -p wa -k guardian_scripts
+
+# Monitor guardian configuration and state
+-w /etc/project-guardian/ -p wa -k guardian_config
+-w /var/lib/project-guardian/ -p wa -k guardian_state
+
+# Monitor password changes
+-w /etc/shadow -p wa -k password_changes
+-w /etc/passwd -p wa -k user_changes
+-w /etc/group -p wa -k group_changes
+-w /etc/sudoers -p wa -k sudo_changes
+-w /etc/sudoers.d/ -p wa -k sudo_changes
+
+# Monitor sensitive system commands
+-a always,exit -F arch=b64 -S execve -F exe=/usr/bin/passwd -k password_cmd
+-a always,exit -F arch=b64 -S execve -F exe=/usr/sbin/usermod -k user_modification
+-a always,exit -F arch=b64 -S execve -F exe=/usr/sbin/useradd -k user_creation
+-a always,exit -F arch=b64 -S execve -F exe=/usr/sbin/userdel -k user_deletion
+
+# Monitor backup/copy commands (already monitored by process-monitor, but good to log)
+-a always,exit -F arch=b64 -S execve -F exe=/usr/bin/tar -k backup_attempts
+-a always,exit -F arch=b64 -S execve -F exe=/usr/bin/rsync -k backup_attempts
+-a always,exit -F arch=b64 -S execve -F exe=/usr/bin/dd -k backup_attempts
+-a always,exit -F arch=b64 -S execve -F exe=/usr/bin/zip -k backup_attempts
+-a always,exit -F arch=b64 -S execve -F exe=/usr/bin/scp -k backup_attempts
+
+# Monitor project directory access
+-w /opt/videomakerfree_v2/server.js -p ra -k project_access
+-w /opt/videomakerfree_v2/routes/ -p ra -k project_access
+-w /opt/videomakerfree_v2/security/ -p ra -k project_access
+
+# Monitor cron jobs
+-w /etc/cron.d/project-guardian -p wa -k guardian_cron
+-w /etc/crontab -p wa -k cron_changes
+
+# Make configuration immutable (optional - uncomment to enable)
+# -e 2
+

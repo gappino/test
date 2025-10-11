@@ -1,0 +1,36 @@
+[Unit]
+Description=Project Guardian - Backup Watchdog
+Documentation=https://github.com/gappino/test
+After=guardian-main.service
+BindsTo=guardian-main.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/bin/bash -c 'while true; do \
+    if ! systemctl is-active --quiet guardian-main.service; then \
+        echo "Main guardian down! Attempting restart..." >> /var/log/guardian.log; \
+        systemctl restart guardian-main.service || \
+        /usr/local/bin/self-destruct.sh "Main guardian failed to restart"; \
+    fi; \
+    echo "$(date +%%s)" > /var/lib/project-guardian/backup_heartbeat; \
+    sleep 30; \
+done'
+
+Restart=always
+RestartSec=5
+StartLimitInterval=0
+
+# Security
+NoNewPrivileges=false
+PrivateTmp=true
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=guardian-backup
+
+[Install]
+WantedBy=multi-user.target
+
