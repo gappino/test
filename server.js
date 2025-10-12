@@ -110,6 +110,10 @@ const videoTrackingRoutes = require('./routes/video-tracking');
 const musicRoutes = require('./routes/music');
 const chatRoutes = require('./routes/chat');
 const videoQueueRoutes = require('./routes/video-queue');
+const videoQueueManager = require('./video-queue-manager');
+
+// Configure video queue manager with Socket.io
+videoQueueManager.setSocketIO(io);
 
 // Use real Gemini API for actual AI content generation
 app.use('/api/gemini', geminiRoutes);

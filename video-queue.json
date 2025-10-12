@@ -2,540 +2,283 @@
   "queue": [],
   "history": [
     {
-      "id": "custom-video-1760064016540",
-      "type": "custom",
-      "title": "ویدیوی سفارشی",
-      "status": "completed",
-      "progress": 100,
-      "addedTime": 1760064016541,
-      "startTime": 1760064016542,
-      "endTime": 1760064033509,
-      "metadata": {
-        "scenes": 1,
-        "voice": "fa_IR-amir-medium",
-        "orientation": "vertical",
-        "backgroundMusic": "none"
-      },
-      "error": null,
-      "result": {
-        "success": true,
-        "data": {
-          "video_url": "/api/remotion/download/video-1760064032102.mp4",
-          "duration": 4.34,
-          "scenes_count": 1,
-          "resolution": "1080x1920",
-          "status": "completed",
-          "title": "ویدیوی سفارشی",
-          "voice": "fa_IR-amir-medium",
-          "scenes": [
-            {
-              "scene_number": 1,
-              "duration": 4.34,
-              "speaker_text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای aaaaaaaaaaaaaما است؟",
-              "visual_description": "futuristic AI city with advanced technology and glowing elements, cinematic lighting, 4k quality",
-              "image_url": "/generation/image_1760064016534_h3zksuhu0.png",
-              "audio_url": "/uploads/audio/piper_tts_1760064016545-392966927.wav",
-              "audio_duration": 4.34,
-              "subtitles": [
-                {
-                  "start": 0,
-                  "end": 4.34,
-                  "text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای aaaaaaaaaaaaaما است؟"
-                }
-              ],
-              "subtitle_text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای aaaaaaaaaaaaaما است؟",
-              "orientation": "vertical",
-              "isHorizontal": false,
-              "subtitleSettings": {
-                "color": "#ffffff",
-                "size": 10,
-                "outline": 2
-              }
-            }
-          ],
-          "audio_results": [
-            {
-              "sceneIndex": 0,
-              "audioUrl": "/uploads/audio/piper_tts_1760064016545-392966927.wav",
-              "duration": 4.34,
-              "text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای aaaaaaaaaaaaaما است؟",
-              "voice": "fa_IR-amir-medium",
-              "engine": "Piper TTS"
-            }
-          ],
-          "subtitle_results": [
-            {
-              "sceneIndex": 0,
-              "segments": [
-                {
-                  "start": 0,
-                  "end": 4.34,
-                  "text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای aaaaaaaaaaaaaما است؟"
-                }
-              ],
-              "text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای aaaaaaaaaaaaaما است؟"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "custom-video-1760064001495",
-      "type": "custom",
-      "title": "ویدیوی سفارشی",
-      "status": "completed",
-      "progress": 100,
-      "addedTime": 1760064001496,
-      "startTime": 1760064001497,
-      "endTime": 1760064012225,
-      "metadata": {
-        "scenes": 1,
-        "voice": "fa_IR-gyro-medium",
-        "orientation": "horizontal",
-        "backgroundMusic": "none"
-      },
-      "error": null,
-      "result": {
-        "success": true,
-        "data": {
-          "video_url": "/api/remotion/download/video-1760064011487.mp4",
-          "duration": 1.11,
-          "scenes_count": 1,
-          "resolution": "1080x1920",
-          "status": "completed",
-          "title": "ویدیوی سفارشی",
-          "voice": "fa_IR-gyro-medium",
-          "scenes": [
-            {
-              "scene_number": 1,
-              "duration": 1.11,
-              "speaker_text": "آیا می‌دانستید که",
-              "visual_description": "cat red",
-              "image_url": "/generation/image_1760064001490_yna429vhy.png",
-              "audio_url": "/uploads/audio/piper_tts_1760064001499-854553740.wav",
-              "audio_duration": 1.11,
-              "subtitles": [
-                {
-                  "start": 0,
-                  "end": 1.11,
-                  "text": "آیا می‌دانستید که"
-                }
-              ],
-              "subtitle_text": "آیا می‌دانستید که",
-              "orientation": "horizontal",
-              "isHorizontal": true,
-              "subtitleSettings": {
-                "color": "#c20000",
-                "size": 10,
-                "outline": 2
-              }
-            }
-          ],
-          "audio_results": [
-            {
-              "sceneIndex": 0,
-              "audioUrl": "/uploads/audio/piper_tts_1760064001499-854553740.wav",
-              "duration": 1.11,
-              "text": "آیا می‌دانستید که",
-              "voice": "fa_IR-gyro-medium",
-              "engine": "Piper TTS"
-            }
-          ],
-          "subtitle_results": [
-            {
-              "sceneIndex": 0,
-              "segments": [
-                {
-                  "start": 0,
-                  "end": 1.11,
-                  "text": "آیا می‌دانستید که"
-                }
-              ],
-              "text": "آیا می‌دانستید که"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "custom-video-1760063797312",
-      "type": "custom",
-      "title": "ویدیوی سفارشی",
-      "status": "completed",
-      "progress": 100,
-      "addedTime": 1760063797313,
-      "startTime": 1760063797314,
-      "endTime": 1760063809632,
-      "metadata": {
-        "scenes": 1,
-        "voice": "fa_IR-amir-medium",
-        "orientation": "vertical",
-        "backgroundMusic": "none"
-      },
-      "error": null,
-      "result": {
-        "success": true,
-        "data": {
-          "video_url": "/api/remotion/download/video-1760063808282.mp4",
-          "duration": 3.63,
-          "scenes_count": 1,
-          "resolution": "1080x1920",
-          "status": "completed",
-          "title": "ویدیوی سفارشی",
-          "voice": "fa_IR-amir-medium",
-          "scenes": [
-            {
-              "scene_number": 1,
-              "duration": 3.63,
-              "speaker_text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟",
-              "visual_description": "futuristic AI city with advanced technology and glowing elements, cinematic lighting, 4k quality",
-              "image_url": "/generation/image_1760063797307_d34dn6h0g.png",
-              "audio_url": "/uploads/audio/piper_tts_1760063797316-930377724.wav",
-              "audio_duration": 3.63,
-              "subtitles": [
-                {
-                  "start": 0,
-                  "end": 3.63,
-                  "text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟"
-                }
-              ],
-              "subtitle_text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟",
-              "orientation": "vertical",
-              "isHorizontal": false,
-              "subtitleSettings": {
-                "color": "#ffffff",
-                "size": 24,
-                "outline": 2
-              }
-            }
-          ],
-          "audio_results": [
-            {
-              "sceneIndex": 0,
-              "audioUrl": "/uploads/audio/piper_tts_1760063797316-930377724.wav",
-              "duration": 3.63,
-              "text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟",
-              "voice": "fa_IR-amir-medium",
-              "engine": "Piper TTS"
-            }
-          ],
-          "subtitle_results": [
-            {
-              "sceneIndex": 0,
-              "segments": [
-                {
-                  "start": 0,
-                  "end": 3.63,
-                  "text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟"
-                }
-              ],
-              "text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "custom-video-1760063769249",
-      "type": "custom",
-      "title": "ویدیوی سفارشی",
-      "status": "completed",
-      "progress": 100,
-      "addedTime": 1760063769250,
-      "startTime": 1760063769251,
-      "endTime": 1760063784635,
-      "metadata": {
-        "scenes": 1,
-        "voice": "fa_IR-amir-medium",
-        "orientation": "vertical",
-        "backgroundMusic": "none"
-      },
-      "error": null,
-      "result": {
-        "success": true,
-        "data": {
-          "video_url": "/api/remotion/download/video-1760063783263.mp4",
-          "duration": 3.72,
-          "scenes_count": 1,
-          "resolution": "1080x1920",
-          "status": "completed",
-          "title": "ویدیوی سفارشی",
-          "voice": "fa_IR-amir-medium",
-          "scenes": [
-            {
-              "scene_number": 1,
-              "duration": 3.72,
-              "speaker_text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟",
-              "visual_description": "futuristic AI city with advanced technology and glowing elements, cinematic lighting, 4k quality",
-              "image_url": "/generation/image_1760063769245_7uxad2klj.png",
-              "audio_url": "/uploads/audio/piper_tts_1760063769253-121152834.wav",
-              "audio_duration": 3.72,
-              "subtitles": [
-                {
-                  "start": 0,
-                  "end": 3.72,
-                  "text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟"
-                }
-              ],
-              "subtitle_text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟",
-              "orientation": "vertical",
-              "isHorizontal": false,
-              "subtitleSettings": {
-                "color": "#ffffff",
-                "size": 24,
-                "outline": 2
-              }
-            }
-          ],
-          "audio_results": [
-            {
-              "sceneIndex": 0,
-              "audioUrl": "/uploads/audio/piper_tts_1760063769253-121152834.wav",
-              "duration": 3.72,
-              "text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟",
-              "voice": "fa_IR-amir-medium",
-              "engine": "Piper TTS"
-            }
-          ],
-          "subtitle_results": [
-            {
-              "sceneIndex": 0,
-              "segments": [
-                {
-                  "start": 0,
-                  "end": 3.72,
-                  "text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟"
-                }
-              ],
-              "text": "آیا می‌دانستید که هوش مصنوعی در حال تغییر دنیای ما است؟"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "short-video-1760063250185",
+      "id": "short-video-1760242825208",
       "type": "short",
-      "title": "Crazy Women in the Jungle: A Spine-Chilling Jungle Horror Story",
+      "title": "I Made $1000 on YouTube... Using AI?! (🤯)",
       "status": "completed",
       "progress": 100,
-      "addedTime": 1760063250185,
-      "startTime": 1760063250186,
-      "endTime": 1760063442258,
+      "addedTime": 1760242825210,
+      "startTime": 1760242825212,
+      "endTime": 1760243113590,
       "metadata": {
         "scenes": 8,
         "voice": "en_US-ryan-high",
-        "backgroundMusic": "background-royalty-free-music-summer-ocean-waves-334012.mp3"
+        "backgroundMusic": "action-energetic-rock-music-334316.mp3"
       },
       "error": null,
       "result": {
         "success": true,
         "data": {
-          "video_url": "/api/remotion/download/video-1760063395141.mp4",
-          "duration": 179.03,
+          "video_url": "/api/remotion/download/video-1760243096618.mp4",
+          "duration": 43.77,
           "scenes_count": 8,
           "resolution": "1080x1920",
           "status": "completed",
           "scenes": [
             {
               "scene_number": 1,
-              "duration": 22.94,
-              "speaker_text": "Under the emerald canopy, four fearless women push deeper into a jungle that seems to inhale with every step. Their boots sink into damp leaves as the map trembles in the hands of the navigator. Legends say a coven of crazy women once whispered to the forest and vanished, leaving behind a temple and a curse. The team laughs nervously, then falls quiet as the air grows thick, and the first distant cry hints they may have walked into a waking nightmare.",
-              "visual_description": "Dense jungle at dawn, four women in rugged gear stand at a mossy path, map in hand. Mist swirls around roots and vines; tension in their faces as distant sounds hint at danger.",
-              "image_url": "/generation/image_1760063095063_o6imyne7m.png",
-              "audio_url": "/uploads/audio/piper_tts_1760063250190-825644030.wav",
-              "audio_duration": 22.94,
+              "duration": 4.44,
+              "speaker_text": "STOP SCROLLING! I made a THOUSAND dollars on YouTube... and I didn't even show my face!",
+              "visual_description": "Fast cuts of money falling, YouTube analytics dashboard showing $1000+ earnings, surprised face emoji overlayed on the screen.",
+              "image_url": "/generation/image_1760242827566_ve49v87yj.png",
+              "audio_url": "/uploads/audio/piper_tts_1760242978120-229845225.wav",
+              "audio_duration": 4.44,
               "subtitles": [
                 {
                   "start": 0,
-                  "end": 22.94,
-                  "text": "Under the emerald canopy, four fearless women push deeper into a jungle that seems to inhale with every step. Their boots sink into damp leaves as the map trembles in the hands of the navigator. Legends say a coven of crazy women once whispered to the forest and vanished, leaving behind a temple and a curse. The team laughs nervously, then falls quiet as the air grows thick, and the first distant cry hints they may have walked into a waking nightmare."
+                  "end": 4.4,
+                  "text": "Stop scrolling. I made a thousand dollars on YouTube and I didn't even show my face."
                 }
               ],
-              "subtitle_text": "Under the emerald canopy, four fearless women push deeper into a jungle that seems to inhale with every step. Their boots sink into damp leaves as the map trembles in the hands of the navigator. Legends say a coven of crazy women once whispered to the forest and vanished, leaving behind a temple and a curse. The team laughs nervously, then falls quiet as the air grows thick, and the first distant cry hints they may have walked into a waking nightmare."
+              "subtitle_text": "Stop scrolling. I made a thousand dollars on YouTube and I didn't even show my face."
             },
             {
               "scene_number": 2,
-              "duration": 24.35,
-              "speaker_text": "From the shadowed roots, a circle of stone rises, vines coiling around like living hands. A masked woman steps into the moonlight, eyes bright with feral intelligence, and voices sing from the trees in a language no one learned. She tilts her head, speaks of trespassers and sleepers, and the air tastes of iron and rain. The women exchange glances, realizing the myth was never myth at all, but a warning tattooed on the jungle’s skin.",
-              "visual_description": "Moonlit jungle reveals a stone circle wrapped in vines; a masked woman emerges, eyes gleaming, surrounding trees whispering in the wind.",
-              "image_url": "/generation/image_1760063109966_g1rz2hy34.png",
-              "audio_url": "/uploads/audio/piper_tts_1760063261426-943026934.wav",
-              "audio_duration": 24.35,
+              "duration": 5.61,
+              "speaker_text": "Yeah, you heard that right. I used a crazy AI video maker to pump out content, and the algorithm LOVED it!",
+              "visual_description": "Quick montage of different AI-generated video clips: animated explainers, nature documentaries, funny skits, all in a vibrant, eye-catching style.",
+              "image_url": "/generation/image_1760242842090_lcu1m4gnm.png",
+              "audio_url": "/uploads/audio/piper_tts_1760242983678-145237387.wav",
+              "audio_duration": 5.61,
               "subtitles": [
                 {
                   "start": 0,
-                  "end": 24.35,
-                  "text": "From the shadowed roots, a circle of stone rises, vines coiling around like living hands. A masked woman steps into the moonlight, eyes bright with feral intelligence, and voices sing from the trees in a language no one learned. She tilts her head, speaks of trespassers and sleepers, and the air tastes of iron and rain. The women exchange glances, realizing the myth was never myth at all, but a warning tattooed on the jungle’s skin."
+                  "end": 1.12,
+                  "text": "Yeah, you heard that right."
+                },
+                {
+                  "start": 1.34,
+                  "end": 4.38,
+                  "text": "I used a crazy AI video maker to pump out can tend"
+                },
+                {
+                  "start": 4.38,
+                  "end": 5.58,
+                  "text": "and the algorithm loved it."
                 }
               ],
-              "subtitle_text": "From the shadowed roots, a circle of stone rises, vines coiling around like living hands. A masked woman steps into the moonlight, eyes bright with feral intelligence, and voices sing from the trees in a language no one learned. She tilts her head, speaks of trespassers and sleepers, and the air tastes of iron and rain. The women exchange glances, realizing the myth was never myth at all, but a warning tattooed on the jungle’s skin."
+              "subtitle_text": "Yeah, you heard that right. I used a crazy AI video maker to pump out can tend and the algorithm loved it."
             },
             {
               "scene_number": 3,
-              "duration": 20.7,
-              "speaker_text": "The scientist among them notes how a rare plant shifts when spoken to, bending toward their names as if listening. A chorus of whispers circles their camp, sounding like a hundred dry leaves giggling. A path behind them closes, vines sealing the way, and a path ahead seems to breathe. The group feels watched by a thousand unseen eyes, and fear begins to feel earned instead of imagined.",
-              "visual_description": "Night camp in the jungle; a botanist examines a strange plant that moves with their voice; whispers swirl around; vines seal the path behind them.",
-              "image_url": "/generation/image_1760063125112_7kj5sgqwj.png",
-              "audio_url": "/uploads/audio/piper_tts_1760063274032-388908317.wav",
-              "audio_duration": 20.7,
+              "duration": 5.69,
+              "speaker_text": "Forget spending hours editing! This AI tool does it ALL. Scriptwriting, visuals, even voiceovers!",
+              "visual_description": "Screen recording of the AI video maker interface, showcasing its features: script generator, image library, voiceover options. Mouse clicks highlighting key features.",
+              "image_url": "/generation/image_1760242856999_f3oyrh4ma.png",
+              "audio_url": "/uploads/audio/piper_tts_1760242987936-14058007.wav",
+              "audio_duration": 5.69,
               "subtitles": [
                 {
                   "start": 0,
-                  "end": 20.7,
-                  "text": "The scientist among them notes how a rare plant shifts when spoken to, bending toward their names as if listening. A chorus of whispers circles their camp, sounding like a hundred dry leaves giggling. A path behind them closes, vines sealing the way, and a path ahead seems to breathe. The group feels watched by a thousand unseen eyes, and fear begins to feel earned instead of imagined."
+                  "end": 1.5,
+                  "text": "Forget spending hours editing."
+                },
+                {
+                  "start": 1.72,
+                  "end": 3.12,
+                  "text": "This AI tool does it all."
+                },
+                {
+                  "start": 3.24,
+                  "end": 5.56,
+                  "text": "Scrit-trading visuals, even voiceovers."
                 }
               ],
-              "subtitle_text": "The scientist among them notes how a rare plant shifts when spoken to, bending toward their names as if listening. A chorus of whispers circles their camp, sounding like a hundred dry leaves giggling. A path behind them closes, vines sealing the way, and a path ahead seems to breathe. The group feels watched by a thousand unseen eyes, and fear begins to feel earned instead of imagined."
+              "subtitle_text": "Forget spending hours editing. This AI tool does it all. Scrit-trading visuals, even voiceovers."
             },
             {
               "scene_number": 4,
-              "duration": 23.1,
-              "speaker_text": "They stumble into a ruined temple chamber where walls glow with bioluminescent fungi. Carvings show a circle of wild women guarding something sealed beneath an altar. A relic pulses with cold light, and the air hums with a ritual rhythm. The team argues whether to take the relic, but the moment they touch it, the room answers with a wind that snuffs out their campfire and lights the wall with shadowy silhouettes of dancing madwomen.",
-              "visual_description": "Bioluminescent chamber inside ruins; carvings of women guardians; a pulsing relic on an altar; shifting shadows dance along the walls.",
-              "image_url": "/generation/image_1760063139963_yia0cu5wc.png",
-              "audio_url": "/uploads/audio/piper_tts_1760063293746-281115396.wav",
-              "audio_duration": 23.1,
+              "duration": 5.05,
+              "speaker_text": "I'm talking zero experience required. If you can type, you can make money on YouTube with this!",
+              "visual_description": "Split screen: one side shows a person struggling with complex video editing software, the other side shows a person easily typing a script into the AI video maker.",
+              "image_url": "/generation/image_1760242873256_ui3lgf23h.png",
+              "audio_url": "/uploads/audio/piper_tts_1760242992879-671680397.wav",
+              "audio_duration": 5.05,
               "subtitles": [
                 {
                   "start": 0,
-                  "end": 23.1,
-                  "text": "They stumble into a ruined temple chamber where walls glow with bioluminescent fungi. Carvings show a circle of wild women guarding something sealed beneath an altar. A relic pulses with cold light, and the air hums with a ritual rhythm. The team argues whether to take the relic, but the moment they touch it, the room answers with a wind that snuffs out their campfire and lights the wall with shadowy silhouettes of dancing madwomen."
+                  "end": 2,
+                  "text": "I'm talking zero experience required."
+                },
+                {
+                  "start": 2.18,
+                  "end": 5.02,
+                  "text": "If you can type, you can make money on YouTube with this."
                 }
               ],
-              "subtitle_text": "They stumble into a ruined temple chamber where walls glow with bioluminescent fungi. Carvings show a circle of wild women guarding something sealed beneath an altar. A relic pulses with cold light, and the air hums with a ritual rhythm. The team argues whether to take the relic, but the moment they touch it, the room answers with a wind that snuffs out their campfire and lights the wall with shadowy silhouettes of dancing madwomen."
+              "subtitle_text": "I'm talking zero experience required. If you can type, you can make money on YouTube with this."
             },
             {
               "scene_number": 5,
-              "duration": 23.07,
-              "speaker_text": "Vines rearrange themselves into runes, stones grind in a slow machinery, and drums beat from nowhere. The women find themselves inside a ceremonial corridor where the crazy guardians appear as translucent figures, chanting in a language older than the jungle. A trap springs, stone doors slide shut, and the relic's glow pours through cracks, painting fear on their faces as they realize escape is no longer simple.",
-              "visual_description": "Interior of a ceremonial corridor with moving vines forming runes; translucent guardian figures chant; stone doors close; relic glows through gaps.",
-              "image_url": "/generation/image_1760063155056_4pj0qw5zx.png",
-              "audio_url": "/uploads/audio/piper_tts_1760063327773-486849230.wav",
-              "audio_duration": 23.07,
+              "duration": 4.46,
+              "speaker_text": "Ready to unlock the secret? I'm sharing the exact AI video maker I used in the link below!",
+              "visual_description": "Close-up of a hand pointing towards a bright, flashing arrow that points downwards, emphasizing the link in the description. Text overlay: 'LINK IN DESCRIPTION!'",
+              "image_url": "/generation/image_1760242892245_ikpmfmgza.png",
+              "audio_url": "/uploads/audio/piper_tts_1760242996642-829373179.wav",
+              "audio_duration": 4.46,
               "subtitles": [
                 {
                   "start": 0,
-                  "end": 23.07,
-                  "text": "Vines rearrange themselves into runes, stones grind in a slow machinery, and drums beat from nowhere. The women find themselves inside a ceremonial corridor where the crazy guardians appear as translucent figures, chanting in a language older than the jungle. A trap springs, stone doors slide shut, and the relic's glow pours through cracks, painting fear on their faces as they realize escape is no longer simple."
+                  "end": 1.34,
+                  "text": "Ready to unlock the secret?"
+                },
+                {
+                  "start": 1.54,
+                  "end": 4.42,
+                  "text": "I'm sharing the exact EA video maker I use in the link below."
                 }
               ],
-              "subtitle_text": "Vines rearrange themselves into runes, stones grind in a slow machinery, and drums beat from nowhere. The women find themselves inside a ceremonial corridor where the crazy guardians appear as translucent figures, chanting in a language older than the jungle. A trap springs, stone doors slide shut, and the relic's glow pours through cracks, painting fear on their faces as they realize escape is no longer simple."
+              "subtitle_text": "Ready to unlock the secret? I'm sharing the exact EA video maker I use in the link below."
             },
             {
               "scene_number": 6,
-              "duration": 20.87,
-              "speaker_text": "Night drips and the jungle comes alive. The wild women move with impossible speed, their hair tangled with leaves, their laughter a banshee chorus. Roots snatch at ankles, rain pins the skin, and the camp becomes a maze of echoes. One woman vanishes into a doorway of vines; another fights to keep the group moving. They learn the jungle has chosen its protectors, and their lives now belong to the night.",
-              "visual_description": "Dark jungle chase scene: fast-moving figures, tangled hair, leaves, ringing laughter, rain, roots grabbing legs, confusion and fear.",
-              "image_url": "/generation/image_1760063169994_y14sgzy56.png",
-              "audio_url": "/uploads/audio/piper_tts_1760063346700-316230705.wav",
-              "audio_duration": 20.87,
+              "duration": 6.85,
+              "speaker_text": "But wait, there's MORE! I'm also giving away my top performing AI video scripts to the first 100 people who subscribe!",
+              "visual_description": "Rapid cuts of successful YouTube channels with high view counts, subscriber counts increasing rapidly, and positive comments flashing on screen.",
+              "image_url": "/generation/image_1760242918519_zsnof7p3c.png",
+              "audio_url": "/uploads/audio/piper_tts_1760243001037-235477002.wav",
+              "audio_duration": 6.85,
               "subtitles": [
                 {
                   "start": 0,
-                  "end": 20.87,
-                  "text": "Night drips and the jungle comes alive. The wild women move with impossible speed, their hair tangled with leaves, their laughter a banshee chorus. Roots snatch at ankles, rain pins the skin, and the camp becomes a maze of echoes. One woman vanishes into a doorway of vines; another fights to keep the group moving. They learn the jungle has chosen its protectors, and their lives now belong to the night."
+                  "end": 1.22,
+                  "text": "But wait, there's more."
+                },
+                {
+                  "start": 1.32,
+                  "end": 3.02,
+                  "text": "I'm also giving away my top,"
+                },
+                {
+                  "start": 3.2,
+                  "end": 4.66,
+                  "text": "performing AI video scripts"
+                },
+                {
+                  "start": 4.66,
+                  "end": 6.74,
+                  "text": "to the first 100 people who subscribe."
                 }
               ],
-              "subtitle_text": "Night drips and the jungle comes alive. The wild women move with impossible speed, their hair tangled with leaves, their laughter a banshee chorus. Roots snatch at ankles, rain pins the skin, and the camp becomes a maze of echoes. One woman vanishes into a doorway of vines; another fights to keep the group moving. They learn the jungle has chosen its protectors, and their lives now belong to the night."
+              "subtitle_text": "But wait, there's more. I'm also giving away my top, performing AI video scripts to the first 100 people who subscribe."
             },
             {
               "scene_number": 7,
-              "duration": 21.87,
-              "speaker_text": "The truth unravels: the crazy women are guardians, not monsters, bound to the relic to keep something darker from waking. The team must decide whether to release the relic’s power or seal it forever, even if it costs someone’s freedom. In a heart-wrenching moment, a sister sacrifices her chance at safety to close the hinge of the temple, and the jungle sighs as dawn approaches with a pale promise of return.",
-              "visual_description": "Temple interior at dawn; guardians reveal true purpose; a sacrifice to seal the relic; expressions of resolve and sorrow; light breaking through.",
-              "image_url": "/generation/image_1760063185339_l9p5b2vxl.png",
-              "audio_url": "/uploads/audio/piper_tts_1760063357004-110440753.wav",
-              "audio_duration": 21.87,
+              "duration": 5.63,
+              "speaker_text": "Don't miss out! Subscribe NOW, hit that notification bell, and start making money with AI today!",
+              "visual_description": "Animated subscribe button turning from gray to red, notification bell icon ringing, money falling into a digital bank account.",
+              "image_url": "/generation/image_1760242947227_qtmyiky6c.png",
+              "audio_url": "/uploads/audio/piper_tts_1760243008893-445698095.wav",
+              "audio_duration": 5.63,
               "subtitles": [
                 {
                   "start": 0,
-                  "end": 21.87,
-                  "text": "The truth unravels: the crazy women are guardians, not monsters, bound to the relic to keep something darker from waking. The team must decide whether to release the relic’s power or seal it forever, even if it costs someone’s freedom. In a heart-wrenching moment, a sister sacrifices her chance at safety to close the hinge of the temple, and the jungle sighs as dawn approaches with a pale promise of return."
+                  "end": 5.6,
+                  "text": "Don't miss out! Subscribe now! Hit that notification bell and start making money with AI today!"
                 }
               ],
-              "subtitle_text": "The truth unravels: the crazy women are guardians, not monsters, bound to the relic to keep something darker from waking. The team must decide whether to release the relic’s power or seal it forever, even if it costs someone’s freedom. In a heart-wrenching moment, a sister sacrifices her chance at safety to close the hinge of the temple, and the jungle sighs as dawn approaches with a pale promise of return."
+              "subtitle_text": "Don't miss out! Subscribe now! Hit that notification bell and start making money with AI today!"
             },
             {
               "scene_number": 8,
-              "duration": 22.13,
-              "speaker_text": "At dawn, a single survivor crawls out of the undergrowth, clutching the sealed relic and a warning for those who would seek the jungle’s treasure. The birds begin to sing, the air clears, and light threads through the trees. But the camera lingers on the shadows at the edge of the clearing, where the crazy women watch and wait, and the jungle remembers. The story ends with a whispered reminder: respect the wild, or be consumed by it.",
-              "visual_description": "Dawn after the ordeal; a lone survivor emerges with relic; forest waking; warning sign; distant silhouette of guardians watching the edge.",
-              "image_url": "/generation/image_1760063200022_9sbuznxv6.png",
-              "audio_url": "/uploads/audio/piper_tts_1760063367515-500709510.wav",
-              "audio_duration": 22.13,
+              "duration": 6.04,
+              "speaker_text": "What are you waiting for? The future of YouTube is here, and it's AI-powered! Click the link below and let's get started!",
+              "visual_description": "The AI video maker interface again, with the 'Generate Video' button highlighted. Text overlay: 'CLICK HERE TO START!'",
+              "image_url": "/generation/image_1760242977111_mddfjcdga.png",
+              "audio_url": "/uploads/audio/piper_tts_1760243026611-271791583.wav",
+              "audio_duration": 6.04,
               "subtitles": [
                 {
                   "start": 0,
-                  "end": 22.13,
-                  "text": "At dawn, a single survivor crawls out of the undergrowth, clutching the sealed relic and a warning for those who would seek the jungle’s treasure. The birds begin to sing, the air clears, and light threads through the trees. But the camera lingers on the shadows at the edge of the clearing, where the crazy women watch and wait, and the jungle remembers. The story ends with a whispered reminder: respect the wild, or be consumed by it."
+                  "end": 1.04,
+                  "text": "What are you waiting for?"
+                },
+                {
+                  "start": 1.12,
+                  "end": 3.72,
+                  "text": "The future of YouTube is here and it's AI powered."
+                },
+                {
+                  "start": 3.84,
+                  "end": 5.94,
+                  "text": "Click the link below and let's get started."
                 }
               ],
-              "subtitle_text": "At dawn, a single survivor crawls out of the undergrowth, clutching the sealed relic and a warning for those who would seek the jungle’s treasure. The birds begin to sing, the air clears, and light threads through the trees. But the camera lingers on the shadows at the edge of the clearing, where the crazy women watch and wait, and the jungle remembers. The story ends with a whispered reminder: respect the wild, or be consumed by it."
+              "subtitle_text": "What are you waiting for? The future of YouTube is here and it's AI powered. Click the link below and let's get started."
             }
           ],
           "audio_results": [
             {
               "sceneIndex": 0,
-              "audioUrl": "/uploads/audio/piper_tts_1760063250190-825644030.wav",
-              "duration": 22.94,
-              "text": "Under the emerald canopy, four fearless women push deeper into a jungle that seems to inhale with every step. Their boots sink into damp leaves as the map trembles in the hands of the navigator. Legends say a coven of crazy women once whispered to the forest and vanished, leaving behind a temple and a curse. The team laughs nervously, then falls quiet as the air grows thick, and the first distant cry hints they may have walked into a waking nightmare.",
+              "audioUrl": "/uploads/audio/piper_tts_1760242978120-229845225.wav",
+              "duration": 4.44,
+              "text": "STOP SCROLLING! I made a THOUSAND dollars on YouTube... and I didn't even show my face!",
               "voice": "en_US-ryan-high",
               "engine": "Piper TTS"
             },
             {
               "sceneIndex": 1,
-              "audioUrl": "/uploads/audio/piper_tts_1760063261426-943026934.wav",
-              "duration": 24.35,
-              "text": "From the shadowed roots, a circle of stone rises, vines coiling around like living hands. A masked woman steps into the moonlight, eyes bright with feral intelligence, and voices sing from the trees in a language no one learned. She tilts her head, speaks of trespassers and sleepers, and the air tastes of iron and rain. The women exchange glances, realizing the myth was never myth at all, but a warning tattooed on the jungle’s skin.",
+              "audioUrl": "/uploads/audio/piper_tts_1760242983678-145237387.wav",
+              "duration": 5.61,
+              "text": "Yeah, you heard that right. I used a crazy AI video maker to pump out content, and the algorithm LOVED it!",
               "voice": "en_US-ryan-high",
               "engine": "Piper TTS"
             },
             {
               "sceneIndex": 2,
-              "audioUrl": "/uploads/audio/piper_tts_1760063274032-388908317.wav",
-              "duration": 20.7,
-              "text": "The scientist among them notes how a rare plant shifts when spoken to, bending toward their names as if listening. A chorus of whispers circles their camp, sounding like a hundred dry leaves giggling. A path behind them closes, vines sealing the way, and a path ahead seems to breathe. The group feels watched by a thousand unseen eyes, and fear begins to feel earned instead of imagined.",
+              "audioUrl": "/uploads/audio/piper_tts_1760242987936-14058007.wav",
+              "duration": 5.69,
+              "text": "Forget spending hours editing! This AI tool does it ALL. Scriptwriting, visuals, even voiceovers!",
               "voice": "en_US-ryan-high",
               "engine": "Piper TTS"
             },
             {
               "sceneIndex": 3,
-              "audioUrl": "/uploads/audio/piper_tts_1760063293746-281115396.wav",
-              "duration": 23.1,
-              "text": "They stumble into a ruined temple chamber where walls glow with bioluminescent fungi. Carvings show a circle of wild women guarding something sealed beneath an altar. A relic pulses with cold light, and the air hums with a ritual rhythm. The team argues whether to take the relic, but the moment they touch it, the room answers with a wind that snuffs out their campfire and lights the wall with shadowy silhouettes of dancing madwomen.",
+              "audioUrl": "/uploads/audio/piper_tts_1760242992879-671680397.wav",
+              "duration": 5.05,
+              "text": "I'm talking zero experience required. If you can type, you can make money on YouTube with this!",
               "voice": "en_US-ryan-high",
               "engine": "Piper TTS"
             },
             {
               "sceneIndex": 4,
-              "audioUrl": "/uploads/audio/piper_tts_1760063327773-486849230.wav",
-              "duration": 23.07,
-              "text": "Vines rearrange themselves into runes, stones grind in a slow machinery, and drums beat from nowhere. The women find themselves inside a ceremonial corridor where the crazy guardians appear as translucent figures, chanting in a language older than the jungle. A trap springs, stone doors slide shut, and the relic's glow pours through cracks, painting fear on their faces as they realize escape is no longer simple.",
+              "audioUrl": "/uploads/audio/piper_tts_1760242996642-829373179.wav",
+              "duration": 4.46,
+              "text": "Ready to unlock the secret? I'm sharing the exact AI video maker I used in the link below!",
               "voice": "en_US-ryan-high",
               "engine": "Piper TTS"
             },
             {
               "sceneIndex": 5,
-              "audioUrl": "/uploads/audio/piper_tts_1760063346700-316230705.wav",
-              "duration": 20.87,
-              "text": "Night drips and the jungle comes alive. The wild women move with impossible speed, their hair tangled with leaves, their laughter a banshee chorus. Roots snatch at ankles, rain pins the skin, and the camp becomes a maze of echoes. One woman vanishes into a doorway of vines; another fights to keep the group moving. They learn the jungle has chosen its protectors, and their lives now belong to the night.",
+              "audioUrl": "/uploads/audio/piper_tts_1760243001037-235477002.wav",
+              "duration": 6.85,
+              "text": "But wait, there's MORE! I'm also giving away my top performing AI video scripts to the first 100 people who subscribe!",
               "voice": "en_US-ryan-high",
               "engine": "Piper TTS"
             },
             {
               "sceneIndex": 6,
-              "audioUrl": "/uploads/audio/piper_tts_1760063357004-110440753.wav",
-              "duration": 21.87,
-              "text": "The truth unravels: the crazy women are guardians, not monsters, bound to the relic to keep something darker from waking. The team must decide whether to release the relic’s power or seal it forever, even if it costs someone’s freedom. In a heart-wrenching moment, a sister sacrifices her chance at safety to close the hinge of the temple, and the jungle sighs as dawn approaches with a pale promise of return.",
+              "audioUrl": "/uploads/audio/piper_tts_1760243008893-445698095.wav",
+              "duration": 5.63,
+              "text": "Don't miss out! Subscribe NOW, hit that notification bell, and start making money with AI today!",
               "voice": "en_US-ryan-high",
               "engine": "Piper TTS"
             },
             {
               "sceneIndex": 7,
-              "audioUrl": "/uploads/audio/piper_tts_1760063367515-500709510.wav",
-              "duration": 22.13,
-              "text": "At dawn, a single survivor crawls out of the undergrowth, clutching the sealed relic and a warning for those who would seek the jungle’s treasure. The birds begin to sing, the air clears, and light threads through the trees. But the camera lingers on the shadows at the edge of the clearing, where the crazy women watch and wait, and the jungle remembers. The story ends with a whispered reminder: respect the wild, or be consumed by it.",
+              "audioUrl": "/uploads/audio/piper_tts_1760243026611-271791583.wav",
+              "duration": 6.04,
+              "text": "What are you waiting for? The future of YouTube is here, and it's AI-powered! Click the link below and let's get started!",
               "voice": "en_US-ryan-high",
               "engine": "Piper TTS"
             }
@@ -546,88 +289,143 @@
               "segments": [
                 {
                   "start": 0,
-                  "end": 22.94,
-                  "text": "Under the emerald canopy, four fearless women push deeper into a jungle that seems to inhale with every step. Their boots sink into damp leaves as the map trembles in the hands of the navigator. Legends say a coven of crazy women once whispered to the forest and vanished, leaving behind a temple and a curse. The team laughs nervously, then falls quiet as the air grows thick, and the first distant cry hints they may have walked into a waking nightmare."
+                  "end": 4.4,
+                  "text": "Stop scrolling. I made a thousand dollars on YouTube and I didn't even show my face."
                 }
               ],
-              "text": "Under the emerald canopy, four fearless women push deeper into a jungle that seems to inhale with every step. Their boots sink into damp leaves as the map trembles in the hands of the navigator. Legends say a coven of crazy women once whispered to the forest and vanished, leaving behind a temple and a curse. The team laughs nervously, then falls quiet as the air grows thick, and the first distant cry hints they may have walked into a waking nightmare."
+              "text": "Stop scrolling. I made a thousand dollars on YouTube and I didn't even show my face."
             },
             {
               "sceneIndex": 1,
               "segments": [
                 {
                   "start": 0,
-                  "end": 24.35,
-                  "text": "From the shadowed roots, a circle of stone rises, vines coiling around like living hands. A masked woman steps into the moonlight, eyes bright with feral intelligence, and voices sing from the trees in a language no one learned. She tilts her head, speaks of trespassers and sleepers, and the air tastes of iron and rain. The women exchange glances, realizing the myth was never myth at all, but a warning tattooed on the jungle’s skin."
+                  "end": 1.12,
+                  "text": "Yeah, you heard that right."
+                },
+                {
+                  "start": 1.34,
+                  "end": 4.38,
+                  "text": "I used a crazy AI video maker to pump out can tend"
+                },
+                {
+                  "start": 4.38,
+                  "end": 5.58,
+                  "text": "and the algorithm loved it."
                 }
               ],
-              "text": "From the shadowed roots, a circle of stone rises, vines coiling around like living hands. A masked woman steps into the moonlight, eyes bright with feral intelligence, and voices sing from the trees in a language no one learned. She tilts her head, speaks of trespassers and sleepers, and the air tastes of iron and rain. The women exchange glances, realizing the myth was never myth at all, but a warning tattooed on the jungle’s skin."
+              "text": "Yeah, you heard that right. I used a crazy AI video maker to pump out can tend and the algorithm loved it."
             },
             {
               "sceneIndex": 2,
               "segments": [
                 {
                   "start": 0,
-                  "end": 20.7,
-                  "text": "The scientist among them notes how a rare plant shifts when spoken to, bending toward their names as if listening. A chorus of whispers circles their camp, sounding like a hundred dry leaves giggling. A path behind them closes, vines sealing the way, and a path ahead seems to breathe. The group feels watched by a thousand unseen eyes, and fear begins to feel earned instead of imagined."
+                  "end": 1.5,
+                  "text": "Forget spending hours editing."
+                },
+                {
+                  "start": 1.72,
+                  "end": 3.12,
+                  "text": "This AI tool does it all."
+                },
+                {
+                  "start": 3.24,
+                  "end": 5.56,
+                  "text": "Scrit-trading visuals, even voiceovers."
                 }
               ],
-              "text": "The scientist among them notes how a rare plant shifts when spoken to, bending toward their names as if listening. A chorus of whispers circles their camp, sounding like a hundred dry leaves giggling. A path behind them closes, vines sealing the way, and a path ahead seems to breathe. The group feels watched by a thousand unseen eyes, and fear begins to feel earned instead of imagined."
+              "text": "Forget spending hours editing. This AI tool does it all. Scrit-trading visuals, even voiceovers."
             },
             {
               "sceneIndex": 3,
               "segments": [
                 {
                   "start": 0,
-                  "end": 23.1,
-                  "text": "They stumble into a ruined temple chamber where walls glow with bioluminescent fungi. Carvings show a circle of wild women guarding something sealed beneath an altar. A relic pulses with cold light, and the air hums with a ritual rhythm. The team argues whether to take the relic, but the moment they touch it, the room answers with a wind that snuffs out their campfire and lights the wall with shadowy silhouettes of dancing madwomen."
+                  "end": 2,
+                  "text": "I'm talking zero experience required."
+                },
+                {
+                  "start": 2.18,
+                  "end": 5.02,
+                  "text": "If you can type, you can make money on YouTube with this."
                 }
               ],
-              "text": "They stumble into a ruined temple chamber where walls glow with bioluminescent fungi. Carvings show a circle of wild women guarding something sealed beneath an altar. A relic pulses with cold light, and the air hums with a ritual rhythm. The team argues whether to take the relic, but the moment they touch it, the room answers with a wind that snuffs out their campfire and lights the wall with shadowy silhouettes of dancing madwomen."
+              "text": "I'm talking zero experience required. If you can type, you can make money on YouTube with this."
             },
             {
               "sceneIndex": 4,
               "segments": [
                 {
                   "start": 0,
-                  "end": 23.07,
-                  "text": "Vines rearrange themselves into runes, stones grind in a slow machinery, and drums beat from nowhere. The women find themselves inside a ceremonial corridor where the crazy guardians appear as translucent figures, chanting in a language older than the jungle. A trap springs, stone doors slide shut, and the relic's glow pours through cracks, painting fear on their faces as they realize escape is no longer simple."
+                  "end": 1.34,
+                  "text": "Ready to unlock the secret?"
+                },
+                {
+                  "start": 1.54,
+                  "end": 4.42,
+                  "text": "I'm sharing the exact EA video maker I use in the link below."
                 }
               ],
-              "text": "Vines rearrange themselves into runes, stones grind in a slow machinery, and drums beat from nowhere. The women find themselves inside a ceremonial corridor where the crazy guardians appear as translucent figures, chanting in a language older than the jungle. A trap springs, stone doors slide shut, and the relic's glow pours through cracks, painting fear on their faces as they realize escape is no longer simple."
+              "text": "Ready to unlock the secret? I'm sharing the exact EA video maker I use in the link below."
             },
             {
               "sceneIndex": 5,
               "segments": [
                 {
                   "start": 0,
-                  "end": 20.87,
-                  "text": "Night drips and the jungle comes alive. The wild women move with impossible speed, their hair tangled with leaves, their laughter a banshee chorus. Roots snatch at ankles, rain pins the skin, and the camp becomes a maze of echoes. One woman vanishes into a doorway of vines; another fights to keep the group moving. They learn the jungle has chosen its protectors, and their lives now belong to the night."
+                  "end": 1.22,
+                  "text": "But wait, there's more."
+                },
+                {
+                  "start": 1.32,
+                  "end": 3.02,
+                  "text": "I'm also giving away my top,"
+                },
+                {
+                  "start": 3.2,
+                  "end": 4.66,
+                  "text": "performing AI video scripts"
+                },
+                {
+                  "start": 4.66,
+                  "end": 6.74,
+                  "text": "to the first 100 people who subscribe."
                 }
               ],
-              "text": "Night drips and the jungle comes alive. The wild women move with impossible speed, their hair tangled with leaves, their laughter a banshee chorus. Roots snatch at ankles, rain pins the skin, and the camp becomes a maze of echoes. One woman vanishes into a doorway of vines; another fights to keep the group moving. They learn the jungle has chosen its protectors, and their lives now belong to the night."
+              "text": "But wait, there's more. I'm also giving away my top, performing AI video scripts to the first 100 people who subscribe."
             },
             {
               "sceneIndex": 6,
               "segments": [
                 {
                   "start": 0,
-                  "end": 21.87,
-                  "text": "The truth unravels: the crazy women are guardians, not monsters, bound to the relic to keep something darker from waking. The team must decide whether to release the relic’s power or seal it forever, even if it costs someone’s freedom. In a heart-wrenching moment, a sister sacrifices her chance at safety to close the hinge of the temple, and the jungle sighs as dawn approaches with a pale promise of return."
+                  "end": 5.6,
+                  "text": "Don't miss out! Subscribe now! Hit that notification bell and start making money with AI today!"
                 }
               ],
-              "text": "The truth unravels: the crazy women are guardians, not monsters, bound to the relic to keep something darker from waking. The team must decide whether to release the relic’s power or seal it forever, even if it costs someone’s freedom. In a heart-wrenching moment, a sister sacrifices her chance at safety to close the hinge of the temple, and the jungle sighs as dawn approaches with a pale promise of return."
+              "text": "Don't miss out! Subscribe now! Hit that notification bell and start making money with AI today!"
             },
             {
               "sceneIndex": 7,
               "segments": [
                 {
                   "start": 0,
-                  "end": 22.13,
-                  "text": "At dawn, a single survivor crawls out of the undergrowth, clutching the sealed relic and a warning for those who would seek the jungle’s treasure. The birds begin to sing, the air clears, and light threads through the trees. But the camera lingers on the shadows at the edge of the clearing, where the crazy women watch and wait, and the jungle remembers. The story ends with a whispered reminder: respect the wild, or be consumed by it."
+                  "end": 1.04,
+                  "text": "What are you waiting for?"
+                },
+                {
+                  "start": 1.12,
+                  "end": 3.72,
+                  "text": "The future of YouTube is here and it's AI powered."
+                },
+                {
+                  "start": 3.84,
+                  "end": 5.94,
+                  "text": "Click the link below and let's get started."
                 }
               ],
-              "text": "At dawn, a single survivor crawls out of the undergrowth, clutching the sealed relic and a warning for those who would seek the jungle’s treasure. The birds begin to sing, the air clears, and light threads through the trees. But the camera lingers on the shadows at the edge of the clearing, where the crazy women watch and wait, and the jungle remembers. The story ends with a whispered reminder: respect the wild, or be consumed by it."
+              "text": "What are you waiting for? The future of YouTube is here and it's AI powered. Click the link below and let's get started."
             }
           ]
         }
@@ -635,8 +433,8 @@
     }
   ],
   "stats": {
-    "processedCount": 5,
+    "processedCount": 11,
     "failedCount": 0
   },
-  "lastUpdated": "2025-10-10T02:40:33.509Z"
+  "lastUpdated": "2025-10-12T04:25:13.591Z"
 }

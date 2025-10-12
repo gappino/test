@@ -18,9 +18,19 @@ class VideoQueueManager extends EventEmitter {
         this.processedCount = 0;
         this.failedCount = 0;
         this.cancelledVideos = new Set();
+        this.io = null; // Socket.io instance
         
         // بارگذاری صف از فایل
         this.loadQueue();
+    }
+
+    /**
+     * تنظیم Socket.io instance برای ارسال realtime updates
+     * @param {Object} io - Socket.io instance
+     */
+    setSocketIO(io) {
+        this.io = io;
+        console.log('✅ [Video Queue] Socket.io configured for realtime updates');
     }
 
     /**
@@ -53,13 +63,21 @@ class VideoQueueManager extends EventEmitter {
             console.log(`📹 [Video Queue] Added "${video.title}" (${video.type}) to queue`);
             console.log(`   📊 Queue length: ${this.queue.length} | Active: ${this.activeVideos}`);
             
-            this.emit('videoAdded', {
+            const addedEvent = {
                 videoId: video.id,
                 type: video.type,
                 title: video.title,
                 queueLength: this.queue.length,
-                activeVideos: this.activeVideos
-            });
+                activeVideos: this.activeVideos,
+                status: 'queued'
+            };
+            
+            this.emit('videoAdded', addedEvent);
+            
+            // ارسال به کلاینت‌ها از طریق Socket.io
+            if (this.io) {
+                this.io.emit('videoStatusUpdate', addedEvent);
+            }
 
             // شروع پردازش صف
             this.processQueue();
@@ -94,14 +112,24 @@ class VideoQueueManager extends EventEmitter {
         console.log(`   📊 Active: ${this.activeVideos}/${this.maxConcurrentVideos} | Queue: ${this.queue.length} | Wait: ${Math.round(waitTime/1000)}s`);
 
         this.saveQueue();
-        this.emit('videoStarted', {
+        
+        const startedEvent = {
             videoId: video.id,
             type: video.type,
             title: video.title,
             activeVideos: this.activeVideos,
             queueLength: this.queue.length,
-            waitTime
-        });
+            waitTime,
+            status: 'processing',
+            progress: 0
+        };
+        
+        this.emit('videoStarted', startedEvent);
+        
+        // ارسال به کلاینت‌ها
+        if (this.io) {
+            this.io.emit('videoStatusUpdate', startedEvent);
+        }
 
         try {
             const result = await video.function();
@@ -129,14 +157,23 @@ class VideoQueueManager extends EventEmitter {
                 this.history = this.history.slice(0, 50);
             }
             
-            this.emit('videoCompleted', {
+            const completedEvent = {
                 videoId: video.id,
                 type: video.type,
                 title: video.title,
                 processingTime,
                 totalProcessed: this.processedCount,
-                result
-            });
+                result,
+                status: 'completed',
+                progress: 100
+            };
+            
+            this.emit('videoCompleted', completedEvent);
+            
+            // ارسال به کلاینت‌ها
+            if (this.io) {
+                this.io.emit('videoStatusUpdate', completedEvent);
+            }
             
             video.resolve(result);
             
@@ -162,13 +199,22 @@ class VideoQueueManager extends EventEmitter {
                 this.history = this.history.slice(0, 50);
             }
             
-            this.emit('videoFailed', {
+            const failedEvent = {
                 videoId: video.id,
                 type: video.type,
                 title: video.title,
                 error: error.message,
-                totalFailed: this.failedCount
-            });
+                totalFailed: this.failedCount,
+                status: 'failed',
+                progress: 0
+            };
+            
+            this.emit('videoFailed', failedEvent);
+            
+            // ارسال به کلاینت‌ها
+            if (this.io) {
+                this.io.emit('videoStatusUpdate', failedEvent);
+            }
             
             video.reject(error);
             
@@ -202,11 +248,19 @@ class VideoQueueManager extends EventEmitter {
                 target.currentStep = currentStep;
             }
             
-            this.emit('progressUpdate', {
+            const progressEvent = {
                 videoId,
                 progress,
-                currentStep
-            });
+                currentStep,
+                status: target.status
+            };
+            
+            this.emit('progressUpdate', progressEvent);
+            
+            // ارسال به کلاینت‌ها
+            if (this.io) {
+                this.io.emit('videoProgressUpdate', progressEvent);
+            }
             
             this.saveQueue();
         }
@@ -293,6 +347,51 @@ class VideoQueueManager extends EventEmitter {
             metadata: v.metadata,
             duration: v.endTime && v.startTime ? v.endTime - v.startTime : null
         }));
+    }
+
+    /**
+     * دریافت وضعیت یک ویدیوی خاص
+     * @param {String} videoId - شناسه ویدیو
+     * @returns {Object|null} وضعیت ویدیو
+     */
+    getVideoStatus(videoId) {
+        // جستجو در صف
+        const queuedVideo = this.queue.find(v => v.id === videoId);
+        if (queuedVideo) {
+            return {
+                id: queuedVideo.id,
+                type: queuedVideo.type,
+                title: queuedVideo.title,
+                status: 'queued',
+                progress: 0,
+                queuePosition: this.queue.indexOf(queuedVideo) + 1,
+                addedTime: queuedVideo.addedTime,
+                metadata: queuedVideo.metadata
+            };
+        }
+
+        // جستجو در تاریخچه (ویدیوهای در حال پردازش یا تکمیل شده)
+        const historyVideo = this.history.find(v => v.id === videoId);
+        if (historyVideo) {
+            return {
+                id: historyVideo.id,
+                type: historyVideo.type,
+                title: historyVideo.title,
+                status: historyVideo.status,
+                progress: historyVideo.progress,
+                addedTime: historyVideo.addedTime,
+                startTime: historyVideo.startTime,
+                endTime: historyVideo.endTime,
+                error: historyVideo.error,
+                metadata: historyVideo.metadata,
+                result: historyVideo.result,
+                duration: historyVideo.endTime && historyVideo.startTime 
+                    ? historyVideo.endTime - historyVideo.startTime 
+                    : null
+            };
+        }
+
+        return null;
     }
 
     /**
@@ -421,5 +520,6 @@ setInterval(() => {
 }, 60000);
 
 module.exports = videoQueueManager;
+
 
 

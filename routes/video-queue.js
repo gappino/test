@@ -144,6 +144,37 @@ router.post('/reset-stats', (req, res) => {
     }
 });
 
+/**
+ * دریافت وضعیت یک ویدیوی خاص
+ * GET /api/video-queue/video-status/:videoId
+ */
+router.get('/video-status/:videoId', (req, res) => {
+    try {
+        const { videoId } = req.params;
+        const status = videoQueueManager.getVideoStatus(videoId);
+        
+        if (status) {
+            res.json({
+                success: true,
+                data: status
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                error: 'ویدیو یافت نشد'
+            });
+        }
+    } catch (error) {
+        console.error('Error getting video status:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get video status',
+            details: error.message
+        });
+    }
+});
+
 module.exports = router;
+
 
 

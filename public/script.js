@@ -389,7 +389,7 @@ function displayScript(script) {
     scriptContent.innerHTML = html;
 }
 
-// Generate image prompts and images
+// Generate image prompts and images - NOW CALLS BACKEND DIRECTLY
 async function generateImages() {
     if (!currentScript || !currentScript.scenes) {
         alert('ابتدا اسکریپت را تولید کنید');
@@ -398,7 +398,7 @@ async function generateImages() {
     
     try {
         generateImagesBtn.disabled = true;
-        generateImagesBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال تولید تصاویر و ویدیو...';
+        generateImagesBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> شروع تولید کامل...';
         
         // Show elegant warning notification
         showPageWarningNotification();
@@ -408,95 +408,25 @@ async function generateImages() {
         imageProgressSection.classList.add('fade-in');
         
         // Reset progress
-        imagePrompts = [];
-        generatedImages = [];
         updateProgress(0, currentScript.scenes.length);
         
-        // Generate images for each scene using existing image prompts
-        for (let i = 0; i < currentScript.scenes.length; i++) {
-            const scene = currentScript.scenes[i];
-            
-            // Add status item with indication if using edited prompt
-            const isEditedPrompt = scene.visual_description && scene.visual_description !== scene.image_prompt;
-            const statusText = isEditedPrompt ? 'تولید تصویر با پرامپت ویرایش شده...' : 'تولید تصویر...';
-            addStatusItem(i, 'generating', statusText, scene.speaker_text);
-            
-            try {
-                // Use the edited visual description if available, otherwise fall back to original prompts
-                const imagePrompt = scene.visual_description || scene.image_prompt || 'A beautiful and engaging visual';
-                
-                // Log which prompt is being used for debugging
-                console.log(`Scene ${i + 1} - Using prompt:`, imagePrompt);
-                console.log(`Scene ${i + 1} - Original image_prompt:`, scene.image_prompt);
-                console.log(`Scene ${i + 1} - Edited visual_description:`, scene.visual_description);
-                
-                imagePrompts.push({
-                    sceneIndex: i,
-                    prompt: imagePrompt,
-                    scene: scene
-                });
-                
-                // Generate image using Pollinations.ai
-                const imageResponse = await fetch('/api/flax/generate-image-url', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            prompt: imagePrompt
-                        })
-                    });
-                    
-                    const imageResult = await imageResponse.json();
-                    
-                    if (imageResult.success) {
-                        generatedImages.push({
-                            sceneIndex: i,
-                            imageUrl: imageResult.data.image_url,
-                            prompt: imagePrompt,
-                            scene: scene
-                        });
-                        
-                        const completionText = isEditedPrompt ? 'تصویر با پرامپت ویرایش شده تولید شد' : 'تصویر تولید شد';
-                        updateStatusItem(i, 'completed', completionText, scene.speaker_text);
-                        displayGeneratedImage(i, imageResult.data.image_url, scene);
-                        
-                    } else {
-                        throw new Error(imageResult.error || 'خطا در تولید تصویر');
-                    }
-                
-            } catch (error) {
-                console.error(`Error processing scene ${i}:`, error);
-                updateStatusItem(i, 'error', 'خطا در تولید', scene.speaker_text);
-            }
-            
-            // Update progress
-            updateProgress(i + 1, currentScript.scenes.length);
-            
-            // Small delay between requests
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
+        addStatusItem(0, 'generating', 'ارسال درخواست به سرور...', 'سرور همه چیز را انجام می‌دهد');
         
-        // Hide images gallery after generation (as requested)
-        imagesGallery.classList.add('hidden');
+        // Show notification
+        showNotification('🚀 درخواست ارسال شد - سرور تصاویر، صداها و ویدیو را می‌سازد', 'success');
         
-        // Show notification for next step
-        showNotification('تصاویر با موفقیت تولید شدند! در حال شروع تولید ویدیو...', 'success');
+        // Wait a moment to show the message
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
-        // Automatically start video generation after a short delay
-        setTimeout(() => {
-            generateCompleteVideo();
-        }, 2000); // 2 second delay to show the success message
+        // Now call the complete video function which handles everything in backend
+        await generateCompleteVideo();
         
     } catch (error) {
-        console.error('Error generating images:', error);
-        alert('خطا در تولید تصاویر: ' + error.message);
-    } finally {
+        console.error('Error starting video generation:', error);
+        alert('خطا در شروع تولید ویدیو: ' + error.message);
+        
         generateImagesBtn.disabled = false;
         generateImagesBtn.innerHTML = '<i class="fas fa-arrow-right"></i> شروع تولید کامل';
-        
-        // Hide the complete video button since it's now automatic
-        generateCompleteVideoBtn.classList.add('hidden');
     }
 }
 
@@ -586,23 +516,111 @@ socket.on('imageGenerated', (data) => {
     console.log('Image generated:', data);
 });
 
+// Video status update listener
+socket.on('videoStatusUpdate', (data) => {
+    console.log('📹 Video status update:', data);
+    handleVideoStatusUpdate(data);
+});
+
+// Video progress update listener  
+socket.on('videoProgressUpdate', (data) => {
+    console.log('📊 Video progress update:', data);
+    handleVideoProgressUpdate(data);
+});
+
 // Generate custom image (moved to test-image-generation.js)
 // async function generateCustomImage() { ... }
 
 // Display custom generated image (moved to test-image-generation.js)
 // function displayCustomImage(imageUrl, prompt, width, height) { ... }
 
-// Generate complete video
+// Global variable to track current video being generated
+let currentGeneratingVideoId = null;
+
+// Handle video status updates from server
+function handleVideoStatusUpdate(data) {
+    if (!data || !data.videoId) return;
+    
+    // Only handle updates for the video we're currently generating
+    if (currentGeneratingVideoId && data.videoId !== currentGeneratingVideoId) {
+        return;
+    }
+    
+    console.log('📹 Handling video status:', data.status, data);
+    
+    if (data.status === 'queued') {
+        showNotification('ویدیو به صف اضافه شد و منتظر پردازش است', 'info');
+    } else if (data.status === 'processing') {
+        showNotification('شروع پردازش ویدیو...', 'info');
+        updateVideoStatusItem(3, 'processing', 'در حال تولید ویدیو نهایی...', '');
+    } else if (data.status === 'completed' && data.result) {
+        showNotification('ویدیو با موفقیت تولید شد!', 'success');
+        updateVideoStatusItem(3, 'completed', 'ویدیو با موفقیت تولید شد', '');
+        updateVideoProgress(4, 4);
+        
+        // Display final video
+        if (data.result.data) {
+            displayGeneratedVideo(data.result.data);
+            videoSection.classList.remove('hidden');
+            videoSection.classList.add('fade-in');
+        }
+        
+        // Reset current video ID
+        currentGeneratingVideoId = null;
+        
+        // Re-enable button
+        if (generateCompleteVideoBtn) {
+            generateCompleteVideoBtn.disabled = false;
+            generateCompleteVideoBtn.innerHTML = '<i class="fas fa-video"></i> تولید ویدیو کامل';
+        }
+    } else if (data.status === 'failed') {
+        showNotification('خطا در تولید ویدیو: ' + (data.error || 'خطای ناشناخته'), 'error');
+        updateVideoStatusItem(3, 'error', 'خطا در تولید ویدیو', data.error || '');
+        
+        // Reset current video ID
+        currentGeneratingVideoId = null;
+        
+        // Re-enable button
+        if (generateCompleteVideoBtn) {
+            generateCompleteVideoBtn.disabled = false;
+            generateCompleteVideoBtn.innerHTML = '<i class="fas fa-video"></i> تولید ویدیو کامل';
+        }
+    }
+}
+
+// Handle video progress updates from server
+function handleVideoProgressUpdate(data) {
+    if (!data || !data.videoId) return;
+    
+    // Only handle updates for the video we're currently generating
+    if (currentGeneratingVideoId && data.videoId !== currentGeneratingVideoId) {
+        return;
+    }
+    
+    console.log('📊 Handling progress update:', data.progress, data.currentStep);
+    
+    if (data.currentStep) {
+        showNotification(data.currentStep, 'info');
+    }
+    
+    // Update progress bar if we have progress information
+    if (typeof data.progress === 'number') {
+        const normalizedProgress = Math.min(Math.max(data.progress / 25, 0), 4); // Convert 0-100 to 0-4 scale
+        updateVideoProgress(normalizedProgress, 4);
+    }
+}
+
+// Generate complete video - NOW FULLY IN BACKEND
 async function generateCompleteVideo() {
     try {
-        if (!currentScript || !generatedImages.length) {
-            alert('ابتدا اسکریپت و تصاویر را تولید کنید');
+        if (!currentScript) {
+            alert('ابتدا اسکریپت را تولید کنید');
             return;
         }
 
         // Show loading state
         generateCompleteVideoBtn.disabled = true;
-        generateCompleteVideoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال تولید ویدیو...';
+        generateCompleteVideoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال اضافه کردن به صف...';
         
         // Show elegant warning notification
         showPageWarningNotification();
@@ -614,90 +632,26 @@ async function generateCompleteVideo() {
         // Reset progress
         updateVideoProgress(0, 4);
         
-        // Step 1: Prepare audio settings
-        addVideoStatusItem(0, 'processing', 'آماده‌سازی تنظیمات صدا...', '');
+        // Prepare audio settings
+        addVideoStatusItem(0, 'processing', 'ارسال درخواست به سرور...', '');
         
         const backgroundMusicElement = document.getElementById('backgroundMusic');
-        console.log('🎵 Background music element:', backgroundMusicElement);
-        console.log('🎵 Background music element value:', backgroundMusicElement ? backgroundMusicElement.value : 'null');
-        console.log('🎵 Background music element selectedIndex:', backgroundMusicElement ? backgroundMusicElement.selectedIndex : 'null');
-        console.log('🎵 Background music element options:', backgroundMusicElement ? backgroundMusicElement.options : 'null');
         
         const audioSettings = {
             voice: voiceSelect.value,
             backgroundMusic: backgroundMusicElement ? backgroundMusicElement.value : ''
         };
-        console.log('🎵 Audio settings:', audioSettings);
-        console.log('🎵 Background music selected:', audioSettings.backgroundMusic);
-        updateVideoStatusItem(0, 'completed', 'تنظیمات صدا آماده شد', '');
-        updateVideoProgress(1, 4);
         
-        // Step 2: Generate TTS for all scenes using Piper TTS
-        addVideoStatusItem(1, 'processing', 'تولید صدا برای صحنه‌ها با Piper TTS...', '');
-        const ttsPromises = currentScript.scenes.map(async (scene, index) => {
-            try {
-                const response = await fetch('/api/kokoro/text-to-speech', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        text: scene.speaker_text,
-                        voice: audioSettings.voice || 'en_US-lessac-medium'
-                    })
-                });
-                const result = await response.json();
-                return {
-                    sceneIndex: index,
-                    audioUrl: result.data.audio_url,
-                    duration: result.data.duration,
-                    text: result.data.text,
-                    voice: result.data.voice,
-                    engine: result.data.engine
-                };
-            } catch (error) {
-                console.error(`Error generating TTS for scene ${index}:`, error);
-                return {
-                    sceneIndex: index,
-                    audioUrl: null,
-                    duration: 5
-                };
-            }
-        });
-        
-        const audioResults = await Promise.all(ttsPromises);
-        updateVideoStatusItem(1, 'completed', 'صدا برای تمام صحنه‌ها تولید شد', '');
-        
-        // Display audio results with play buttons
-        displayAudioResults(audioResults);
-        
-        updateVideoProgress(2, 4);
-        
-        // Step 3: Prepare video composition
-        addVideoStatusItem(2, 'processing', 'آماده‌سازی ترکیب ویدیو...', '');
-        const videoData = {
-            script: currentScript,
-            images: generatedImages,
-            audioSettings: audioSettings
-        };
-        updateVideoStatusItem(2, 'completed', 'ترکیب ویدیو آماده شد', '');
-        updateVideoProgress(3, 4);
-        
-        // Step 4: Generate final video with subtitles
-        addVideoStatusItem(3, 'processing', 'تولید ویدیو نهایی با زیرنویس...', '');
-        
-        // Prepare complete video data with audio results
+        // Send ONLY script to server - server will handle everything else
         const completeVideoData = {
             script: currentScript,
-            images: generatedImages,
             audioSettings: audioSettings,
-            audioResults: audioResults // Add audio results to the request
+            processInBackground: true // Flag to indicate full backend processing
         };
         
-        console.log('🎵 Complete video data:', completeVideoData);
-        console.log('🎵 Background music in completeVideoData:', completeVideoData.audioSettings.backgroundMusic);
-        console.log('🎵 audioSettings type:', typeof completeVideoData.audioSettings);
-        console.log('🎵 audioSettings keys:', Object.keys(completeVideoData.audioSettings));
+        console.log('🎵 Sending video request to server (backend will handle everything)...', completeVideoData);
         
-        const videoResponse = await fetch('/api/video/generate-complete-video', {
+        const videoResponse = await fetch('/api/video/generate-complete-video-backend', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(completeVideoData)
@@ -705,16 +659,24 @@ async function generateCompleteVideo() {
         
         const videoResult = await videoResponse.json();
         
-        if (videoResult.success) {
-            updateVideoStatusItem(3, 'completed', 'ویدیو با موفقیت تولید شد', '');
-            updateVideoProgress(4, 4);
+        if (videoResult.success && videoResult.videoId) {
+            // Store the video ID to track its progress
+            currentGeneratingVideoId = videoResult.videoId;
             
-            // Display final video
-            displayGeneratedVideo(videoResult.data);
-            videoSection.classList.remove('hidden');
-            videoSection.classList.add('fade-in');
+            updateVideoStatusItem(0, 'completed', `ویدیو به صف اضافه شد (موقعیت: ${videoResult.queuePosition})`, '');
+            showNotification('✅ ویدیو به صف اضافه شد. می‌توانید صفحه را ببندید!', 'success');
+            
+            // Update button text
+            generateCompleteVideoBtn.innerHTML = '<i class="fas fa-hourglass-half"></i> در حال پردازش در سرور...';
+            
+            // Clear the UI sections to show we're waiting for server
+            updateVideoProgress(1, 4);
+            addVideoStatusItem(1, 'processing', 'سرور در حال تولید تصاویر...', '');
+            
+            // WebSocket will handle the rest of the updates automatically
+            
         } else {
-            throw new Error(videoResult.error || 'خطا در تولید ویدیو');
+            throw new Error(videoResult.error || 'خطا در اضافه کردن به صف');
         }
         
     } catch (error) {
@@ -729,9 +691,13 @@ async function generateCompleteVideo() {
             lastItem.querySelector('.video-status-icon').innerHTML = '<i class="fas fa-exclamation-circle"></i>';
             lastItem.querySelector('.video-status-text p').textContent = 'خطا در تولید ویدیو';
         }
-    } finally {
+        
+        // Re-enable button
         generateCompleteVideoBtn.disabled = false;
         generateCompleteVideoBtn.innerHTML = '<i class="fas fa-video"></i> تولید ویدیو کامل';
+        
+        // Reset current video ID
+        currentGeneratingVideoId = null;
     }
 }
 
@@ -1145,13 +1111,13 @@ function showPageWarningNotification() {
     warningNotification.innerHTML = `
         <div class="page-warning-content">
             <div class="page-warning-icon">
-                <i class="fas fa-exclamation-triangle"></i>
+                <i class="fas fa-info-circle"></i>
             </div>
             <div class="page-warning-text">
-                <div class="page-warning-title">⚠️ توجه مهم</div>
+                <div class="page-warning-title">✅ خبر خوب!</div>
                 <div class="page-warning-message">
-                    لطفاً تا پایان ساخت ویدیو از صفحه خارج نشوید و صفحه را ریلود نکنید. 
-                    این کار ممکن است باعث قطع شدن فرآیند تولید شود.
+                    ویدیو در حال پردازش در سرور است. می‌توانید صفحه را ببندید و بعداً برگردید.
+                    وضعیت ویدیو به صورت خودکار ذخیره می‌شود.
                 </div>
             </div>
             <button class="page-warning-close" onclick="closePageWarningNotification()">
@@ -1162,12 +1128,12 @@ function showPageWarningNotification() {
     
     document.body.appendChild(warningNotification);
     
-    // Auto remove after 15 seconds
+    // Auto remove after 10 seconds
     setTimeout(() => {
         if (warningNotification.parentElement) {
             closePageWarningNotification();
         }
-    }, 15000);
+    }, 10000);
 }
 
 // Close Page Warning Notification
@@ -1189,38 +1155,11 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('AI Video Maker initialized');
     loadAvailableVoices();
     
-    // Add beforeunload event listener to warn users about leaving during generation
-    let isGenerating = false;
-    
-    // Track generation state
-    const originalGenerateImages = generateImages;
-    const originalGenerateCompleteVideo = generateCompleteVideo;
-    
-    generateImages = async function() {
-        isGenerating = true;
-        try {
-            await originalGenerateImages.call(this);
-        } finally {
-            isGenerating = false;
-        }
-    };
-    
-    generateCompleteVideo = async function() {
-        isGenerating = true;
-        try {
-            await originalGenerateCompleteVideo.call(this);
-        } finally {
-            isGenerating = false;
-        }
-    };
-    
-    window.addEventListener('beforeunload', (event) => {
-        if (isGenerating) {
-            const message = 'آیا مطمئن هستید که می‌خواهید صفحه را ترک کنید؟ فرآیند تولید ویدیو ممکن است قطع شود.';
-            event.preventDefault();
-            event.returnValue = message;
-            return message;
-        }
-    });
+    // Check if we have a video being generated on page load
+    // This helps resume monitoring if user refreshed the page
+    if (currentGeneratingVideoId) {
+        console.log('📹 Resuming video generation monitoring for:', currentGeneratingVideoId);
+        showNotification('در حال بررسی وضعیت ویدیو...', 'info');
+    }
 });
 

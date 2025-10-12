@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست Responsive موبایل</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .test-section {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-title {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .test-description {
+            color: rgba(226, 232, 240, 0.7);
+            margin-bottom: 20px;
+        }
+        
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .test-card {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .width-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(59, 130, 246, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 9999;
+            font-size: 0.85rem;
+        }
+        
+        .scroll-test {
+            width: 100%;
+            overflow-x: hidden;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .scroll-content {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Width Indicator -->
+    <div class="width-indicator" id="widthIndicator"></div>
+    
+    <div class="test-container">
+        <div class="header">
+            <div class="header-content">
+                <h1>🧪 تست Responsive موبایل</h1>
+                <p>این صفحه برای تست responsive design در موبایل طراحی شده است</p>
+            </div>
+        </div>
+        
+        <!-- Test 1: Buttons -->
+        <div class="test-section">
+            <h2 class="test-title">1️⃣ تست دکمه‌ها</h2>
+            <p class="test-description">دکمه‌ها باید در موبایل full-width و touch-friendly باشند (حداقل 44px ارتفاع)</p>
+            <div class="test-buttons">
+                <button class="btn btn-primary">دکمه اصلی</button>
+                <button class="btn btn-secondary">دکمه ثانویه</button>
+                <button class="btn btn-success">دکمه موفقیت</button>
+            </div>
+        </div>
+        
+        <!-- Test 2: Grid Layout -->
+        <div class="test-section">
+            <h2 class="test-title">2️⃣ تست Grid Layout</h2>
+            <p class="test-description">Grid باید در موبایل به single column تبدیل شود</p>
+            <div class="test-grid">
+                <div class="test-card">کارت 1</div>
+                <div class="test-card">کارت 2</div>
+                <div class="test-card">کارت 3</div>
+                <div class="test-card">کارت 4</div>
+            </div>
+        </div>
+        
+        <!-- Test 3: Text Sizes -->
+        <div class="test-section">
+            <h2 class="test-title">3️⃣ تست اندازه فونت‌ها</h2>
+            <p class="test-description">فونت‌ها باید در موبایل کوچکتر شوند</p>
+            <div class="card">
+                <div class="card-header">
+                    <h2>عنوان کارت (1.3rem در موبایل)</h2>
+                    <p>توضیحات کارت (0.9rem در موبایل)</p>
+                </div>
+                <div class="card-body">
+                    <p>محتوای کارت - این متن باید در موبایل خوانا باشد و فونت مناسب داشته باشد.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test 4: Horizontal Scroll Check -->
+        <div class="test-section">
+            <h2 class="test-title">4️⃣ تست اسکرول افقی</h2>
+            <p class="test-description">این بخش نباید باعث اسکرول افقی شود</p>
+            <div class="scroll-test">
+                <p class="scroll-content">
+                    ✅ اگر این متن بدون اسکرول افقی نمایش داده می‌شود، یعنی مشکل برطرف شده است.
+                    این یک متن طولانی است که باید به صورت صحیح wrap شود و اسکرول افقی ایجاد نکند.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Test 5: Form Controls -->
+        <div class="test-section">
+            <h2 class="test-title">5️⃣ تست Form Controls</h2>
+            <p class="test-description">فرم‌ها باید در موبایل به خوبی کار کنند</p>
+            <div class="form-group">
+                <label>نام شما:</label>
+                <input type="text" class="form-control" placeholder="نام خود را وارد کنید">
+            </div>
+            <div class="form-group">
+                <label>پیام:</label>
+                <textarea class="form-control" rows="3" placeholder="پیام خود را بنویسید"></textarea>
+            </div>
+            <button class="btn btn-primary">ارسال</button>
+        </div>
+        
+        <!-- Test 6: Scene Items -->
+        <div class="test-section">
+            <h2 class="test-title">6️⃣ تست Scene Items</h2>
+            <p class="test-description">Scene item ها باید در موبایل به خوبی نمایش داده شوند</p>
+            <div class="scene-item">
+                <div class="scene-header">
+                    <span class="scene-number">صحنه 1</span>
+                    <span class="scene-duration">5 ثانیه</span>
+                </div>
+                <p class="scene-text">متن نمونه برای صحنه اول - این متن باید در موبایل به خوبی خوانا باشد</p>
+                <p class="scene-visual">توضیحات تصویری - این بخش هم باید responsive باشد</p>
+            </div>
+        </div>
+        
+        <!-- Test Results -->
+        <div class="test-section" style="background: rgba(16, 185, 129, 0.1); border: 2px solid #10b981;">
+            <h2 class="test-title" style="color: #10b981;">✅ نتایج تست</h2>
+            <div id="testResults">
+                <p style="color: var(--text-primary); margin: 10px 0;">در حال بررسی...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Show current width
+        function updateWidthIndicator() {
+            const width = window.innerWidth;
+            const indicator = document.getElementById('widthIndicator');
+            indicator.textContent = `عرض: ${width}px`;
+            
+            // Change color based on breakpoint
+            if (width <= 480) {
+                indicator.style.background = 'rgba(239, 68, 68, 0.9)'; // Red for very small
+                indicator.textContent += ' (خیلی کوچک)';
+            } else if (width <= 768) {
+                indicator.style.background = 'rgba(251, 191, 36, 0.9)'; // Orange for mobile
+                indicator.textContent += ' (موبایل)';
+            } else {
+                indicator.style.background = 'rgba(16, 185, 129, 0.9)'; // Green for desktop
+                indicator.textContent += ' (دسکتاپ)';
+            }
+        }
+        
+        // Check for horizontal scroll
+        function checkHorizontalScroll() {
+            const hasHorizontalScroll = document.body.scrollWidth > window.innerWidth;
+            return hasHorizontalScroll;
+        }
+        
+        // Run tests
+        function runTests() {
+            const results = [];
+            const width = window.innerWidth;
+            
+            // Test 1: Check horizontal scroll
+            const hasScroll = checkHorizontalScroll();
+            results.push({
+                test: 'اسکرول افقی',
+                passed: !hasScroll,
+                message: hasScroll ? 
+                    '❌ اسکرول افقی وجود دارد!' : 
+                    '✅ اسکرول افقی وجود ندارد'
+            });
+            
+            // Test 2: Check if body width is correct
+            const bodyWidth = document.body.scrollWidth;
+            results.push({
+                test: 'عرض صفحه',
+                passed: bodyWidth <= window.innerWidth,
+                message: `عرض body: ${bodyWidth}px, عرض window: ${window.innerWidth}px`
+            });
+            
+            // Test 3: Check button heights on mobile
+            if (width <= 768) {
+                const buttons = document.querySelectorAll('.btn');
+                let allButtonsGood = true;
+                buttons.forEach(btn => {
+                    if (btn.offsetHeight < 44) allButtonsGood = false;
+                });
+                results.push({
+                    test: 'ارتفاع دکمه‌ها (موبایل)',
+                    passed: allButtonsGood,
+                    message: allButtonsGood ? 
+                        '✅ همه دکمه‌ها حداقل 44px ارتفاع دارند' : 
+                        '❌ برخی دکمه‌ها کوچکتر از 44px هستند'
+                });
+            }
+            
+            // Display results
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = results.map(r => `
+                <div style="padding: 10px; margin: 5px 0; background: ${r.passed ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)'}; border-radius: 8px;">
+                    <strong style="color: var(--text-primary);">${r.test}:</strong>
+                    <span style="color: ${r.passed ? '#10b981' : '#ef4444'};">${r.message}</span>
+                </div>
+            `).join('');
+        }
+        
+        // Update on load and resize
+        updateWidthIndicator();
+        runTests();
+        
+        window.addEventListener('resize', () => {
+            updateWidthIndicator();
+            runTests();
+        });
+        
+        // Log body scroll width for debugging
+        console.log('Body scrollWidth:', document.body.scrollWidth);
+        console.log('Window innerWidth:', window.innerWidth);
+    </script>
+</body>
+</html>
+

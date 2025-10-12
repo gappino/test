@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>تست کلیک دکمه‌ها در موبایل</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+
+        .info {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 10px;
+        }
+
+        .test-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        /* دکمه‌های معمولی */
+        .normal-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 5px;
+            font-family: inherit;
+        }
+
+        /* دکمه‌های بهینه شده */
+        .optimized-btn {
+            padding: 10px 20px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 5px;
+            font-family: inherit;
+            position: relative;
+            z-index: 10;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            min-height: 44px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .click-counter {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 2px solid #667eea;
+        }
+
+        .click-counter h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .counter-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f0f4ff;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .counter-value {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+
+        /* تست overlay */
+        .overlay-test {
+            position: relative;
+            padding: 20px;
+            background: #e0e7ff;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .overlay-test::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 0, 0, 0.1);
+            pointer-events: none; /* این خط مهم است! */
+            border-radius: 10px;
+        }
+
+        .screen-info {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .screen-info div {
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .test-section h2 {
+                font-size: 1.1rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .normal-btn,
+            .optimized-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 تست کلیک دکمه‌ها در موبایل</h1>
+
+        <div class="screen-info" id="screenInfo">
+            <div>عرض صفحه: <span id="screenWidth">-</span></div>
+            <div>ارتفاع صفحه: <span id="screenHeight">-</span></div>
+            <div>نوع دستگاه: <span id="deviceType">-</span></div>
+        </div>
+
+        <div class="info">
+            <strong>هدف:</strong> این صفحه برای تست کلیک دکمه‌ها در موبایل طراحی شده است. 
+            روی هر دکمه کلیک کنید و ببینید که آیا به درستی ثبت می‌شود یا خیر.
+        </div>
+
+        <!-- تست دکمه‌های معمولی -->
+        <div class="test-section">
+            <h2>1️⃣ دکمه‌های معمولی (بدون بهینه‌سازی)</h2>
+            <div class="button-group">
+                <button class="normal-btn" onclick="incrementCounter('normal1')">دکمه معمولی 1</button>
+                <button class="normal-btn" onclick="incrementCounter('normal2')">دکمه معمولی 2</button>
+                <button class="normal-btn" onclick="incrementCounter('normal3')">دکمه معمولی 3</button>
+            </div>
+        </div>
+
+        <!-- تست دکمه‌های بهینه شده -->
+        <div class="test-section">
+            <h2>2️⃣ دکمه‌های بهینه شده (با touch-action و z-index)</h2>
+            <div class="button-group">
+                <button class="optimized-btn" onclick="incrementCounter('optimized1')">دکمه بهینه 1</button>
+                <button class="optimized-btn" onclick="incrementCounter('optimized2')">دکمه بهینه 2</button>
+                <button class="optimized-btn" onclick="incrementCounter('optimized3')">دکمه بهینه 3</button>
+            </div>
+        </div>
+
+        <!-- تست دکمه با overlay -->
+        <div class="test-section">
+            <h2>3️⃣ تست دکمه با Overlay (pseudo-element)</h2>
+            <div class="overlay-test">
+                <p style="margin-bottom: 10px;">این بخش یک overlay دارد (با ::before)</p>
+                <button class="optimized-btn" onclick="incrementCounter('overlay')">کلیک روی این دکمه</button>
+            </div>
+        </div>
+
+        <!-- شمارنده کلیک‌ها -->
+        <div class="click-counter">
+            <h3>📊 شمارنده کلیک‌ها</h3>
+            <div class="counter-item">
+                <span>دکمه معمولی 1:</span>
+                <span class="counter-value" id="counter-normal1">0</span>
+            </div>
+            <div class="counter-item">
+                <span>دکمه معمولی 2:</span>
+                <span class="counter-value" id="counter-normal2">0</span>
+            </div>
+            <div class="counter-item">
+                <span>دکمه معمولی 3:</span>
+                <span class="counter-value" id="counter-normal3">0</span>
+            </div>
+            <div class="counter-item">
+                <span>دکمه بهینه 1:</span>
+                <span class="counter-value" id="counter-optimized1">0</span>
+            </div>
+            <div class="counter-item">
+                <span>دکمه بهینه 2:</span>
+                <span class="counter-value" id="counter-optimized2">0</span>
+            </div>
+            <div class="counter-item">
+                <span>دکمه بهینه 3:</span>
+                <span class="counter-value" id="counter-optimized3">0</span>
+            </div>
+            <div class="counter-item">
+                <span>دکمه با Overlay:</span>
+                <span class="counter-value" id="counter-overlay">0</span>
+            </div>
+        </div>
+
+        <div class="info" style="margin-top: 20px; background: #e0ffe0; border-left-color: #10b981;">
+            <strong>✅ نتیجه مطلوب:</strong> اگر دکمه‌های بهینه شده راحت‌تر کلیک می‌شوند، 
+            یعنی اصلاحات ما موفق بوده است.
+        </div>
+    </div>
+
+    <script>
+        const counters = {};
+
+        function incrementCounter(id) {
+            if (!counters[id]) {
+                counters[id] = 0;
+            }
+            counters[id]++;
+            document.getElementById(`counter-${id}`).textContent = counters[id];
+            
+            // نمایش feedback
+            const btn = event.target;
+            const originalBg = btn.style.background;
+            btn.style.background = '#fbbf24';
+            setTimeout(() => {
+                btn.style.background = originalBg;
+            }, 200);
+        }
+
+        function updateScreenInfo() {
+            document.getElementById('screenWidth').textContent = window.innerWidth + 'px';
+            document.getElementById('screenHeight').textContent = window.innerHeight + 'px';
+            
+            let deviceType = 'دسکتاپ';
+            if (window.innerWidth <= 480) {
+                deviceType = 'موبایل کوچک';
+            } else if (window.innerWidth <= 768) {
+                deviceType = 'موبایل / تبلت';
+            } else if (window.innerWidth <= 1024) {
+                deviceType = 'تبلت بزرگ';
+            }
+            document.getElementById('deviceType').textContent = deviceType;
+        }
+
+        // به‌روزرسانی اطلاعات صفحه
+        updateScreenInfo();
+        window.addEventListener('resize', updateScreenInfo);
+
+        // تشخیص مشکلات احتمالی
+        window.addEventListener('click', function(e) {
+            console.log('Click detected:', {
+                target: e.target.tagName,
+                class: e.target.className,
+                x: e.clientX,
+                y: e.clientY,
+                timestamp: new Date().toISOString()
+            });
+        });
+    </script>
+</body>
+</html>
+

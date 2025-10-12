@@ -462,7 +462,129 @@ async function translateToEnglish(text) {
   return translations[text] || text;
 }
 
-// Complete video generation pipeline
+// Complete video generation FULLY IN BACKEND (images + audio + video)
+router.post('/generate-complete-video-backend', async (req, res) => {
+  try {
+    const { script, audioSettings = {} } = req.body;
+    
+    if (!script || !script.scenes || !Array.isArray(script.scenes)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Script with scenes is required'
+      });
+    }
+
+    // ایجاد شناسه ویدیو
+    const videoId = `short-video-${Date.now()}`;
+    
+    console.log('🎬 Adding short video to queue (FULL BACKEND PROCESSING)...');
+    console.log(`📊 Video ID: ${videoId}`);
+    console.log(`📊 Scenes: ${script.scenes.length}`);
+    console.log(`📊 Voice: ${audioSettings.voice || 'en_US-lessac-medium'}`);
+    console.log(`📊 Background Music: ${audioSettings.backgroundMusic || 'none'}`);
+
+    // اضافه کردن به صف - سرور همه چیز را انجام می‌دهد
+    videoQueueManager.addVideoTask(
+      async () => {
+        return await generateCompleteVideoInBackend(script, audioSettings, req);
+      },
+      {
+        videoId: videoId,
+        type: 'short',
+        title: script.title || 'ویدیوی کوتاه',
+        metadata: {
+          scenes: script.scenes.length,
+          voice: audioSettings.voice || 'en_US-lessac-medium',
+          backgroundMusic: audioSettings.backgroundMusic || 'none'
+        }
+      }
+    ).catch(error => {
+      console.error(`❌ Video ${videoId} failed in queue:`, error);
+    });
+
+    // برگرداندن فوری videoId
+    res.json({
+      success: true,
+      videoId: videoId,
+      status: 'queued',
+      message: 'ویدیو به صف اضافه شد - سرور همه چیز را انجام می‌دهد',
+      queuePosition: videoQueueManager.getQueueStatus().queue.length
+    });
+
+  } catch (error) {
+    console.error('Error queueing video:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to queue video',
+      details: error.message
+    });
+  }
+});
+
+// تابع تولید کامل ویدیو در بکند (تصاویر + صدا + ویدیو)
+async function generateCompleteVideoInBackend(script, audioSettings, req) {
+  try {
+    console.log('🎬 Starting FULL backend video generation...');
+    console.log(`📊 Generating ${script.scenes.length} images...`);
+    
+    // Step 1: تولید تصاویر در سرور
+    const images = [];
+    for (let i = 0; i < script.scenes.length; i++) {
+      const scene = script.scenes[i];
+      
+      try {
+        console.log(`🖼️ Generating image ${i + 1}/${script.scenes.length}...`);
+        
+        const imagePrompt = scene.visual_description || scene.image_prompt || 'A beautiful and engaging visual';
+        
+        const imageResponse = await fetch(`${req.protocol}://${req.get('host')}/api/flax/generate-image-url`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: imagePrompt,
+            width: 1080,
+            height: 1920
+          })
+        });
+        
+        const imageResult = await imageResponse.json();
+        
+        if (imageResult.success) {
+          images.push({
+            sceneIndex: i,
+            imageUrl: imageResult.data.image_url,
+            prompt: imagePrompt,
+            scene: scene
+          });
+          
+          console.log(`✅ Image ${i + 1} generated successfully`);
+        } else {
+          throw new Error(imageResult.error || 'خطا در تولید تصویر');
+        }
+        
+        // Small delay between requests
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+      } catch (error) {
+        console.error(`❌ Error generating image ${i + 1}:`, error);
+        throw error;
+      }
+    }
+    
+    console.log(`✅ All ${images.length} images generated`);
+    
+    // Step 2: استفاده از تابع موجود برای تولید صدا و ویدیو
+    console.log('🎤 Now generating audio and composing video...');
+    
+    return await generateCompleteVideoContent(script, images, audioSettings, [], req);
+    
+  } catch (error) {
+    console.error('Error in full backend video generation:', error);
+    throw error;
+  }
+}
+
+// Complete video generation pipeline (LEGACY - with pre-generated images)
 router.post('/generate-complete-video', async (req, res) => {
   try {
     const { script, images, audioSettings = {}, audioResults = [] } = req.body;

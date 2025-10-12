@@ -526,13 +526,304 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
+        /* Responsive Design for Mobile */
         @media (max-width: 768px) {
+            /* جلوگیری از اسکرول افقی */
+            * {
+                max-width: 100vw;
+            }
+            
+            body {
+                padding: 10px;
+                overflow-x: hidden;
+            }
+            
+            .container {
+                max-width: 100vw;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .header {
+                padding: 15px;
+                border-radius: 15px 15px 0 0;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .header p {
+                font-size: 0.9rem;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            /* Steps Indicator - Vertical Layout */
+            .steps-indicator {
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 30px;
+            }
+            
+            .steps-indicator::before {
+                display: none;
+            }
+            
+            .step {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                text-align: right;
+                background: rgba(30, 41, 59, 0.4);
+                backdrop-filter: blur(10px);
+                padding: 12px;
+                border-radius: 12px;
+                border: 2px solid rgba(71, 85, 105, 0.3);
+            }
+            
+            .step.active {
+                border-color: hsl(217, 91%, 60%);
+                background: rgba(59, 130, 246, 0.1);
+            }
+            
+            .step.completed {
+                border-color: #10b981;
+                background: rgba(16, 185, 129, 0.1);
+            }
+            
+            .step-circle {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+                flex-shrink: 0;
+            }
+            
+            .step-label {
+                flex: 1;
+                text-align: right;
+                font-size: 0.9rem;
+            }
+            
+            /* Section Title */
+            .section-title {
+                font-size: 1.3rem;
+            }
+            
+            /* Scene Management */
+            .scene-item {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .scene-header {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .scene-number {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+            
+            .remove-scene-btn {
+                width: 100%;
+                margin-top: 10px;
+                font-size: 0.85rem;
+                padding: 8px 12px;
+            }
+            
+            .add-scene-btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .form-group label {
+                font-size: 0.9rem;
+            }
+            
+            .form-group input,
+            .form-group textarea {
+                font-size: 0.85rem;
+                padding: 10px;
+            }
+            
+            /* Voice Selection - Single Column */
+            .voice-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .voice-card {
+                padding: 15px;
+            }
+            
+            .voice-card h3 {
+                font-size: 1.1rem;
+            }
+            
+            .voice-card p {
+                font-size: 0.85rem;
+            }
+            
+            .voice-icon {
+                font-size: 2rem;
+            }
+            
+            /* Orientation Cards */
             .orientation-grid {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .orientation-card {
+                padding: 20px;
+            }
+            
+            .orientation-card h3 {
+                font-size: 1.1rem;
+            }
+            
+            .orientation-card p {
+                font-size: 0.85rem;
+            }
+            
+            .orientation-icon {
+                font-size: 3rem;
+            }
+            
+            /* Subtitle Controls */
+            .subtitle-controls {
+                padding: 15px;
+            }
+            
+            .subtitle-controls h3 {
+                font-size: 1.1rem;
             }
             
             .control-row {
                 grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .control-group label {
+                font-size: 0.85rem;
+            }
+            
+            .control-group input {
+                padding: 8px;
+                font-size: 0.85rem;
+            }
+            
+            .subtitle-preview {
+                padding: 20px;
+                min-height: 150px;
+            }
+            
+            .subtitle-text {
+                font-size: 18px;
+            }
+            
+            /* Button Group - Vertical */
+            .button-group {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+                width: 100%;
+                min-height: 44px;
+            }
+            
+            /* Summary Container */
+            #summaryContainer {
+                max-width: 100%;
+                padding: 0 10px;
+            }
+            
+            #summaryContainer > div {
+                padding: 12px;
+                font-size: 0.85rem;
+            }
+            
+            /* Status and Progress */
+            .status {
+                padding: 12px;
+                font-size: 0.85rem;
+            }
+            
+            .progress-bar {
+                margin: 15px 0;
+            }
+            
+            /* Video Result */
+            .video-result {
+                padding: 15px;
+            }
+            
+            video {
+                border-radius: 10px;
+            }
+        }
+        
+        /* موبایل‌های خیلی کوچک */
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .header h1 {
+                font-size: 1.3rem;
+            }
+            
+            .content {
+                padding: 10px;
+            }
+            
+            .section-title {
+                font-size: 1.1rem;
+            }
+            
+            .scene-item {
+                padding: 12px;
+            }
+            
+            .voice-card,
+            .orientation-card {
+                padding: 12px;
+            }
+            
+            .subtitle-controls {
+                padding: 12px;
+            }
+            
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+            }
+            
+            .subtitle-text {
+                font-size: 16px;
+            }
+            
+            .step {
+                padding: 10px;
+            }
+            
+            .step-circle {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+            
+            .step-label {
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -1196,26 +1487,63 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    showProgress(100, 'تکمیل شد! ✅');
-                    showStatus('🎉 ویدیو با موفقیت ساخته شد!', 'success');
+                    // Check if video is queued (async processing) or completed (sync processing)
+                    if (result.status === 'queued' || result.videoId) {
+                        // Video added to queue - show queue message
+                        showProgress(50, 'ویدیو به صف اضافه شد');
+                        showStatus(`✅ ویدیو به صف اضافه شد (موقعیت: ${result.queuePosition || 'نامشخص'})`, 'success');
 
-                    const videoResult = document.getElementById('videoResult');
-                    videoResult.innerHTML = `
-                        <h3>📹 ویدیوی تولید شده:</h3>
-                        <video controls style="max-width: 100%; height: auto; margin-top: 20px;">
-                            <source src="${result.data.video_url}" type="video/mp4">
-                            مرورگر شما از پخش ویدئو پشتیبانی نمی‌کند.
-                        </video>
-                        <div style="margin-top: 20px; padding: 20px; background: white; border-radius: 10px; text-align: right;">
-                            <p><strong>⏱️ مدت زمان:</strong> ${result.data.duration} ثانیه</p>
-                            <p><strong>📐 رزولوشن:</strong> ${result.data.resolution}</p>
-                            <p><strong>🎤 صدا:</strong> ${selectedVoice}</p>
-                            <p><strong>📱 جهت:</strong> ${selectedOrientation === 'vertical' ? 'عمودی' : 'افقی'}</p>
-                            <p><strong>🎭 تعداد صحنه‌ها:</strong> ${scenes.length}</p>
-                        </div>
-                    `;
+                        const videoResult = document.getElementById('videoResult');
+                        videoResult.innerHTML = `
+                            <div style="text-align: center; padding: 40px; background: rgba(59, 130, 246, 0.1); border-radius: 15px; margin-top: 20px;">
+                                <h3 style="color: hsl(217, 91%, 60%); margin-bottom: 20px;">⏳ ویدیو در حال پردازش است</h3>
+                                <p style="color: var(--text-primary); margin-bottom: 15px;">
+                                    ویدیوی شما به صف اضافه شده و در حال پردازش در سرور است.
+                                </p>
+                                <p style="color: rgba(226, 232, 240, 0.7); margin-bottom: 20px;">
+                                    <strong>شناسه ویدیو:</strong> ${result.videoId || 'نامشخص'}
+                                </p>
+                                <p style="color: rgba(226, 232, 240, 0.7); margin-bottom: 20px;">
+                                    می‌توانید این صفحه را ببندید و بعداً از بخش 
+                                    <a href="/video-queue.html" style="color: hsl(217, 91%, 60%); text-decoration: none;">صف ویدیوها</a>
+                                    یا 
+                                    <a href="/video-history.html" style="color: hsl(217, 91%, 60%); text-decoration: none;">تاریخچه</a>
+                                    وضعیت آن را بررسی کنید.
+                                </p>
+                                <div style="margin-top: 30px;">
+                                    <a href="/video-queue.html" class="btn" style="background: linear-gradient(135deg, hsl(217, 91%, 60%), rgba(168, 85, 247, 0.8)); color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; display: inline-block;">
+                                        <i class="fas fa-list"></i> مشاهده صف ویدیوها
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                        
+                        videoResult.scrollIntoView({ behavior: 'smooth' });
+                    } else if (result.data && result.data.video_url) {
+                        // Video completed immediately (sync processing)
+                        showProgress(100, 'تکمیل شد! ✅');
+                        showStatus('🎉 ویدیو با موفقیت ساخته شد!', 'success');
 
-                    videoResult.scrollIntoView({ behavior: 'smooth' });
+                        const videoResult = document.getElementById('videoResult');
+                        videoResult.innerHTML = `
+                            <h3>📹 ویدیوی تولید شده:</h3>
+                            <video controls style="max-width: 100%; height: auto; margin-top: 20px;">
+                                <source src="${result.data.video_url}" type="video/mp4">
+                                مرورگر شما از پخش ویدئو پشتیبانی نمی‌کند.
+                            </video>
+                            <div style="margin-top: 20px; padding: 20px; background: white; border-radius: 10px; text-align: right;">
+                                <p><strong>⏱️ مدت زمان:</strong> ${result.data.duration || 'نامشخص'} ثانیه</p>
+                                <p><strong>📐 رزولوشن:</strong> ${result.data.resolution || 'نامشخص'}</p>
+                                <p><strong>🎤 صدا:</strong> ${selectedVoice}</p>
+                                <p><strong>📱 جهت:</strong> ${selectedOrientation === 'vertical' ? 'عمودی' : 'افقی'}</p>
+                                <p><strong>🎭 تعداد صحنه‌ها:</strong> ${scenes.length}</p>
+                            </div>
+                        `;
+
+                        videoResult.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        throw new Error('فرمت پاسخ سرور نامعتبر است');
+                    }
                 } else {
                     throw new Error(result.error || 'خطا در تولید ویدئو');
                 }

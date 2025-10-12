@@ -420,7 +420,7 @@
     </style>
 </head>
 <body>
-    <div class="workflow-container">
+    <div class="workflow-container" style="display: none;">
         <!-- Header -->
         <div class="workflow-header">
             <div>
@@ -494,8 +494,23 @@
         </div>
     </div>
 
+    <!-- پیام غیرفعال بودن این بخش -->
+    <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px;">
+        <div style="background: white; padding: 60px 40px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; max-width: 600px;">
+            <div style="font-size: 5rem; margin-bottom: 20px;">🚫</div>
+            <h1 style="color: #667eea; font-size: 2rem; margin-bottom: 15px; font-family: 'Vazirmatn', sans-serif;">این بخش غیرفعال است</h1>
+            <p style="color: #666; font-size: 1.1rem; margin-bottom: 30px; line-height: 1.8; font-family: 'Vazirmatn', sans-serif;">
+                بخش مدیریت ورکفلوها و اتوماسیون در حال حاضر غیرفعال شده است.
+            </p>
+            <a href="/" style="display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; font-weight: 600; font-family: 'Vazirmatn', sans-serif; transition: transform 0.3s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                <span>🏠</span>
+                بازگشت به صفحه اصلی
+            </a>
+        </div>
+    </div>
+
     <!-- Create/Edit Workflow Modal -->
-    <div id="workflowModal" class="modal">
+    <div id="workflowModal" class="modal" style="display: none !important;">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle">ایجاد Workflow جدید</h2>
@@ -620,7 +635,7 @@
     </div>
 
     <!-- Custom Workflow Modal -->
-    <div id="customWorkflowModal" class="modal">
+    <div id="customWorkflowModal" class="modal" style="display: none !important;">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>ایجاد Workflow سفارشی</h2>
@@ -771,7 +786,7 @@
     </div>
 
     <!-- Long Form Video Workflow Modal -->
-    <div id="longFormWorkflowModal" class="modal">
+    <div id="longFormWorkflowModal" class="modal" style="display: none !important;">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>ایجاد ویدیو بلند زمان‌بندی شده</h2>

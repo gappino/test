@@ -331,4 +331,61 @@ router.get('/serve/:imageId', async (req, res) => {
   }
 });
 
+// Delete all images endpoint
+router.delete('/delete-all', async (req, res) => {
+  try {
+    const directories = [
+      { path: path.join(__dirname, '../uploads'), category: 'uploaded' },
+      { path: path.join(__dirname, '../generation'), category: 'generated' },
+      { path: path.join(__dirname, '../output'), category: 'output' },
+      { path: path.join(__dirname, '../temp'), category: 'temp' }
+    ];
+    
+    let deletedCount = 0;
+    let errorCount = 0;
+    
+    // Delete all image files from all directories (except public)
+    for (const dir of directories) {
+      try {
+        if (await fs.pathExists(dir.path)) {
+          const files = await fs.readdir(dir.path);
+          
+          for (const file of files) {
+            const filePath = path.join(dir.path, file);
+            const ext = path.extname(file).toLowerCase();
+            
+            // Only delete image files
+            if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'].includes(ext)) {
+              try {
+                await fs.remove(filePath);
+                deletedCount++;
+              } catch (error) {
+                console.error(`Error deleting ${filePath}:`, error);
+                errorCount++;
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error(`Error processing ${dir.path}:`, error);
+        errorCount++;
+      }
+    }
+    
+    res.json({
+      success: true,
+      message: 'تمام تصاویر با موفقیت حذف شدند',
+      deletedCount: deletedCount,
+      errorCount: errorCount
+    });
+    
+  } catch (error) {
+    console.error('Error deleting all images:', error);
+    res.status(500).json({
+      success: false,
+      error: 'خطا در حذف تصاویر'
+    });
+  }
+});
+
 module.exports = router;

@@ -65,6 +65,24 @@
             transition: all 0.3s ease;
             font-weight: 600;
             font-family: 'Vazirmatn', sans-serif;
+            position: relative;
+            z-index: 10;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* استایل دکمه مشاهده صف ویدیوها */
+        a.filter-btn {
+            border-color: #10b981;
+            color: #10b981;
+        }
+        
+        a.filter-btn:hover {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-color: #10b981;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
         }
 
         .filter-btn.active {
@@ -92,6 +110,11 @@
             align-items: center;
             gap: 8px;
             box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+            position: relative;
+            z-index: 10;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .refresh-btn:hover {
@@ -215,6 +238,9 @@
             transition: all 0.3s ease;
             flex: 1;
             min-width: 80px;
+            position: relative;
+            z-index: 10;
+            touch-action: manipulation;
         }
 
         .btn-play {
@@ -353,35 +379,278 @@
             font-size: 0.9rem;
         }
 
+        /* Mobile Responsive Design */
         @media (max-width: 768px) {
+            /* جلوگیری از اسکرول افقی */
+            body {
+                overflow-x: hidden;
+            }
+            
             .video-history-container {
+                padding: 10px;
+                max-width: 100vw;
+            }
+
+            /* History Header */
+            .history-header {
                 padding: 15px;
+                margin-bottom: 20px;
             }
-
+            
             .history-header h1 {
-                font-size: 2rem;
+                font-size: 1.5rem;
             }
 
+            .history-header p {
+                font-size: 0.9rem;
+            }
+
+            /* Stats */
+            .stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .stat-card {
+                padding: 12px;
+            }
+
+            .stat-number {
+                font-size: 1.5rem;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+            }
+
+            /* Controls */
             .controls {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 12px;
             }
 
             .filter-buttons {
                 justify-content: center;
+                gap: 8px;
             }
 
+            .filter-btn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+            
+            /* دکمه مشاهده صف ویدیوها در تبلت */
+            a.filter-btn {
+                width: 100%;
+                margin-top: 8px;
+            }
+
+            .refresh-btn {
+                width: 100%;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+                justify-content: center;
+            }
+
+            /* Videos Grid - Single Column */
             .videos-grid {
                 grid-template-columns: 1fr;
-                gap: 20px;
+                gap: 15px;
             }
 
+            /* Video Card */
+            .video-card {
+                margin-bottom: 15px;
+            }
+
+            .video-preview {
+                height: 180px;
+            }
+
+            .video-info {
+                padding: 15px;
+            }
+
+            .video-title {
+                font-size: 1rem;
+                word-break: break-word;
+            }
+
+            .video-meta {
+                font-size: 0.85rem;
+                gap: 6px;
+            }
+
+            .video-meta div {
+                font-size: 0.8rem;
+            }
+
+            /* Status Badge */
+            .status-badge {
+                padding: 4px 10px;
+                font-size: 0.75rem;
+            }
+
+            /* Video Actions - Vertical */
             .video-actions {
                 flex-direction: column;
+                gap: 8px;
             }
 
             .action-btn {
-                flex: none;
+                width: 100%;
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                min-height: 44px;
+                z-index: 20;
+            }
+            
+            /* غیرفعال کردن hover effects در موبایل */
+            .video-card:hover {
+                transform: none;
+            }
+            
+            .action-btn:hover,
+            .filter-btn:hover,
+            .refresh-btn:hover {
+                transform: none;
+            }
+            
+            /* اطمینان از اینکه دکمه‌ها clickable هستند */
+            .action-btn,
+            .filter-btn,
+            .refresh-btn {
+                pointer-events: auto;
+            }
+
+            /* Progress Container */
+            .progress-container {
+                padding: 8px;
+                margin: 12px 0;
+            }
+
+            .progress-bar {
+                height: 6px;
+                margin-bottom: 6px;
+            }
+
+            .progress-text {
+                font-size: 0.75rem;
+            }
+
+            /* Empty State */
+            .empty-state {
+                padding: 40px 15px;
+            }
+
+            .empty-state i {
+                font-size: 3rem;
+            }
+
+            .empty-state h3 {
+                font-size: 1.1rem;
+            }
+
+            .empty-state p {
+                font-size: 0.9rem;
+            }
+
+            /* Loading */
+            .loading {
+                padding: 30px;
+            }
+
+            .loading i {
+                font-size: 1.5rem;
+            }
+
+            .loading p {
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* موبایل‌های خیلی کوچک */
+        @media (max-width: 480px) {
+            .video-history-container {
+                padding: 5px;
+            }
+
+            .history-header {
+                padding: 12px;
+            }
+
+            .history-header h1 {
+                font-size: 1.3rem;
+            }
+
+            .history-header p {
+                font-size: 0.8rem;
+            }
+
+            /* Stats - Vertical */
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .stat-card {
+                padding: 10px;
+            }
+
+            .stat-number {
+                font-size: 1.3rem;
+            }
+
+            .stat-label {
+                font-size: 0.7rem;
+            }
+
+            .filter-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            
+            /* دکمه مشاهده صف ویدیوها در موبایل کوچک */
+            a.filter-btn {
+                width: 100%;
+                margin-top: 8px;
+                padding: 10px 16px;
+            }
+
+            .refresh-btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+            }
+
+            .video-preview {
+                height: 150px;
+            }
+
+            .video-info {
+                padding: 12px;
+            }
+
+            .video-title {
+                font-size: 0.95rem;
+            }
+
+            .video-meta div {
+                font-size: 0.75rem;
+            }
+
+            .action-btn {
+                padding: 10px 14px;
+                font-size: 0.8rem;
+            }
+
+            .empty-state {
+                padding: 30px 10px;
+            }
+
+            .empty-state i {
+                font-size: 2.5rem;
             }
         }
     </style>
@@ -402,7 +671,7 @@
                 <div class="stat-number" id="completedVideos">-</div>
                 <div class="stat-label">تکمیل شده</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" style="display: none;">
                 <div class="stat-number" id="processingVideos">-</div>
                 <div class="stat-label">در حال پردازش</div>
             </div>
@@ -412,7 +681,11 @@
             <div class="filter-buttons">
                 <button class="filter-btn active" data-filter="all">همه</button>
                 <button class="filter-btn" data-filter="completed">تکمیل شده</button>
-                <button class="filter-btn" data-filter="processing">در حال پردازش</button>
+                <button class="filter-btn" data-filter="processing" style="display: none;">در حال پردازش</button>
+                <a href="/video-queue.html" class="filter-btn" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                    <span style="margin-left: 5px;">📋</span>
+                    مشاهده صف ویدیوها
+                </a>
             </div>
             <button class="refresh-btn" onclick="loadVideos()">
                 <span>🔄</span>
@@ -440,7 +713,8 @@
 
         // Setup filter buttons
         function setupFilterButtons() {
-            const filterButtons = document.querySelectorAll('.filter-btn');
+            // فقط button های filter را انتخاب می‌کنیم، نه link ها
+            const filterButtons = document.querySelectorAll('button.filter-btn');
             filterButtons.forEach(btn => {
                 btn.addEventListener('click', function() {
                     // Remove active class from all buttons
