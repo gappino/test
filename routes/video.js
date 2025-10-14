@@ -2003,4 +2003,11 @@ router.post('/clear-queue', (req, res) => {
   }
 });
 
-module.exports = router;
+// Export router and helper functions for reuse
+module.exports = {
+  router,
+  removeVideoFromTracking,
+  loadTrackingData,
+  saveTrackingData,
+  updateVideoTracking
+};

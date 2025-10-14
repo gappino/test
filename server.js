@@ -100,7 +100,7 @@ const mockGeminiRoutes = require('./routes/mock-gemini');
 const flaxRoutes = require('./routes/flax');
 const whisperRoutes = require('./routes/whisper');
 const remotionRoutes = require('./routes/remotion');
-const videoRoutes = require('./routes/video');
+const { router: videoRoutes } = require('./routes/video');
 const kokoroRoutes = require('./routes/kokoro');
 const videoHistoryRoutes = require('./routes/video-history');
 // Audio history routes removed

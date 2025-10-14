@@ -3,20 +3,15 @@ const fs = require('fs-extra');
 const path = require('path');
 const router = express.Router();
 
-const TRACKING_FILE = path.join(__dirname, '../video-tracking.json');
+// Import helper functions from video.js
+const { 
+  removeVideoFromTracking,
+  loadTrackingData,
+  saveTrackingData,
+  updateVideoTracking
+} = require('./video');
 
-// Helper function to load tracking data
-async function loadTrackingData() {
-    try {
-        if (await fs.pathExists(TRACKING_FILE)) {
-            const data = await fs.readJson(TRACKING_FILE);
-            return Array.isArray(data) ? data : [];
-        }
-    } catch (error) {
-        console.error('Error loading tracking data:', error);
-    }
-    return [];
-}
+const TRACKING_FILE = path.join(__dirname, '../video-tracking.json');
 
 // Get video history endpoint
 router.get('/history', async (req, res) => {
@@ -211,47 +206,195 @@ router.delete('/delete/:videoId', async (req, res) => {
     const outputDir = path.join(__dirname, '../output');
     const uploadsDir = path.join(__dirname, '../uploads');
     
-    let deleted = false;
+    let fileDeleted = false;
     
     // Try to delete from output directory
     const outputFiles = await fs.readdir(outputDir).catch(() => []);
     for (const file of outputFiles) {
       if (file.includes(videoId)) {
         await fs.unlink(path.join(outputDir, file));
-        deleted = true;
+        fileDeleted = true;
+        console.log(`✅ Deleted video file from output: ${file}`);
         break;
       }
     }
     
     // Try to delete from uploads directory
-    if (!deleted) {
+    if (!fileDeleted) {
       const uploadFiles = await fs.readdir(uploadsDir).catch(() => []);
       for (const file of uploadFiles) {
         if (file.includes(videoId)) {
           await fs.unlink(path.join(uploadsDir, file));
-          deleted = true;
+          fileDeleted = true;
+          console.log(`✅ Deleted video file from uploads: ${file}`);
           break;
         }
       }
     }
     
-    if (!deleted) {
-      return res.status(404).json({
-        success: false,
-        error: 'Video not found'
-      });
+    // Always try to remove from tracking, even if file not found
+    // This fixes the issue with stuck videos that have no files
+    await removeVideoFromTracking(videoId);
+    
+    // Consider it successful if either file was deleted OR tracking entry was removed
+    if (!fileDeleted) {
+      console.log(`⚠️ Video file not found for ${videoId}, but tracking entry removed`);
     }
     
     res.json({
       success: true,
-      message: 'Video deleted successfully'
+      message: 'Video deleted successfully',
+      fileDeleted,
+      trackingRemoved: true
     });
     
   } catch (error) {
     console.error('Error deleting video:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to delete video'
+      error: 'Failed to delete video',
+      details: error.message
+    });
+  }
+});
+
+// Cleanup stuck videos endpoint - updates processing videos that have been stuck for > 1 hour
+router.post('/cleanup-stuck', async (req, res) => {
+  try {
+    const trackingData = await loadTrackingData();
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const cleanedVideos = [];
+    
+    for (let i = 0; i < trackingData.length; i++) {
+      const video = trackingData[i];
+      
+      // Check if video is stuck in processing state for more than 1 hour
+      if (video.status === 'processing') {
+        const updatedAt = new Date(video.updatedAt || video.createdAt);
+        
+        if (updatedAt < oneHourAgo) {
+          // Update status to error
+          trackingData[i] = {
+            ...video,
+            status: 'error',
+            progress: 0,
+            currentStep: 'خطا در تولید',
+            updatedAt: new Date().toISOString(),
+            metadata: {
+              ...video.metadata,
+              errorMessage: 'Processing timeout - video was stuck for more than 1 hour'
+            }
+          };
+          
+          cleanedVideos.push({
+            id: video.id,
+            title: video.title,
+            stuckSince: video.updatedAt || video.createdAt
+          });
+          
+          console.log(`🔧 Cleaned up stuck video: ${video.id} - ${video.title}`);
+        }
+      }
+    }
+    
+    // Save updated tracking data if any videos were cleaned
+    if (cleanedVideos.length > 0) {
+      await saveTrackingData(trackingData);
+      console.log(`✅ Cleaned up ${cleanedVideos.length} stuck video(s)`);
+    }
+    
+    res.json({
+      success: true,
+      message: `Cleaned up ${cleanedVideos.length} stuck video(s)`,
+      cleanedVideos,
+      count: cleanedVideos.length
+    });
+    
+  } catch (error) {
+    console.error('Error cleaning up stuck videos:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to cleanup stuck videos',
+      details: error.message
+    });
+  }
+});
+
+// Bulk delete stuck videos endpoint - removes all videos with processing or error status
+router.delete('/delete-stuck', async (req, res) => {
+  try {
+    const trackingData = await loadTrackingData();
+    const outputDir = path.join(__dirname, '../output');
+    const uploadsDir = path.join(__dirname, '../uploads');
+    
+    const stuckVideos = trackingData.filter(
+      video => video.status === 'processing' || video.status === 'error'
+    );
+    
+    let filesDeleted = 0;
+    let trackingEntriesRemoved = 0;
+    const deletedVideos = [];
+    
+    for (const video of stuckVideos) {
+      let fileDeleted = false;
+      
+      // Try to delete files from both directories
+      try {
+        const outputFiles = await fs.readdir(outputDir).catch(() => []);
+        for (const file of outputFiles) {
+          if (file.includes(video.id)) {
+            await fs.unlink(path.join(outputDir, file));
+            fileDeleted = true;
+            filesDeleted++;
+            console.log(`✅ Deleted file: ${file}`);
+            break;
+          }
+        }
+        
+        if (!fileDeleted) {
+          const uploadFiles = await fs.readdir(uploadsDir).catch(() => []);
+          for (const file of uploadFiles) {
+            if (file.includes(video.id)) {
+              await fs.unlink(path.join(uploadsDir, file));
+              fileDeleted = true;
+              filesDeleted++;
+              console.log(`✅ Deleted file: ${file}`);
+              break;
+            }
+          }
+        }
+      } catch (err) {
+        console.error(`Error deleting file for ${video.id}:`, err.message);
+      }
+      
+      // Remove from tracking
+      await removeVideoFromTracking(video.id);
+      trackingEntriesRemoved++;
+      
+      deletedVideos.push({
+        id: video.id,
+        title: video.title,
+        status: video.status,
+        fileDeleted
+      });
+    }
+    
+    console.log(`🗑️ Bulk delete completed: ${filesDeleted} files, ${trackingEntriesRemoved} tracking entries`);
+    
+    res.json({
+      success: true,
+      message: `Deleted ${trackingEntriesRemoved} stuck video(s)`,
+      filesDeleted,
+      trackingEntriesRemoved,
+      deletedVideos
+    });
+    
+  } catch (error) {
+    console.error('Error bulk deleting stuck videos:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to bulk delete stuck videos',
+      details: error.message
     });
   }
 });
