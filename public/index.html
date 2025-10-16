@@ -21,6 +21,10 @@
                         <i class="fas fa-history"></i>
                         تاریخچه ویدیوها
                     </a>
+                    <button id="testServerLoadBtn" class="btn btn-info">
+                        <i class="fas fa-server"></i>
+                        تست شلوغی سرور
+                    </button>
                     <a href="/workflow-management" class="btn btn-primary" style="display: none;">
                         <i class="fas fa-cogs"></i>
                         مدیریت Workflow ها
@@ -31,6 +35,46 @@
 
         <!-- Main Content -->
         <main class="main-content">
+            <!-- Server Load Test Section -->
+            <section id="serverLoadTestSection" class="server-load-test-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-server"></i> وضعیت سرورهای ارک</h2>
+                        <p>بررسی شلوغی سرورهای گرافیکی ارک</p>
+                    </div>
+                    <div class="card-body">
+                        <div id="serverLoadStatus" class="server-load-status hidden">
+                            <div id="loadStatusIcon" class="load-status-icon">
+                                <i class="fas fa-circle"></i>
+                            </div>
+                            <div id="loadStatusText" class="load-status-text">
+                                <h3 id="loadStatusTitle">در حال بررسی...</h3>
+                                <p id="loadStatusMessage">لطفاً صبر کنید</p>
+                                <div id="loadStatusDetails" class="load-status-details hidden">
+                                    <div class="status-detail">
+                                        <span class="detail-label">زمان پاسخ:</span>
+                                        <span id="responseTime" class="detail-value">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Server Load Guidelines -->
+                        <div id="serverLoadGuidelines" class="server-load-guidelines hidden">
+                            <div class="guidelines-header">
+                                <i class="fas fa-info-circle"></i>
+                                <h4>راهنمای استفاده از سرور</h4>
+                            </div>
+                            <div class="guidelines-content">
+                                <div id="guidelinesText" class="guidelines-text">
+                                    <!-- Dynamic content will be inserted here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Idea Generation Section -->
             <section class="idea-generation-section">
                 <div class="card">

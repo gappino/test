@@ -48,6 +48,18 @@ const videoContainer = document.getElementById('videoContainer');
 const currentStepText = document.getElementById('currentStepText');
 const estimatedTime = document.getElementById('estimatedTime');
 
+// Server Load Test Elements
+const testServerLoadBtn = document.getElementById('testServerLoadBtn');
+const serverLoadTestSection = document.getElementById('serverLoadTestSection');
+const serverLoadStatus = document.getElementById('serverLoadStatus');
+const loadStatusIcon = document.getElementById('loadStatusIcon');
+const loadStatusTitle = document.getElementById('loadStatusTitle');
+const loadStatusMessage = document.getElementById('loadStatusMessage');
+const loadStatusDetails = document.getElementById('loadStatusDetails');
+const responseTime = document.getElementById('responseTime');
+const serverLoadGuidelines = document.getElementById('serverLoadGuidelines');
+const guidelinesText = document.getElementById('guidelinesText');
+
 // Direct TTS Elements (moved to separate test page)
 // const directTtsText = document.getElementById('directTtsText');
 // const directTtsVoice = document.getElementById('directTtsVoice');
@@ -1149,11 +1161,180 @@ function closePageWarningNotification() {
     }
 }
 
+// Server Load Test Functions
+async function testServerLoad() {
+    try {
+        // Show loading state
+        testServerLoadBtn.disabled = true;
+        testServerLoadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال بررسی...';
+        
+        // Show server load test section
+        serverLoadTestSection.classList.remove('hidden');
+        serverLoadStatus.classList.remove('hidden');
+        serverLoadGuidelines.classList.add('hidden');
+        
+        // Set loading state
+        loadStatusIcon.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        loadStatusIcon.style.color = '#3b82f6';
+        loadStatusTitle.textContent = 'در حال بررسی سرور...';
+        loadStatusMessage.textContent = 'در حال ارسال درخواست به سرورهای ارک';
+        loadStatusDetails.classList.add('hidden');
+        
+        // Make request to test server load
+        const response = await fetch('/api/flax/test-server-load', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        // Update UI based on result
+        updateServerLoadStatus(result);
+        
+    } catch (error) {
+        console.error('Server load test error:', error);
+        
+        // Show error state
+        loadStatusIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+        loadStatusIcon.style.color = '#ef4444';
+        loadStatusTitle.textContent = 'خطا در بررسی سرور';
+        loadStatusMessage.textContent = 'خطا در ارتباط با سرور: ' + error.message;
+        loadStatusDetails.classList.add('hidden');
+        
+    } finally {
+        // Reset button state
+        testServerLoadBtn.disabled = false;
+        testServerLoadBtn.innerHTML = '<i class="fas fa-server"></i> تست شلوغی سرور';
+    }
+}
+
+function updateServerLoadStatus(result) {
+    // Update status icon and colors based on load status
+    const loadStatus = result.loadStatus;
+    
+    // Remove existing status classes
+    serverLoadStatus.removeAttribute('data-status');
+    
+    if (loadStatus === 'شلوغی متوسط') {
+        loadStatusIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+        loadStatusIcon.style.color = '#10b981';
+        serverLoadStatus.setAttribute('data-status', 'good');
+    } else if (loadStatus === 'شلوغی زیاد') {
+        loadStatusIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+        loadStatusIcon.style.color = '#f59e0b';
+        serverLoadStatus.setAttribute('data-status', 'warning');
+    } else {
+        loadStatusIcon.innerHTML = '<i class="fas fa-times-circle"></i>';
+        loadStatusIcon.style.color = '#ef4444';
+        serverLoadStatus.setAttribute('data-status', 'error');
+    }
+    
+    // Update status text
+    loadStatusTitle.textContent = loadStatus;
+    loadStatusMessage.textContent = result.message || 'نتیجه تست سرور';
+    
+    // Show details if available
+    if (result.responseTime !== undefined) {
+        loadStatusDetails.classList.remove('hidden');
+        
+        if (result.responseTime !== undefined) {
+            responseTime.textContent = result.responseTime + 'ms';
+        }
+    }
+    
+    // Determine notification type
+    let notificationType = 'info';
+    if (loadStatus === 'شلوغی متوسط') {
+        notificationType = 'success';
+    } else if (loadStatus === 'شلوغی زیاد') {
+        notificationType = 'warning';
+    } else {
+        notificationType = 'error';
+    }
+    
+    // Show notification
+    showNotification(result.message || `وضعیت سرور: ${loadStatus}`, notificationType);
+    
+    // Show guidelines based on server status
+    showServerLoadGuidelines(loadStatus);
+}
+
+function showServerLoadGuidelines(loadStatus) {
+    // Show guidelines section
+    serverLoadGuidelines.classList.remove('hidden');
+    
+    let guidelinesContent = '';
+    
+    if (loadStatus === 'شلوغی متوسط') {
+        guidelinesContent = `
+            <p>
+                <strong class="success-text">✅ وضعیت مناسب!</strong> 
+                در حال حاضر می‌توانید به راحتی ویدیو بسازید.
+            </p>
+            <p>
+                سرور در حالت متعادل قرار دارد و تمامی قابلیت‌های سیستم در دسترس هستند. 
+                می‌توانید بدون نگرانی از تولید ویدیو، تصاویر و سایر محتواها استفاده کنید.
+            </p>
+        `;
+    } else if (loadStatus === 'شلوغی زیاد') {
+        guidelinesContent = `
+            <p>
+                <strong class="warning-text">⚠️ شلوغی زیاد!</strong> 
+                توصیه می‌شود از ساخت ویدیو خودداری کنید.
+            </p>
+            <p>
+                در حال حاضر سرور تحت فشار قرار دارد و ممکن است با خطاهای ساخت مواجه شوید. 
+                این موضوع به دلیل استفاده همزمان تعداد زیادی کاربر از سیستم است.
+            </p>
+            <p>
+                <strong>راه حل:</strong> در صورت نیاز فوری، با بخش پشتیبانی تماس بگیرید تا 
+                راه‌حل‌های شخصی‌سازی شده دریافت کنید.
+            </p>
+            <a href="https://t.me/arkk_support" target="_blank" class="support-link">
+                <i class="fab fa-telegram"></i>
+                تماس با پشتیبانی
+            </a>
+        `;
+    } else {
+        guidelinesContent = `
+            <p>
+                <strong class="error-text">🚨 سرور تحت فشار حداکثری!</strong> 
+                لطفاً از ساخت ویدیو خودداری کنید.
+            </p>
+            <p>
+                سرور در حال حاضر تحت فشار حداکثری قرار دارد و احتمال بروز خطا در ساخت ویدیو بسیار بالاست. 
+                این وضعیت معمولاً به دلیل استفاده بیش از حد کاربران از سیستم رخ می‌دهد.
+            </p>
+            <p>
+                <strong>متأسفانه بسیاری از کاربران این وضعیت را رعایت نمی‌کنند</strong> و باعث 
+                افزایش فشار بر روی سرور می‌شوند.
+            </p>
+            <p>
+                <strong>راه حل تخصصی:</strong> اگر می‌خواهید از صف سرور جدا باشید و به صورت 
+                شخصی‌سازی شده عمل کنید، حتماً با بخش پشتیبانی در میان بگذارید.
+            </p>
+            <a href="https://t.me/arkk_support" target="_blank" class="support-link">
+                <i class="fab fa-telegram"></i>
+                تماس با پشتیبانی - @arkk_support
+            </a>
+        `;
+    }
+    
+    guidelinesText.innerHTML = guidelinesContent;
+}
+
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
     console.log('AI Video Maker initialized');
     loadAvailableVoices();
+    
+    // Add event listener for server load test button
+    if (testServerLoadBtn) {
+        testServerLoadBtn.addEventListener('click', testServerLoad);
+    }
     
     // Check if we have a video being generated on page load
     // This helps resume monitoring if user refreshed the page

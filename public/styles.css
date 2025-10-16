@@ -28,6 +28,208 @@
     z-index: 1000;
 }
 
+/* 🔧 Server Load Test Styles */
+.server-load-test-section {
+    margin-bottom: 2rem;
+}
+
+.server-load-status {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+    border-radius: 12px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    transition: all 0.3s ease;
+}
+
+.server-load-status:hover {
+    border-color: rgba(59, 130, 246, 0.3);
+    transform: translateY(-2px);
+}
+
+.load-status-icon {
+    font-size: 2rem;
+    min-width: 3rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.load-status-text {
+    flex: 1;
+}
+
+.load-status-text h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.load-status-text p {
+    color: var(--slate-700);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.load-status-details {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.status-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.detail-label {
+    font-weight: 500;
+    color: var(--slate-700);
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    background: rgba(59, 130, 246, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+}
+
+/* Server Load Status Colors */
+.server-load-status[data-status="good"] {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.1));
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.server-load-status[data-status="warning"] {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1));
+    border-color: rgba(245, 158, 11, 0.2);
+}
+
+.server-load-status[data-status="error"] {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.1));
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Server Load Guidelines Styles */
+.server-load-guidelines {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(16, 185, 129, 0.05));
+    border-radius: 12px;
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    transition: all 0.3s ease;
+}
+
+.server-load-guidelines:hover {
+    border-color: rgba(59, 130, 246, 0.2);
+    transform: translateY(-1px);
+}
+
+.guidelines-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.guidelines-header i {
+    font-size: 1.25rem;
+    color: var(--color-primary);
+}
+
+.guidelines-header h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.guidelines-content {
+    line-height: 1.7;
+}
+
+.guidelines-text {
+    color: var(--slate-700);
+    font-size: 0.95rem;
+}
+
+.guidelines-text p {
+    margin-bottom: 1rem;
+}
+
+.guidelines-text p:last-child {
+    margin-bottom: 0;
+}
+
+.guidelines-text strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.guidelines-text .success-text {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.guidelines-text .warning-text {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.guidelines-text .error-text {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.guidelines-text .support-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--color-primary), #1d4ed8);
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+}
+
+.guidelines-text .support-link:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.guidelines-text .support-link i {
+    font-size: 1rem;
+}
+
+/* Guidelines Animation */
+.server-load-guidelines {
+    animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* 🔙 Back Button */
 .ark-back-btn {
     position: fixed;

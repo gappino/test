@@ -4,10 +4,10 @@ const fs = require('fs-extra');
 const path = require('path');
 const router = express.Router();
 
-// Pollinations.ai configuration
+// Ark server configuration
 const POLLINATIONS_BASE_URL = 'https://image.pollinations.ai';
 
-// Generate image using Pollinations.ai
+// Generate image using Ark server
 router.post('/generate-image', async (req, res) => {
   try {
     const { prompt } = req.body;
@@ -29,7 +29,7 @@ router.post('/generate-image', async (req, res) => {
       nologo: 'true'
     });
     
-    // Make request to Pollinations.ai
+    // Make request to Ark server
     const pollinationsUrl = `${POLLINATIONS_BASE_URL}/prompt/${encodeURIComponent(prompt)}?${params.toString()}`;
     
     // First, make a request to generate the image
@@ -79,7 +79,7 @@ router.post('/generate-image', async (req, res) => {
     if (error.response) {
       res.status(error.response.status).json({
         success: false,
-        error: 'Pollinations.ai API error',
+        error: 'Ark server API error',
         details: error.response.statusText
       });
     } else if (error.code === 'ECONNABORTED') {
@@ -109,7 +109,7 @@ router.post('/generate-image-url', async (req, res) => {
       });
     }
     
-    // Create direct URL for Pollinations.ai
+    // Create direct URL for Ark server
     const params = new URLSearchParams({
       prompt: prompt,
       width: width.toString(),
@@ -198,11 +198,11 @@ router.post('/generate-horizontal-image-url', async (req, res) => {
       });
     }
     
-    console.log('🖼️ Generating horizontal image with Pollinations.ai...');
+    console.log('🖼️ Generating horizontal image with Ark server...');
     console.log('📝 Prompt:', prompt);
     console.log('📐 Dimensions:', `${width}x${height}`);
     
-    // Create direct URL for Pollinations.ai with horizontal dimensions
+    // Create direct URL for Ark server with horizontal dimensions
     const params = new URLSearchParams({
       prompt: prompt,
       width: width.toString(),
@@ -286,7 +286,7 @@ router.post('/generate-horizontal-image-url', async (req, res) => {
   }
 });
 
-// Check Pollinations.ai status
+// Check Ark server status
 router.get('/status', async (req, res) => {
   try {
     // Simple health check
@@ -296,15 +296,93 @@ router.get('/status', async (req, res) => {
     
     res.json({
       success: true,
-      status: 'Pollinations.ai is accessible',
-      service: 'Pollinations.ai'
+      status: 'Ark server is accessible',
+      service: 'Ark server'
     });
     
   } catch (error) {
     res.json({
       success: false,
-      status: 'Pollinations.ai not accessible',
+      status: 'Ark server not accessible',
       error: error.message
+    });
+  }
+});
+
+// Test server load by checking models endpoint
+router.get('/test-server-load', async (req, res) => {
+  const startTime = Date.now();
+  
+  try {
+    console.log('🔍 Testing Ark server load...');
+    
+    // Make request to models endpoint with timeout
+    const response = await axios.get(`${POLLINATIONS_BASE_URL}/models`, {
+      timeout: 15000, // 15 seconds timeout
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'ArkPlus-ServerLoadTest/1.0'
+      }
+    });
+    
+    const responseTime = Date.now() - startTime;
+    
+    // Check if response contains models array
+    if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+      console.log('✅ Ark server responded with models:', response.data);
+      
+      let loadStatus;
+      if (responseTime < 3000) {
+        loadStatus = 'شلوغی متوسط';
+      } else if (responseTime < 8000) {
+        loadStatus = 'شلوغی زیاد';
+      } else {
+        loadStatus = 'شلوغی متوسط';
+      }
+      
+      res.json({
+        success: true,
+        loadStatus: loadStatus,
+        responseTime: responseTime,
+        models: response.data,
+        message: `سرور در حالت ${loadStatus} است. زمان پاسخ: ${responseTime}ms`
+      });
+      
+    } else {
+      console.log('⚠️ Ark server responded but no models found');
+      res.json({
+        success: false,
+        loadStatus: 'سرور تحت فشار حداکثری هست',
+        responseTime: responseTime,
+        error: 'پاسخ غیرمنتظره از سرور',
+        message: 'سرور تحت فشار حداکثری هست - پاسخ نامعتبر دریافت شد'
+      });
+    }
+    
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error('❌ Ark server load test failed:', error.message);
+    
+    let loadStatus = 'سرور تحت فشار حداکثری هست';
+    let message = 'سرور تحت فشار حداکثری هست';
+    
+    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+      loadStatus = 'شلوغی زیاد';
+      message = 'شلوغی زیاد - سرور خیلی کند پاسخ می‌دهد';
+    } else if (error.response) {
+      const statusCode = error.response.status;
+      if (statusCode === 502 || statusCode === 503 || statusCode === 504) {
+        loadStatus = 'سرور تحت فشار حداکثری هست';
+        message = 'سرور تحت فشار حداکثری هست - خطای سرور';
+      }
+    }
+    
+    res.json({
+      success: false,
+      loadStatus: loadStatus,
+      responseTime: responseTime,
+      error: error.message,
+      message: message
     });
   }
 });
